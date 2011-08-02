@@ -1,25 +1,5 @@
 <?php
-	require("xml2array.php");
-	
-	$xml_filename = "config\config.xml";
-	$arr = xmlstr_to_array($xml_filename);
-	
-	$Blades = $arr["blades"]["blade"];
-	$DataTables = $arr["data-tables"];
-	
-	/*
-	foreach($Blades as $blade)
-	{
-		echo "name = ".$blade["@attributes"]["name"]."</BR>";
-		foreach($blade as $key=>$value)
-		{
-			echo "$key = $value</BR>";
-		}
-		echo "</BR>";
-	}
-	echo "</BR>";
-	 * *
-	 */
+	include("bin/load_config.php");
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
@@ -29,12 +9,37 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>query dispatcher</title>
 		<meta name="author" content="Gadi">
-		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script type="text/javascript" src="js/loadData.js"></script>
+		<script type="text/javascript">
+		$(document).ready(function() {
+			$("#testConnection").click(function() {
+					$.preLoadImages("images/ajax-loader.gif");
+  					$('#myContainer').html('<p><img src="images/ajax-loader.gif"/></p>');
+					$.post("query_backend.php", { func: "testConnection", blade: $("#mySelect").val() },
+					function(data){
+						 var result = data.result + "</BR>";
+						 $("#myContainer").html(result);
+					}, "json");	
+			});
+		});
+		</script>
 		<style type="text/css"></style>
 	</head>
 	<body>
-		
-		<input type="button" id="testConnection" value="test connection" />
+		<form>
+			<select id="mySelect">
+				<?php
+					foreach($Blades as $blade)
+					{
+						$name = $blade["@attributes"]["name"];
+						if($name!="")
+							echo "<option>$name</option>";
+					}
+				?>
+			</select>
+			<input type="button" id="testConnection" value="test connection" />
+		</form>
 		<div id="myContainer"></div>
 	</body>
 </html>
