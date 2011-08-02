@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+	
+	<blades>
+		<blade name="B4">
+			<host>localhost</host>
+			<port>5554</port>
+			<user>codeLimited</user>
+			<pass></pass>
+			<db>DIMES_DISTANCES</db>
+			<write-db>DIMES_POPS_VISUAL</write-db>
+		</blade>
+		<blade name="B1">
+			<host>localhost</host>
+			<port>5551</port>
+			<user>codeLimited</user>
+			<pass></pass>
+			<db>DIMES</db>
+			<write-db>DIMES_PLAYGROUND</write-db>			
+		</blade>
+	</blades>
+	
+	<data-tables>
+		<ip-edges>
+			<schema>DIMES_DISTANCES</schema>
+			<prefix>IPEdgesMedianTbl</prefix>
+		</ip-edges>
+		<pop-locations>
+			<schema>DIMES_DISTANCES</schema>
+			<prefix>PoPLocationTbl</prefix>
+		</pop-locations>
+		<popip>
+			<schema>DIMES_DISTANCES</schema>
+			<prefix>PoPIPTbl</prefix>			
+		</popip>
+		<as-info>
+			<schema>DIMES</schema>
+			<prefix>ASInfoTbl</prefix>				
+		</as-info>
+	</data-tables>
+	
+</config>

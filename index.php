@@ -1,7 +1,7 @@
 <?php
-$pop_xml = simplexml_load_file("pop.xml");
-$EDGES_xml = simplexml_load_file("edges.xml");
-$asn_info_xml = simplexml_load_file("ASN_info.xml");
+$pop_xml = simplexml_load_file("xml\pop.xml");
+$EDGES_xml = simplexml_load_file("xml\edges.xml");
+$asn_info_xml = simplexml_load_file("xml\ASN_info.xml");
 
 $ASN_LIST=array();
 $EDGES=array();
