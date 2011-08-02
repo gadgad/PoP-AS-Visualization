@@ -19,7 +19,7 @@
 		$database = (string)$blade["db"];
 		 
 		if(isset($pass) && $pass!=""){
-			$linkID = mysql_connect($host, $user, $pass) or ret_res("Could not connect to host. pass: ".$pass);
+			$linkID = mysql_connect($host, $user, $pass) or ret_res("Could not connect to host.");
 		} else {
 			$linkID = mysql_connect($host, $user) or ret_res("Could not connect to host.");
 		} 
