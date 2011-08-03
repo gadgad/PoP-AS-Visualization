@@ -1,4 +1,5 @@
 <?php
+include("../bin/load_config.php");
 
 $host = "localhost:5554"; 
 $user = "codeLimited"; 
