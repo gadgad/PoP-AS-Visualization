@@ -2,6 +2,12 @@
 	include("bin/load_config.php");
 	
 	////// globals
+	if(!isset($_POST["blade"]))
+	{
+		echo "yes..how can I help you?";
+		die();
+	}
+	
 	$selected_blade = $_POST["blade"];
 	$blade = $Blade_Map[$selected_blade];
 	$host = (string)$blade["host"];
