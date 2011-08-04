@@ -13,13 +13,11 @@
 		<script type="text/javascript">
 		$(document).ready(function() {
 			globalData.blade = $("#mySelect").val();
+			testConnection("#myContainer");
+			sql2html("show processlist","#tableArea");
 			$("#mySelect").change(function() {
 				globalData.blade = $("#mySelect").val();
-			});
-			$("#testConnection").click(function() {
 				testConnection("#myContainer");
-			});
-			$("#showProcessList").click(function() {
 				sql2html("show processlist","#tableArea");
 			});
 		});
@@ -38,9 +36,7 @@
 					}
 				?>
 			</select>
-			<input type="button" id="testConnection" value="test connection" />
 			<div id="myContainer"></div></br>
-			<input type="button" id="showProcessList" value="show process list" />
 			<div id="tableArea"></div></br>
 		</form>
 	</body>
