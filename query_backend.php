@@ -49,7 +49,7 @@
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
 		}
 		
-		$query = "show processlist"; 
+		$query = $_POST["sql"];
 		$result = $mysqli->query($query) or ret_res("Data not found."); 
 
 		$xml_output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"; 
