@@ -12,14 +12,15 @@
 		<script type="text/javascript" src="js/loadData.js"></script>
 		<script type="text/javascript">
 		$(document).ready(function() {
+			globalData.blade = $("#mySelect").val();
+			$("#mySelect").change(function() {
+				globalData.blade = $("#mySelect").val();
+			});
 			$("#testConnection").click(function() {
-					$.preLoadImages("images/ajax-loader.gif");
-  					$('#myContainer').html('<p><img src="images/ajax-loader.gif"/></p>');
-					$.post("query_backend.php", { func: "testConnection", blade: $("#mySelect").val() },
-					function(data){
-						 var result = data.result + "</BR>";
-						 $("#myContainer").html(result);
-					}, "json");	
+				testConnection("#myContainer");
+			});
+			$("#showProcessList").click(function() {
+				sql2html("show processlist","#tableArea");
 			});
 		});
 		</script>
@@ -38,7 +39,9 @@
 				?>
 			</select>
 			<input type="button" id="testConnection" value="test connection" />
+			<div id="myContainer"></div></br>
+			<input type="button" id="showProcessList" value="show process list" />
+			<div id="tableArea"></div></br>
 		</form>
-		<div id="myContainer"></div>
 	</body>
 </html>

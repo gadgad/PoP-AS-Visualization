@@ -1,6 +1,10 @@
 <?php
 	include("bin/load_config.php");
 	
+	// Turn off all error reporting
+	error_reporting(0);
+		
+	
 	////// globals
 	if(!isset($_POST["blade"]))
 	{
@@ -19,15 +23,13 @@
 	
 	function ret_res($message)
 	{
+		header('Content-type: application/json');
 		echo json_encode(array("result"=>$message));
 		die();	
 	}
 	
 	if($_POST["func"]=="testConnection")
 	{
-		// Turn off all error reporting
-		error_reporting(0);
-		
 		if(isset($pass) && $pass!=""){
 			$linkID = mysql_connect($hostNport, $user, $pass) or ret_res("Could not connect to host.");
 		} else {
@@ -39,16 +41,16 @@
 	}
 	
 
-	if($_POST["func"]=="getProcessListXML")
+	if($_POST["func"]=="SQL2XML")
 	{
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		
 		if ($mysqli->connect_error) {
- 		   die('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
 		}
 		
 		$query = "show processlist"; 
-		$result = $mysqli->query($query) or die("Data not found."); 
+		$result = $mysqli->query($query) or ret_res("Data not found."); 
 
 		$xml_output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"; 
 		$xml_output .= "<DATA>\n"; 
