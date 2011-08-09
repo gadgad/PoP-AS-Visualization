@@ -71,6 +71,7 @@
 			echo $xml_output;
 			
 		}
+		$mysqli->close();
 	}
 
 ?>

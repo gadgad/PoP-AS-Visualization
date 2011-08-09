@@ -1,27 +1,39 @@
 <?php
-	include("bin/load_config.php");
+	include("bin/load_config.php");	
+		
+	// Turn off all error reporting
+	error_reporting(0);
+		
+	
+	////// globals
+	if(!isset($_POST["blade"]))
+	{
+		echo "You are not permited to this page!";
+		die();
+	}
+	
+	$selected_blade = $_POST["blade"];
+	$blade = $Blade_Map[$selected_blade];
+	$host = (string)$blade["host"];
+	$port = (int)$blade["port"];
+	$hostNport = (string)$blade["host"].":".(string)$blade["port"];
+	$user = (string)$blade["user"];
+	$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+	$database = (string)$blade["db"];
 	
 	function ret_res($message, $type)
 	{
+		header('Content-type: application/json');
 		echo json_encode(array("result"=>$message ,"type"=>$type));
 		die();	
 	}
 	
 	if($_POST["func"]=="testConnection")
-	{
-		// Turn off all error reporting
-		error_reporting(0);
-		$selected_blade = $_POST["blade"];
-		$blade = $Blade_Map[$selected_blade];
-		$host = (string)$blade["host"].":".(string)$blade["port"];
-		$user = (string)$blade["user"];
-		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
-		$database = (string)$blade["db"];
-		 
+	{ 
 		if(isset($pass) && $pass!=""){
-			$linkID = mysql_connect($host, $user, $pass) or ret_res("Could not connect to host. Try again later.", "ERROR");
+			$linkID = mysql_connect($hostNport, $user, $pass) or ret_res("Could not connect to host. Try again later.", "ERROR");
 		} else {
-			$linkID = mysql_connect($host, $user) or ret_res("Could not connect to host.  Try again later.", "ERROR");
+			$linkID = mysql_connect($hostNport, $user) or ret_res("Could not connect to host.  Try again later.", "ERROR");
 		} 
 		mysql_select_db($database, $linkID) or ret_res("Could not find database. Choose another blade.", "ERROR");
 		mysql_close($linkID);
@@ -31,115 +43,69 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
     
     
-    function getYear($tableName){
-    	return "2010";
-    }
-    
-    function getWeek($tableName){
-    	return "32";
-    }
-    
-    
-	if($_POST["func"]=="showYear")
+	if($_POST["func"]=="showTables")
 	{
-		// Turn off all error reporting		
-		$selected_blade = $_POST["blade"];
-		$blade = $Blade_Map[$selected_blade];
-		$host = (string)$blade["host"].":".(string)$blade["port"];
-		$user = (string)$blade["user"];
-		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
-		$database = (string)$blade["db"];		
-		 
-		if(isset($pass) && $pass!=""){
-			$linkID = mysql_connect($host, $user, $pass) or ret_res("Could not connect to host.");
-		} else {
-			$linkID = mysql_connect($host, $user) or ret_res("Could not connect to host.");
-		} 
-		mysql_select_db($database, $linkID) or ret_res("Could not find database.");
-                
-        $tables = mysql_query("SHOW TABLES");
-        $years = "";
+				 
+		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		
-	    while($table = mysql_fetch_row($tables)){
-	      	 
-	      $newYear = getYear($table[0]);  	     
-	      if (strrchr($years,$newYear) == FALSE)
-		  {		  
-		  		$years .= " ".$newYear ;
-		  }  
-	        
-	    } 
-        
-        echo json_encode(array("result"=>$weeks));                                    
-		mysql_close($linkID);	
+		if ($mysqli->connect_error) {
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+		}
+		
+		$year = $_POST["year"];
+		$week = $_POST["week"];
+		
+		$table = $DataTables["ip-edges"]["prefix"]; //TODO chage table name              
+		$edges = "";
+		//$query = "show tables like 'IPEdgesMedianTbl_".$year."_week_".$week."%'";
+		$query = "show tables like '".$table."_".$year."%_".$week."%'"; 			    
+        if ($result = $mysqli->query($query)){
+        	 while ($row = $result->fetch_assoc()) {
+		        foreach($row as $key => $value){
+					$edges .= $value . " ";
+				}
+		     }
+        }
+		
+		$table = $DataTables["pop-locations"]["prefix"]; //TODO chage table name
+		$pops = "";
+		$query = "show tables like '".$table."_".$year."%_".$week."%'";
+		
+		if ($result = $mysqli->query($query)){
+        	 while ($row = $result->fetch_assoc()) {
+		        foreach($row as $key => $value){
+					$pops .= $value . " ";
+				}
+		     }
+        }
+	    
+		header('Content-type: application/json');
+        echo json_encode(array("edge"=>$edges,"pop"=>$pops));                                    
+		$mysqli->close();
 	}
 	
-	
-    if($_POST["func"]=="showWeek")
-	{
-		// Turn off all error reporting		
-		$selected_blade = $_POST["blade"];
-		$selected_Year = $_POST["year"];
-		$blade = $Blade_Map[$selected_blade];
-		$host = (string)$blade["host"].":".(string)$blade["port"];
-		$user = (string)$blade["user"];
-		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
-		$database = (string)$blade["db"];
-		 
-		if(isset($pass) && $pass!=""){
-			$linkID = mysql_connect($host, $user, $pass) or ret_res("Could not connect to host.");
-		} else {
-			$linkID = mysql_connect($host, $user) or ret_res("Could not connect to host.");
-		} 
-		mysql_select_db($database, $linkID) or ret_res("Could not find database.");
-                
-        $tables = mysql_query("SHOW TABLES");
-        $weeks = "";
-		
-	    while($table = mysql_fetch_row($tables)){ 
-	       	     
-	      if (getYear($table[0])== $selected_Year)
-		  {
-		  		$newWeek = getWeek($table[0]);	
-		  		$weeks .= " ".$newWeek ;
-		  }  
-	        
-	    } 
-        
-        echo json_encode(array("result"=>$weeks));                                    
-		mysql_close($linkID);	
-	}
-		
 	
 	if($_POST["func"]=="getASlist")
 	{
-		// Turn off all error reporting		
-		$selected_blade = $_POST["blade"];
-		$selected_Year = $_POST["year"];
-		$selected_week = $_POST["week"];
-		$blade = $Blade_Map[$selected_blade];
-		$host = (string)$blade["host"].":".(string)$blade["port"];
-		$user = (string)$blade["user"];
-		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
-		$database = (string)$blade["db"];
-		 
-		if(isset($pass) && $pass!=""){
-			$linkID = mysql_connect($host, $user, $pass) or ret_res("Could not connect to host.");
-		} else {
-			$linkID = mysql_connect($host, $user) or ret_res("Could not connect to host.");
-		} 
-		mysql_select_db($database, $linkID) or ret_res("Could not find database.");
+		$mysqli = new mysqli($host,$user,$pass,$database,$port);
+		
+		if ($mysqli->connect_error) {
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+		}
         
-		$query ="" ; // COMPLETE       
+		// TODO get parameters from POST 
+		
+		$query ="" ; // TODO COMPLETE       
         $results = mysql_query($query);
         $AS = "";
 		
 	    while($result = mysql_fetch_row($results)){
 	  		$AS .= " ".$result ;		  	        
 	    } 
-        
+		
+		header('Content-type: application/text');        
         echo json_encode(array("result"=>$AS));                                    
-		mysql_close($linkID);	
+		$mysqli->close();
 	}
 	
 ?>
