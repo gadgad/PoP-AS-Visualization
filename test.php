@@ -1,5 +1,10 @@
 <?php
 	include("bin/load_config.php");
+	session_start();
+	if(!file_exists('users/' . $_SESSION['username'] . '.xml')){
+		header('Location: welcome.php');
+		die;
+	}
 ?>
 
 
@@ -15,7 +20,7 @@
           <script type="text/javascript">
 			 // Test connection to blade ---------------------------------------------------          
              function testConnection() {             	                
-                $.post("query_backend.php", { func: "testConnection", blade: $("#mySelect").val() },
+                $.post("query_backend_keren.php", { func: "testConnection", blade: $("#mySelect").val() },
                     function(data){
                              var result = data.result;
                              if (data.type =="ERROR")
@@ -23,51 +28,60 @@
                     }, "json");	
              }
              
+             function getTables(){
+             	if ($("#mySelect").val()!="" && $("#year").val()!="" && $("#week").val()!=""){                                   
+                        $.post("query_backend_keren.php", {func: "showTables", blade: $("#mySelect").val(),
+                         year: $("#year").val(),week: $("#week").val()},
+                        function(data){                        			
+	                         
+	                         var allEdges = data.edge;	                      
+	                         if (allEdges!= false){
+	                         	var edges = allEdges.split(" ");
+	                         	for(i = 0; i < edges.length; i++){								
+									$("#Edge").append("<option>" + edges[i] + "</option> "); 									
+								 }
+	                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                        
+	                         
+	                         var allPops = data.pop;
+	                         if (allPops!=false){
+	                         	var pops = allPops.split(" ");
+	                         	for(i = 0; i < pops.length; i++){								
+									$("#PoP").append("<option>" + pops[i] + "</option> ");
+								 }
+	                         }else {$("#PoP").append("<option>No tables available</option> ");}
+	                         
+                        }, "json");	
+                    }
+             } 
+             
+             
+             
             $(document).ready(function() {                   
                     $("#mySelect").change(function() {
-                    	if ($("#mySelect").val() != "Selecte blade"){
+                    	if ($("#mySelect").val() != "Select blade"){
                        		testConnection();
                        	}
                     });
             });
-            
-            //get year by blade ---------------------------------------------------------------
-              $(document).ready(function() {
-                    $("#mySelect").change(function() {                                   
-                        $.post("query_backend_keren.php", {func: "showYear", blade: "B4" },
-                        //$.post("query_backend_keren.php", {func: "showWeek", blade: $("#mySelect").val()},
-                        function(data){                        			
-	                         var allYears = data.result;
-	                         var years = allYears.split(" ");
-	                         
-	                         for(i = 0; i < years.length; i++){								
-								 $("#year").append("<option>" + years[i] + "</option>");								 
-							 }							 
-                        }, "json");	
-                    });
+                                                          
+            //get possible tables ----------------------------------------------------------------------
+            $(document).ready(function() {              	 
+                $("#week").change(function() {
+                	getTables();                    
+                });              
             });
             
-            //get week by year ----------------------------------------------------------------------
-              $(document).ready(function() {
-                    $("#year").change(function() {                                   
-                        $.post("query_backend_keren.php", {func: "showWeek", blade: "B4" , year: $("year").val()},
-                        //$.post("query_backend_keren.php", {func: "showWeek", blade: $("#mySelect").val() , year: $("year").val()},
-                        function(data){                        			
-	                         var allWeeks = data.result;
-	                         var weeks = allWeeks.split(" ");
-	                         
-	                         for(i = 0; i < weeks.length; i++){								
-								$("#week").append("<option>" + weeks[i] + "</option> "); 
-							 }
-	                         
-                        }, "json");	
-                    });
+            $(document).ready(function() {              	 
+                $("#year").change(function() {
+                	getTables();                    
+                });              
             });
             
-            // get all relevant AS by parameters
+            
+            // get all relevant AS by parameters TODO: change click
               $(document).ready(function() {
                     $("#getAS").click(function() {                                                           
-                        $.post("query_backend_keren.php", {func: "getASlist", blade: $("#mySelect").val() , year: $("year").val() , week: $("week").val()},
+                        $.post("query_backend_keren.php", {func: "getASlist", blade: $("#mySelect").val() , edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){                        			
 	                         var allAS = data.result;
 	                         var AS = allAS.split(" ");
@@ -120,6 +134,7 @@
             <div id="header">
                 <h1 style="margin-bottom:10px;text-align:center;color:Navy">PoP/AS Visualizer</h1>
                 <h3 style="text-align: left; margin-left: 5px">Welcome, <?php echo $_SESSION['username']; ?></h3>
+                <a href="logout.php">Logout</a>
             </div>
 						                       
             <div id="user-select" style="margin-left:3%;background-color:#FFD700;color:#333333;width:27%;
@@ -146,20 +161,44 @@
                 </form>                               
                 
                 <form id="AS" name="get AS list" style="font-size:14px;">                               
-                    <h4 style="color:teal; margin-bottom: 10px; font-size:16px;">Select table</h4>
-       
+                    
+                    <h4 style="color:teal; margin-bottom: 10px; font-size:16px;">Select date</h4>       
                     <div align="left">Year :                       
                         <select id="year" >
-                            <option value="">Select year</option>                            
+                            <option value="">Select year</option>
+                            <?php
+                            	$currentYear = 2011; //get current year
+	                            for($i = 2004; $i <= $currentYear; $i++){
+	                            	echo "<option>".$i."</option>";																 								 
+								 }	
+                            ?>                            
                         </select>
                     </div>
 
                      <div align="left">Week:
                         <select id="week">                               
-                            <option selected="selected" value="">Select week</option>                            
+                            <option selected="selected" value="">Select week</option>
+                            <?php                            	
+	                            for($i = 1; $i <= 52; $i++){
+	                            	echo "<option>".$i."</option>";																 								 
+								 }	
+                            ?>                             
                         </select>
-                    </div>                        
-               
+                    </div>
+                    
+                    <h4 style="color:teal; margin-bottom: 10px; font-size:16px;">Select table</h4>                                       
+               		<div align="left">PoP :                       
+                        <select id="PoP" >
+                            <option value="">Select PoP table</option>                            
+                        </select>
+                    </div>
+
+                     <div align="left">Edge:
+                        <select id="Edge">                               
+                            <option selected="selected" value="">Select edge table</option>                            
+                        </select>
+                    </div>
+               		
                		
                     <input id="getAS" type="submit" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
                     
@@ -187,11 +226,6 @@
 					<td>765</td><td>Text 2B</td><td>Text 2C</td><td>Text 2D</td>
 				</tr>
 				</table>
-
-                
-                
-                
-                
                 
                 
             </div>
