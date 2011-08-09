@@ -21,8 +21,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Welcome-Login</title>
-        <!-- <script src="http://code.jquery.com/jquery-latest.js"></script> -->
+        <title>Welcome-Login</title>        
         <script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
         <script type="text/javascript" src="js/loadData.js"></script>            
     </head>
@@ -47,9 +46,9 @@
 						<p style="margin-left: 10px">Username <input type="text" name="username" size="18"/></p>
 						<p style="margin-left: 10px">Password <input type="password" name="password" size="18"/></p>
 						<?php
-						//if($error){
-						//	echo '<p>Invalid username and/or password</p>';
-						//}
+						if($error){
+							echo '<p>Invalid username and/or password</p>';
+						}
 						?>
 						<p style="margin-left: 50px"><input type="submit" value="Login" name="login" /></p>
 					</form>
