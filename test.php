@@ -1,5 +1,10 @@
 <?php
 	include("bin/load_config.php");
+	session_start();
+	if(!file_exists('users/' . $_SESSION['username'] . '.xml')){
+		header('Location: welcome.php');
+		die;
+	}
 ?>
 
 
@@ -10,12 +15,14 @@
         <!-- <script src="http://code.jquery.com/jquery-latest.js"></script> -->
         <script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
         <script type="text/javascript" src="js/loadData.js"></script>
+        <link rel="stylesheet" href="css/jquery.multiselect2side.css" type="text/css" media="screen" />
+		<script type="text/javascript" src="js/jquery.multiselect2side.js" ></script>
           
           
           <script type="text/javascript">
 			 // Test connection to blade ---------------------------------------------------          
              function testConnection() {             	                
-                $.post("query_backend.php", { func: "testConnection", blade: $("#mySelect").val() },
+                $.post("query_backend_keren.php", { func: "testConnection", blade: $("#mySelect").val() },
                     function(data){
                              var result = data.result;
                              if (data.type =="ERROR")
@@ -23,62 +30,89 @@
                     }, "json");	
              }
              
+             function getTables(){
+             	if ($("#mySelect").val()!="" && $("#year").val()!="" && $("#week").val()!=""){                                   
+                        $.post("query_backend_keren.php", {func: "showTables", blade: $("#mySelect").val(),
+                         year: $("#year").val(),week: $("#week").val()},
+                        function(data){                        			
+	                         
+	                         var allEdges = data.edge;	                      
+	                         if (allEdges!= false){
+	                         	var edges = allEdges.split(" ");
+	                         	for(i = 0; i < edges.length; i++){								
+									$("#Edge").append("<option>" + edges[i] + "</option> "); 									
+								 }
+	                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                        
+	                         
+	                         var allPops = data.pop;
+	                         if (allPops!=false){
+	                         	var pops = allPops.split(" ");
+	                         	for(i = 0; i < pops.length; i++){								
+									$("#PoP").append("<option>" + pops[i] + "</option> ");
+								 }
+	                         }else {$("#PoP").append("<option>No tables available</option> ");}
+	                         
+                        }, "json");	
+                    }
+             } 
+             
+             
+             
             $(document).ready(function() {                   
                     $("#mySelect").change(function() {
-                    	if ($("#mySelect").val() != "Selecte blade"){
+                    	if ($("#mySelect").val() != "Select blade"){
                        		testConnection();
                        	}
                     });
             });
-            
-            //get year by blade ---------------------------------------------------------------
-              $(document).ready(function() {
-                    $("#mySelect").change(function() {                                   
-                        $.post("query_backend_keren.php", {func: "showYear", blade: "B4" },
-                        //$.post("query_backend_keren.php", {func: "showWeek", blade: $("#mySelect").val()},
-                        function(data){                        			
-	                         var allYears = data.result;
-	                         var years = allYears.split(" ");
-	                         
-	                         for(i = 0; i < years.length; i++){								
-								 $("#year").append("<option>" + years[i] + "</option>");								 
-							 }							 
-                        }, "json");	
-                    });
+                                                          
+            //get possible tables ----------------------------------------------------------------------
+            $(document).ready(function() {              	 
+                $("#week").change(function() {
+                	getTables();                    
+                });              
             });
             
-            //get week by year ----------------------------------------------------------------------
-              $(document).ready(function() {
-                    $("#year").change(function() {                                   
-                        $.post("query_backend_keren.php", {func: "showWeek", blade: "B4" , year: $("year").val()},
-                        //$.post("query_backend_keren.php", {func: "showWeek", blade: $("#mySelect").val() , year: $("year").val()},
-                        function(data){                        			
-	                         var allWeeks = data.result;
-	                         var weeks = allWeeks.split(" ");
-	                         
-	                         for(i = 0; i < weeks.length; i++){								
-								$("#week").append("<option>" + weeks[i] + "</option> "); 
-							 }
-	                         
-                        }, "json");	
-                    });
+            $(document).ready(function() {              	 
+                $("#year").change(function() {
+                	getTables();                    
+                });              
             });
             
-            // get all relevant AS by parameters
-              $(document).ready(function() {
+            
+            // get all relevant AS by parameters TODO: change click
+            $(document).ready(function() {
                     $("#getAS").click(function() {                                                           
-                        $.post("query_backend_keren.php", {func: "getASlist", blade: $("#mySelect").val() , year: $("year").val() , week: $("week").val()},
+                        $.post("query_backend_keren.php", {func: "getASlist", blade: $("#mySelect").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){                        			
 	                         var allAS = data.result;
 	                         var AS = allAS.split(" ");
 	                         
 	                         for(i = 0; i < AS.length; i++){								
-								$("#ASlist").append("<option>" + AS[i] + "</option> "); 
+								$("#searchable").append("<option>" + AS[i] + "</option> "); 
 							 }
 	                         
                         }, "json");	
+                 $('#searchable').multiselect2side({'search': 'Search: '});
                     });
-            });            
+                    
+                    
+            });
+            
+            /*
+            $().ready(function() {
+				$('#searchable').multiselect2side({'search': 'Search: '});
+			});
+            */
+            
+            // send the query to server
+            $(document).ready(function() {
+                    $("#sendQuery").click(function() {                                                           
+                        $.post("query_backend_keren.php", {func: "sendQuery", blade: $("#mySelect").val() , edge: $("#Edge").val() , pop: $("#PoP").val()},"json");
+                        // TODO: add AS list , update table?                         	
+                    });
+            });
+                        
             </script>
             
             <style type="text/css">
@@ -119,7 +153,8 @@
 
             <div id="header">
                 <h1 style="margin-bottom:10px;text-align:center;color:Navy">PoP/AS Visualizer</h1>
-                <h3 style="text-align: left; margin-left: 5px">Welcome, <?php echo $_SESSION['username']; ?></h3>
+                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $_SESSION['username']; ?></h5>
+                <a href="logout.php" style="text-align: left; margin-left: 5px; margin-bottom: 5px">Logout</a>
             </div>
 						                       
             <div id="user-select" style="margin-left:3%;background-color:#FFD700;color:#333333;width:27%;
@@ -132,8 +167,7 @@
                     Blade:
                     <select id="mySelect">
                     	<option value="">Select blade</option>
-                            <?php
-                            //echo '<option>Select blade</option>';                              
+                            <?php                                                          
                             foreach($Blades as $blade)
                                     {
                                         $name = $blade["@attributes"]["name"];
@@ -146,27 +180,55 @@
                 </form>                               
                 
                 <form id="AS" name="get AS list" style="font-size:14px;">                               
-                    <h4 style="color:teal; margin-bottom: 10px; font-size:16px;">Select table</h4>
-       
+                    
+                    <h4 style="color:teal; margin-bottom: 10px; font-size:16px;">Select date</h4>       
                     <div align="left">Year :                       
                         <select id="year" >
-                            <option value="">Select year</option>                            
+                            <option value="">Select year</option>
+                            <?php
+                            	$currentYear = date("Y");
+	                            for($i = 2004; $i <= $currentYear; $i++){
+	                            	echo "<option>".$i."</option>";																 								 
+								 }	
+                            ?>                            
                         </select>
                     </div>
 
                      <div align="left">Week:
                         <select id="week">                               
-                            <option selected="selected" value="">Select week</option>                            
+                            <option selected="selected" value="">Select week</option>
+                            <?php                            	
+	                            for($i = 1; $i <= 52; $i++){
+	                            	echo "<option>".$i."</option>";																 								 
+								 }	
+                            ?>                             
                         </select>
-                    </div>                        
-               
-               		
-                    <input id="getAS" type="submit" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
+                    </div>
                     
-                    <div id="ASlist">
-                    	
-                    	
-                    </div>    
+                    <h4 style="color:teal; margin-bottom: 10px; font-size:16px;">Select table</h4>                                       
+               		<div align="left">PoP :                       
+                        <select id="PoP" >
+                            <option value="">Select PoP table</option>                            
+                        </select>
+                    </div>
+
+                     <div align="left">Edge:
+                        <select id="Edge">                               
+                            <option selected="selected" value="">Select edge table</option>                            
+                        </select>
+                    </div>
+               		
+               		
+                    <input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
+                    
+                    <div>
+                    	<select multiple='multiple' id='searchable' name="searchable[]">
+                    		
+                    	</select>                    	
+                    
+                    </div>
+                    
+                    <input id="sendQuery" type="submit" value="Send query!" style="margin-left: 20px; margin-top: 10px"/>    
                     
                 </form>
               
@@ -179,19 +241,16 @@
 				<table class="imagetable" style="alignment-baseline: central">
 				<tr>
 					<th>Query ID</th><th>SQL query</th><th>Status</th><th>Abort</th>
-				</tr>								
+				</tr>
+				<!--change this code to PHP -->								
 				<tr>
 					<td>123</td><td>Text 1B</td><td>Text 1C</td><td>Text 1D</td>
 				</tr>
 				<tr>
 					<td>765</td><td>Text 2B</td><td>Text 2C</td><td>Text 2D</td>
 				</tr>
+				<!-- enable adding a new row when a query is sent-->
 				</table>
-
-                
-                
-                
-                
                 
                 
             </div>
