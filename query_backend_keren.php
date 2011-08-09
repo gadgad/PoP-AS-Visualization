@@ -45,17 +45,17 @@
     
 	if($_POST["func"]=="showTables")
 	{
-				 
+		$blade = $_POST["blade"];		 
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
-		}
+		}	
 		
 		$year = $_POST["year"];
 		$week = $_POST["week"];
 		
-		$table = $DataTables["ip-edges"]["prefix"]; //TODO chage table name              
+		$table = $DataTables["ip-edges"]["prefix"];        
 		$edges = "";
 		//$query = "show tables like 'IPEdgesMedianTbl_".$year."_week_".$week."%'";
 		$query = "show tables like '".$table."_".$year."%_".$week."%'"; 			    
@@ -67,7 +67,7 @@
 		     }
         }
 		
-		$table = $DataTables["pop-locations"]["prefix"]; //TODO chage table name
+		$table = $DataTables["pop-locations"]["prefix"];
 		$pops = "";
 		$query = "show tables like '".$table."_".$year."%_".$week."%'";
 		
@@ -87,22 +87,28 @@
 	
 	if($_POST["func"]=="getASlist")
 	{
+		$blade = $_POST["blade"];
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
 		}
         
-		// TODO get parameters from POST 
-		
-		$query ="" ; // TODO COMPLETE       
-        $results = mysql_query($query);
-        $AS = "";
-		
-	    while($result = mysql_fetch_row($results)){
-	  		$AS .= " ".$result ;		  	        
-	    } 
-		
+		$edgeTbl = $_POST["edge"];
+		$popTbl = $_POST["pop"];
+		/*
+		$query ="" ; // TODO COMPLETE
+		$AS = "";       
+        if ($result = $mysqli->query($query)){
+        	 while ($row = $result->fetch_assoc()) {
+		        foreach($row as $key => $value){
+					$AS .= $value . " ";
+				}
+		     }
+        }
+        			   
+		*/
+		$AS = "172 90";
 		header('Content-type: application/text');        
         echo json_encode(array("result"=>$AS));                                    
 		$mysqli->close();

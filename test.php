@@ -15,6 +15,8 @@
         <!-- <script src="http://code.jquery.com/jquery-latest.js"></script> -->
         <script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
         <script type="text/javascript" src="js/loadData.js"></script>
+        <link rel="stylesheet" href="css/jquery.multiselect2side.css" type="text/css" media="screen" />
+		<script type="text/javascript" src="js/jquery.multiselect2side.js" ></script>
           
           
           <script type="text/javascript">
@@ -79,20 +81,38 @@
             
             
             // get all relevant AS by parameters TODO: change click
-              $(document).ready(function() {
+            $(document).ready(function() {
                     $("#getAS").click(function() {                                                           
-                        $.post("query_backend_keren.php", {func: "getASlist", blade: $("#mySelect").val() , edge: $("#Edge").val() , pop: $("#PoP").val()},
+                        $.post("query_backend_keren.php", {func: "getASlist", blade: $("#mySelect").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){                        			
 	                         var allAS = data.result;
 	                         var AS = allAS.split(" ");
 	                         
 	                         for(i = 0; i < AS.length; i++){								
-								$("#ASlist").append("<option>" + AS[i] + "</option> "); 
+								$("#searchable").append("<option>" + AS[i] + "</option> "); 
 							 }
 	                         
                         }, "json");	
+                 $('#searchable').multiselect2side({'search': 'Search: '});
                     });
-            });            
+                    
+                    
+            });
+            
+            /*
+            $().ready(function() {
+				$('#searchable').multiselect2side({'search': 'Search: '});
+			});
+            */
+            
+            // send the query to server
+            $(document).ready(function() {
+                    $("#sendQuery").click(function() {                                                           
+                        $.post("query_backend_keren.php", {func: "sendQuery", blade: $("#mySelect").val() , edge: $("#Edge").val() , pop: $("#PoP").val()},"json");
+                        // TODO: add AS list , update table?                         	
+                    });
+            });
+                        
             </script>
             
             <style type="text/css">
@@ -133,8 +153,8 @@
 
             <div id="header">
                 <h1 style="margin-bottom:10px;text-align:center;color:Navy">PoP/AS Visualizer</h1>
-                <h3 style="text-align: left; margin-left: 5px">Welcome, <?php echo $_SESSION['username']; ?></h3>
-                <a href="logout.php">Logout</a>
+                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $_SESSION['username']; ?></h5>
+                <a href="logout.php" style="text-align: left; margin-left: 5px; margin-bottom: 5px">Logout</a>
             </div>
 						                       
             <div id="user-select" style="margin-left:3%;background-color:#FFD700;color:#333333;width:27%;
@@ -147,8 +167,7 @@
                     Blade:
                     <select id="mySelect">
                     	<option value="">Select blade</option>
-                            <?php
-                            //echo '<option>Select blade</option>';                              
+                            <?php                                                          
                             foreach($Blades as $blade)
                                     {
                                         $name = $blade["@attributes"]["name"];
@@ -167,7 +186,7 @@
                         <select id="year" >
                             <option value="">Select year</option>
                             <?php
-                            	$currentYear = 2011; //get current year
+                            	$currentYear = date("Y");
 	                            for($i = 2004; $i <= $currentYear; $i++){
 	                            	echo "<option>".$i."</option>";																 								 
 								 }	
@@ -200,12 +219,16 @@
                     </div>
                		
                		
-                    <input id="getAS" type="submit" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
+                    <input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
                     
-                    <div id="ASlist">
-                    	
-                    	
-                    </div>    
+                    <div>
+                    	<select multiple='multiple' id='searchable' name="searchable[]">
+                    		
+                    	</select>                    	
+                    
+                    </div>
+                    
+                    <input id="sendQuery" type="submit" value="Send query!" style="margin-left: 20px; margin-top: 10px"/>    
                     
                 </form>
               
@@ -218,13 +241,15 @@
 				<table class="imagetable" style="alignment-baseline: central">
 				<tr>
 					<th>Query ID</th><th>SQL query</th><th>Status</th><th>Abort</th>
-				</tr>								
+				</tr>
+				<!--change this code to PHP -->								
 				<tr>
 					<td>123</td><td>Text 1B</td><td>Text 1C</td><td>Text 1D</td>
 				</tr>
 				<tr>
 					<td>765</td><td>Text 2B</td><td>Text 2C</td><td>Text 2D</td>
 				</tr>
+				<!-- enable adding a new row when a query is sent-->
 				</table>
                 
                 

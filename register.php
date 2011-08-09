@@ -12,6 +12,9 @@ if(isset($_POST['login'])){
 	if($username == ''){
 		$errors[] = 'Username is blank';
 	}	
+	if($email == ''){
+		$errors[] = 'Email is blank';
+	}
 	if($password == '' || $c_password == ''){
 		$errors[] = 'Passwords are blank';
 	}
@@ -55,6 +58,7 @@ if(isset($_POST['login'])){
 					<h1 style="margin-top: 20px; margin-left: 10px">Register</h1>
 					<form method="post" action="">
 						<p style="margin-left: 10px">Username <input type="text" name="username" size="18"/></p>
+						<p style="margin-left: 10px">Email <input type="text" name="email" size="18"/></p>
 						<p style="margin-left: 10px">Password <input type="password" name="password" size="18"/></p>						
 						<p style="margin-left: 10px">Confirm Password <input type="password" name="c_password" size="18" /></p>
 						<p style="margin-left: 10px; color: gray" size = "2">For username use letters only</p>
