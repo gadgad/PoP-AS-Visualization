@@ -1,10 +1,6 @@
 <?php
 	include("bin/load_config.php");
-	session_start();
-	if(!file_exists('users/' . $_SESSION['username'] . '.xml')){
-		header('Location: welcome.php');
-		die;
-	}
+	include("verify.php");	
 ?>
 
 
@@ -56,8 +52,11 @@
                     }
              } 
              
-             
-             
+             function updateTable(queryID){
+             	$("#My_queries").append("<p text-align:center>Query" + queryID + "is now running</p> ");
+             	// add a table line ?             		
+             }
+                                  
             $(document).ready(function() {                   
                     $("#mySelect").change(function() {
                     	if ($("#mySelect").val() != "Select blade"){
@@ -108,8 +107,21 @@
             // send the query to server
             $(document).ready(function() {
                     $("#sendQuery").click(function() {                                                           
-                        $.post("query_backend_keren.php", {func: "sendQuery", blade: $("#mySelect").val() , edge: $("#Edge").val() , pop: $("#PoP").val()},"json");
-                        // TODO: add AS list , update table?                         	
+                        $.post("query_backend_keren.php", {func: "sendQuery", blade: $("#mySelect").val() ,
+                         edge: $("#Edge").val() , pop: $("#PoP").val(), username: <?php echo $username?>},
+                         function(data){                        			
+	                         updateTable(data.queryID);	                         	                         
+                        }
+                         ,"json");
+                        // TODO: add AS list - AS:
+                        // TODO: update table?                            	
+                    });
+            });
+            
+            // cancels the query
+            $(document).ready(function() {
+                    $("#abort").click(function() {                                                           
+                        $.post("query_backend_keren.php", {func: "abort", query: $("#abort").val() },"json");                                      	
                     });
             });
                         
@@ -153,7 +165,7 @@
 
             <div id="header">
                 <h1 style="margin-bottom:10px;text-align:center;color:Navy">PoP/AS Visualizer</h1>
-                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $_SESSION['username']; ?></h5>
+                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?></h5>
                 <a href="logout.php" style="text-align: left; margin-left: 5px; margin-bottom: 5px">Logout</a>
             </div>
 						                       
@@ -238,21 +250,29 @@
                 <h3>My queries</h3>                	
                 <br></br>                
 
-				<table class="imagetable" style="alignment-baseline: central">
-				<tr>
-					<th>Query ID</th><th>SQL query</th><th>Status</th><th>Abort</th>
-				</tr>
-				<!--change this code to PHP -->								
-				<tr>
-					<td>123</td><td>Text 1B</td><td>Text 1C</td><td>Text 1D</td>
-				</tr>
-				<tr>
-					<td>765</td><td>Text 2B</td><td>Text 2C</td><td>Text 2D</td>
-				</tr>
+				<table class="imagetable" style="alignment-baseline: central">				
+				
+				<?php
+					$queries = simplexml_load_file("queries\query.xml");
+					//print_r($queries);					
+					//$result = $queries->xpath("/DATA/QUERY[users=".$username."]");
+					$result = $queries->xpath("/DATA/QUERY");
+					if($result!=FALSE)
+					{
+						echo "<tr>";
+						echo "<th>Query ID</th><th>SQL query</th><th>Status</th><th>Abort</th>";
+						echo "</tr>";
+						foreach ($result as $i => $value) {												
+							echo "<tr>";
+							echo "<td>".$result[$i]->queryID."</td>" . "<td>my query</td>" . "<td>".$result[$i]->lastKnownStatus."</td>" . 
+							'<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
+							// change id to unique value
+							echo "</tr>";
+						} 
+					}else echo "you have no queries yet... ";
+				?>																
 				<!-- enable adding a new row when a query is sent-->
-				</table>
-                
-                
+				</table>                
             </div>
             
             <div id="footer" style="background-color:#FFA500;clear:both;text-align:center;margin-top: 10px">
