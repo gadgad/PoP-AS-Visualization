@@ -85,36 +85,34 @@
                         $.post("query_backend_keren.php", {func: "getASlist", blade: $("#mySelect").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){                        			
 	                         var allAS = data.result;
-	                         var AS = allAS.split(" ");
+	                         var AS = allAS.split("*");
 	                         
-	                         for(i = 0; i < AS.length; i++){								
-								$("#searchable").append("<option>" + AS[i] + "</option> "); 
+	                         for(i = 0; i < AS.length; i++){
+	                         	var tmp = AS[i].split(" ");								
+								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 
 							 }
 	                         
                         }, "json");	
-                 $('#searchable').multiselect2side({'search': 'Search: '});
-                    });
-                    
-                    
+                 //$('#searchable').multiselect2side({'search': 'Search: '});
+                    });                    
             });
             
-            /*
+            
             $().ready(function() {
 				$('#searchable').multiselect2side({'search': 'Search: '});
 			});
-            */
+           
             
             // send the query to server
             $(document).ready(function() {
                     $("#sendQuery").click(function() {                                                           
                         $.post("query_backend_keren.php", {func: "sendQuery", blade: $("#mySelect").val() ,
-                         edge: $("#Edge").val() , pop: $("#PoP").val(), username: <?php echo $username?>},
+                         edge: $("#Edge").val() , pop: $("#PoP").val(), username: <?php echo $username?>, as: $("#searchable").val() },
                          function(data){                        			
-	                         updateTable(data.queryID);	                         	                         
+	                         updateTable(data.queryID);
+	                         // TODO: update table?	                         	                         
                         }
-                         ,"json");
-                        // TODO: add AS list - AS:
-                        // TODO: update table?                            	
+                         ,"json");                                                    
                     });
             });
             
@@ -164,17 +162,21 @@
         	<!--comic sans ms;-->
 
             <div id="header">
+            	<p>
+                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?>                	
+                	<a href="logout.php"> <u>Logout</u></a>	
+                </h5>
                 <h1 style="margin-bottom:10px;text-align:center;color:Navy">PoP/AS Visualizer</h1>
-                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?></h5>
-                <a href="logout.php" style="text-align: left; margin-left: 5px; margin-bottom: 5px">Logout</a>
+                </p>                
             </div>
 						                       
-            <div id="user-select" style="margin-left:3%;background-color:#FFD700;color:#333333;width:27%;
-            height: 85%; float:left;clear: none">
-            <h3 style="text-decoration: underline;text-align: center">Make a new query</h3>
+            <div id="user-select" style="border:1px solid navy; padding-right:2%; padding-left:2%; margin-left:3%; background-color: #EEEEFF; color:#333333; width:30%;
+            height:85%; float:left; clear:none">
+            <!--another bg color EEEEFF-->
+            <h3 style="text-decoration: underline;text-align: center; size: 4; color: teal">Make a new query</h3>
                 
                 <form style="font-size:14px;">
-                	<h4 style="color:teal; margin-bottom: 10px; font-size:16px;">Select blade</h4>
+                	<p style="color:navy; margin-bottom: 10px; font-size:16px;">Select blade</p>
                     <!-- <legend style="color:teal">Choose blade:</legend> -->
                     Blade:
                     <select id="mySelect">
@@ -193,8 +195,8 @@
                 
                 <form id="AS" name="get AS list" style="font-size:14px;">                               
                     
-                    <h4 style="color:teal; margin-bottom: 10px; font-size:16px;">Select date</h4>       
-                    <div align="left">Year :                       
+                    <p style="color:navy; margin-bottom: 10px; font-size:16px;">Select date</p>       
+                    <div align="left">Year  :                       
                         <select id="year" >
                             <option value="">Select year</option>
                             <?php
@@ -217,8 +219,8 @@
                         </select>
                     </div>
                     
-                    <h4 style="color:teal; margin-bottom: 10px; font-size:16px;">Select table</h4>                                       
-               		<div align="left">PoP :                       
+                    <p style="color:navy; margin-bottom: 10px; font-size:16px;">Select table</p>                                       
+               		<div align="left">PoP  :                       
                         <select id="PoP" >
                             <option value="">Select PoP table</option>                            
                         </select>
@@ -232,6 +234,7 @@
                		
                		
                     <input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
+                    <br></br>
                     
                     <div>
                     	<select multiple='multiple' id='searchable' name="searchable[]">
@@ -246,7 +249,7 @@
               
             </div>
             
-            <div id="My_queries" style="margin-right: 3%;background-color:#EEEFEE;width:67%;height:85%;float: right; clear:right; text-align:center">
+            <div id="My_queries" style="margin-right: 3%;background-color:#EEEFEE;width:55%;height:85%;float: right; clear:right; text-align:center">
                 <h3>My queries</h3>                	
                 <br></br>                
 
