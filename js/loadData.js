@@ -39,13 +39,19 @@ function testConnection(targetID) {
 	$.preLoadImages("images/ajax-loader.gif");
 	$(targetID).html('<p><img src="images/ajax-loader.gif"/></p>');
 	$.post("query_backend.php", { func: "testConnection", blade: globalData.blade },
-	function(data){
-		 var result = data.result + "</BR>";
-		 $(targetID).html(result);
+	function(data,textStatus){
+		if(textStatus == "error" || textStatus == "parseerror") {
+			$(targetID).html('<p>There was an error making the AJAX request</p>');
+			return;
+		}
+		if(data.result) {
+			$(targetID).html("<P>"+data.result+"</P>");
+			return;
+		}
 	}, "json");	
 }
 
-function sql2html(sqlstr,targetID) {
+function sql2html(targetID,sqlstr) {
   $.preLoadImages("images/ajax-bar.gif");
   $(targetID).html('<p><img src="images/ajax-bar.gif" width="220" height="19" /></p>');
   $.post("query_backend.php",{ func: "SQL2XML", blade: globalData.blade, sql: sqlstr}, 

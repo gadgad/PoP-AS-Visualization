@@ -1,5 +1,6 @@
 <?php
 $pop_xml = simplexml_load_file("xml\pop.xml");
+//$EDGES_xml = simplexml_load_file("xml\edges_lat_lng.xml");
 $EDGES_xml = simplexml_load_file("xml\edges.xml");
 $asn_info_xml = simplexml_load_file("xml\ASN_info.xml");
 
@@ -16,11 +17,6 @@ define('MAX_EDGES_RESULTS',10);
 define('DRAW_CIRCLES',true);
 define('INTER_CON',true);
 define('INTRA_CON',true);
-define('CONNECTED_POPS_ONLY',false);
-
-define('USE_COLOR_PICKER',false);
-define('DEFAULT_COLOR_PICKER_POOL_SIZE',10);
-$NUM_OF_ASNS = isset($_POST["num_of_asns"])?$_POST["num_of_asns"]:DEFAULT_COLOR_PICKER_POOL_SIZE;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,21 +26,10 @@ class Color
 	public $red;
 	public $green;
 	public $blue;
-	public $red_hex;
-	public $green_hex;
-	public $blue_hex;
 	
-	public function __construct()
+	function __construct()
 	{
 		$this->randColor();
-		if(func_num_args()==3)
-		{
-			$r = func_get_arg(0);
-			$g = func_get_arg(1);
-			$b = func_get_arg(2);
-			$this->setColor($r, $g, $b);
-		}
-		$this->Dec2Hex();
 	}
 	
 	function randColor()
@@ -55,107 +40,16 @@ class Color
 		$this->trans = 150;
 	}
 	
-	function setColor($r,$g,$b)
-	{
-		$this->red = $r;
-		$this->green = $g;
-		$this->blue = $b;
-	}
-	
-	function Dec2Hex()
-	{
-		$this->red_hex = ($this->red<16)? '0'.dechex($this->red):dechex($this->red);
-		$this->green_hex = ($this->green<16)? '0'.dechex($this->green):dechex($this->green);
-		$this->blue_hex = ($this->blue<16)? '0'.dechex($this->blue):dechex($this->blue);
-	}
-	
 	public function gm_format()
 	{
-		return dechex($this->trans).($this->blue_hex).($this->green_hex).($this->red_hex);
+		return dechex($this->trans).dechex($this->blue).dechex($this->green).dechex($this->red);
 	}
 	
 	public function web_format()
 	{
-		return ($this->red_hex).($this->green_hex).($this->blue_hex);
+		return dechex($this->red).dechex($this->green).dechex($this->blue);
 	}
 	
-	public function calc_dist()
-	{
-		$r2 = $g2 = $b2 = 0;
-		if(func_num_args()==3) {
-			$r2 = func_get_arg(0);
-			$g2 = func_get_arg(1);
-			$b2 = func_get_arg(2);
-		} else if(func_num_args() == 1) {
-			$r2 = func_get_arg(0)->red;
-			$g2 = func_get_arg(0)->green;
-			$b2 = func_get_arg(0)->blue;
-		}
-		$dr = $this->red - $r2;
-		$dg = $this->green - $g2;
-		$db = $this->blue - $b2;	
-		return sqrt(pow($dr,2)+pow($dg,2)+pow($db,2));
-	}
-}
-
-class ColorPicker
-{
-	public $safe_colors;
-	public $color_list;
-	private static $counter = 0;
-	
-	public function __construct($num)
-	{
-		$this->init_safe_colors();
-		$this->init_color_list($num);
-	}
-	
-	function init_safe_colors()
-	{
-		$this->safe_colors = array();
-		$c=array('00','33','66','99','CC','FF');
-		foreach ($c as $x) {
-			foreach ($c as $y) {
-				foreach ($c as $z) {
-					$r = hexdec($x);
-					$g = hexdec($y);
-					$b = hexdec($z);
-					$color = new Color($r,$g,$b);
-					$this->safe_colors[] = $color;
-				}
-			}
-		}
-	}
-	
-	function init_color_list($num)
-	{
-		$range = 216;
-		$offset = rand(0,$range-1);
-		$delta = floor($range/$num);
-		$this->color_list=array_fill(0, $num, NULL);
-		for($i=0;$i<$num;$i++)
-		{
-			$rand_steps = rand(0,$num-$i-1);
-			$j = 0;
-			$index = 0;
-			while($this->color_list[$index]!= NULL){
-					$index++;
-			}
-			while($j<$rand_steps)
-			{
-				$index++;
-				$j++;
-				if($this->color_list[$index]!= NULL)
-					$index++;	
-			}
-			$this->color_list[$index] = $this->safe_colors[($offset+$i*$delta)%$range];
-		}	
-	}
-	
-	function getColor()
-	{
-		return $this->color_list[self::$counter++];
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +59,6 @@ function dispatchAltitude(){
     $altitude+=ALTITUDE_DELTA;
     return $altitude;
 }
-
 
 function kmlPlaceMark($placeMark)
 {
@@ -250,7 +143,7 @@ class Coordinate
     public $lat;
     public  $lng;
 
-    public function __construct($lat,$lng)
+    function _construct($lat,$lng)
     {
         $this->lat = $lat;
         $this->lng = $lng;
@@ -284,7 +177,10 @@ function calcMidPoint($lat1,$lat2,$lon1,$lon2)
     $lat3 = atan2(sin($lat1)+sin($lat2),sqrt( (cos($lat1)+$Bx)*(cos($lat1)+$Bx) + $By*$By) );
     $lon3 = deg2rad($lon1) +atan2($By,cos($lat1) + $Bx);
 
-    return new Coordinate(rad2deg($lat3),rad2deg($lon3));
+    $c = new Coordinate();
+    $c->lat = rad2deg($lat3);
+    $c->lng= rad2deg($lon3);
+    return $c;
 }
 
 function calcBearing($lat1,$lat2,$lon1,$lon2)
@@ -310,25 +206,24 @@ function calcDestPoint($lat1,$lon1,$dist,$brng)
     $lon2 = $lon1 + atan2(sin($b)*sin($d)*cos($lat1), cos($d)-sin($lat1)*sin($lat2));
     //$lon2 = ($lon2+3*M_PI)%(2*M_PI) - M_PI;  // normalise to -180...+180
 
-    return new Coordinate(rad2deg($lat2),rad2deg($lon2));
+    $c = new Coordinate();
+    $c->lat = rad2deg($lat2);
+    $c->lng= rad2deg($lon2);
+    return $c;
 }
 
 function kmlLink($link){
-	global $ASN_LIST;
-	global $EDGES;
-	global $POP_2_LOC_MAP;
-	static $counter=1;
+     global $ASN_LIST;
+     global $EDGES;
+	 global $POP_2_LOC_MAP;
+	 static $counter=1;
     $kmlString = "";
 	
-	if($link["SourcePoP"]!="NULL" && $link["DestPoP"]!="NULL" 
-		&& array_key_exists($link["SourcePoP"], $POP_2_LOC_MAP) 
-		&& array_key_exists($link["DestPoP"], $POP_2_LOC_MAP)
-		&& array_key_exists("lat", $POP_2_LOC_MAP[$link["SourcePoP"]])
-		&& array_key_exists("lat", $POP_2_LOC_MAP[$link["DestPoP"]])){
-		$srcLAT = $POP_2_LOC_MAP[$link["SourcePoP"]]["lat"];
-		$srcLNG = $POP_2_LOC_MAP[$link["SourcePoP"]]["lng"];
-		$dstLAT = $POP_2_LOC_MAP[$link["DestPoP"]]["lat"];
-		$dstLNG = $POP_2_LOC_MAP[$link["DestPoP"]]["lng"];
+	if($link["SourcePoP"]!="NULL" && $link["DestPoP"]!="NULL" && array_key_exists($link["SourcePoP"], $POP_2_LOC_MAP) && array_key_exists($link["DestPoP"], $POP_2_LOC_MAP)){
+		$srcLAT = ($link["Source_LAT"]!=0)?$link["Source_LAT"]:$POP_2_LOC_MAP[$link["SourcePoP"]]["lat"];
+		$srcLNG = ($link["Source_LNG"]!=0)?$link["Source_LNG"]:$POP_2_LOC_MAP[$link["SourcePoP"]]["lng"];
+		$dstLAT = ($link["Dest_LAT"]!=0)?$link["Dest_LAT"]:$POP_2_LOC_MAP[$link["DestPoP"]]["lat"];
+		$dstLNG = ($link["Dest_LNG"]!=0)?$link["Dest_LNG"]:$POP_2_LOC_MAP[$link["DestPoP"]]["lng"];
 		
 		if(($srcLAT == $dstLAT)&&($srcLNG == $dstLNG))
 			return "";
@@ -374,70 +269,23 @@ $kml_header = '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.open
 $kml_footer='</Document></kml>';
 $kml_body = '';
 
- foreach($EDGES_xml->children() as $edge)
- {
-	if(((string)$edge->Source_PoPID != (string)$edge->Dest_PoPID))
-	{
-		if((INTRA_CON && (intval($edge->SourceAS)==intval($edge->DestAS))) || (INTER_CON && (intval($edge->SourceAS)!=intval($edge->DestAS))))
-		{
-		    $edge_str = $edge->Source_PoPID.$edge->Dest_PoPID;
-			$POP_2_LOC_MAP[(string)($edge->Source_PoPID)]["connected"]=true;
-			$POP_2_LOC_MAP[(string)($edge->Dest_PoPID)]["connected"]=true;
-		    if(!array_key_exists($edge_str, $EDGES)){
-		     	$EDGES[$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
-		     							  "DestAS"=>intval($edge->DestAS),
-		     							  "SourcePoP"=>(string)($edge->Source_PoPID),
-		     							  "DestPoP"=>(string)($edge->Dest_PoPID),
-		     							  "numOfEdges"=>1,
-		     							  "median_lst"=>array(floatval($edge->Median)),
-		     							  "edgeID_lst"=>array($edge->edgeid),
-		     							  "src_ip_lst"=>array($edge->SourceIP),
-		     							  "dest_ip_lst"=>array($edge->DestIP));
-		    } else {
-		    	$EDGES[$edge_str]["numOfEdges"]++;
-				$EDGES[$edge_str]["median_lst"][] = floatval($edge->Median);
-		    	$EDGES[$edge_str]["edgeID_lst"][] = $edge->edgeid;
-		    	$EDGES[$edge_str]["src_ip_lst"][] = $edge->SourceIP;
-		    	$EDGES[$edge_str]["dest_ip_lst"][] = $edge->DestIP;
-	    	}
-		}
-	}
-}
-  
 if(DRAW_CIRCLES){
 	$kml_body.="<Folder><name>PoP Location Convergence Radiuses</name>";
 }
 
 foreach($pop_xml->children() as $pop)
   {
-  	// generate map of PoP coordinates
-    if(!array_key_exists((string)$pop->PoPID, $POP_2_LOC_MAP) 
-    	|| !isset($POP_2_LOC_MAP[(string)$pop->PoPID]["lat"])
-		|| !isset($POP_2_LOC_MAP[(string)$pop->PoPID]["lng"])){
-    	//$POP_2_LOC_MAP[(string)$pop->PoPID] = array("lat"=>floatval($pop->LAT2), "lng"=>floatval($pop->LNG2));
-    	$POP_2_LOC_MAP[(string)$pop->PoPID]["lat"] = floatval($pop->LAT2);
-		$POP_2_LOC_MAP[(string)$pop->PoPID]["lng"] = floatval($pop->LNG2);
+  	$pop_str = $pop->ASN.$pop->LAT2.$pop->LNG2;
+	if(!array_key_exists($pop_str, $LOC_2_POP_MAP)){
+  		$LOC_2_POP_MAP[$pop_str] = array("numOfPoPS"=>1,"asn"=>intval($pop->ASN),"lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"pop_id_lst"=>array($pop->PoPID));
+	} else {
+		$LOC_2_POP_MAP[$pop_str]["numOfPoPS"]++;
+		$LOC_2_POP_MAP[$pop_str]["pop_id_lst"][] = $pop->PoPID;
 	}
-	
-  	$pop_connected = isset($POP_2_LOC_MAP[(string)$pop->PoPID]["connected"]) ? $POP_2_LOC_MAP[(string)$pop->PoPID]["connected"] : false;
-  	if(!CONNECTED_POPS_ONLY || $pop_connected)
-	{
-	  	$pop_str = $pop->ASN.$pop->LAT2.$pop->LNG2;
-		if(!array_key_exists($pop_str, $LOC_2_POP_MAP)){
-	  		$LOC_2_POP_MAP[$pop_str] = array("numOfPoPS"=>1,"asn"=>intval($pop->ASN),"lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"pop_id_lst"=>array($pop->PoPID));
-		} else {
-			$LOC_2_POP_MAP[$pop_str]["numOfPoPS"]++;
-			$LOC_2_POP_MAP[$pop_str]["pop_id_lst"][] = $pop->PoPID;
-		}
-	}
-	
-	if(USE_COLOR_PICKER)
-		$cp = new ColorPicker($NUM_OF_ASNS);
 	
 	$asn = intval($pop->ASN);
 	if(!array_key_exists($asn,$ASN_LIST)){
-	  $new_color = (USE_COLOR_PICKER)? $cp->getColor() : new Color();
-	  $ASN_LIST[$asn]= array("color"=>$new_color, "altitude"=>dispatchAltitude());
+	  $ASN_LIST[$asn]= array("color"=>  new Color(),"altitude"=>  dispatchAltitude());;
 	  $asn_info = $asn_info_xml->xpath("/DATA/ROW[ASNumber=".$asn."]");
 	  if(!empty($asn_info))
 	  {
@@ -446,12 +294,16 @@ foreach($pop_xml->children() as $pop)
 	  }
   	}
 	
-	if(DRAW_CIRCLES && (!CONNECTED_POPS_ONLY || $pop_connected)){
+	if(DRAW_CIRCLES){
     	//we only need LAT2,LNG2,Accuracy2
     	//radius = Accuracy2*110000 [in meters]
     	$kml_body.=kmlCircle(floatval($pop->LAT2),floatval($pop->LNG2), floatval($pop->Accuracy2)*110000,intval($pop->ASN),$pop->PoPID);
 	}
 	
+	// generate map of PoP coordinates
+    if(!array_key_exists((string)$pop->PoPID, $POP_2_LOC_MAP)){
+    	$POP_2_LOC_MAP[(string)$pop->PoPID] = array("lat"=>floatval($pop->LAT2), "lng"=>floatval($pop->LNG2));
+	}
   }
   
   if(DRAW_CIRCLES){
@@ -465,8 +317,39 @@ foreach($pop_xml->children() as $pop)
   }
   $kml_body.="</Folder></Folder>\n\n";
 
+  foreach($EDGES_xml->children() as $edge)
+  {
+	if(((string)$edge->Source_PoPID != (string)$edge->Dest_PoPID))
+	{
+		if((INTRA_CON && (intval($edge->SourceAS)==intval($edge->DestAS))) || (INTER_CON && (intval($edge->SourceAS)!=intval($edge->DestAS))))
+		{
+		    $edge_str = $edge->Source_PoPID.$edge->Dest_PoPID;
+		    if(!array_key_exists($edge_str, $EDGES)){
+		     	$EDGES[$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
+		     							  "DestAS"=>intval($edge->DestAS),
+		     							  "SourcePoP"=>(string)($edge->Source_PoPID),
+		     							  "DestPoP"=>(string)($edge->Dest_PoPID),
+		     							  "Source_LAT"=>floatval($edge->Source_LAT),
+		     							  "Source_LNG"=>floatval($edge->Source_LNG),
+		     							  "Dest_LAT"=>floatval($edge->Dest_LAT),
+		     							  "Dest_LNG"=>floatval($edge->Dest_LNG),
+		     							  "numOfEdges"=>1,
+		     							  "median_lst"=>array(floatval($edge->Median)),
+		     							  "edgeID_lst"=>array($edge->edgeid),
+		     							  "src_ip_lst"=>array($edge->SourceIP),
+		     							  "dest_ip_lst"=>array($edge->DestIP));
+		    } else {
+		    	$EDGES[$edge_str]["numOfEdges"]++;
+				$EDGES[$edge_str]["median_lst"][] = floatval($edge->Median);
+		    	$EDGES[$edge_str]["edgeID_lst"][] = $edge->edgeid;
+		    	$EDGES[$edge_str]["src_ip_lst"][] = $edge->SourceIP;
+		    	$EDGES[$edge_str]["dest_ip_lst"][] = $edge->DestIP;
+	    	}
+		}
+  	}
+  }
+  
   $kml_body.="<Folder><name>PoP Edges</name>";
-
   foreach($EDGES as $link)
   {
   	$kml_body.=kmlLink($link);
@@ -481,8 +364,7 @@ foreach($pop_xml->children() as $pop)
 $day = date("m-d-y-");
 srand( microtime() * 1000000);
 $randomnum = rand(10000,99999);
-$file_prefix = $day.$randomnum;
-$file_ext = $file_prefix.'.kml';
+$file_ext = $day.$randomnum.'.kml';
 $filename = ('temp/'.$file_ext);
 
 // define initial write and appends
@@ -492,24 +374,9 @@ $filewrite = fopen($filename, "w");
 // open file and write header:
 fwrite($filewrite, $kmlString);
 fclose($filewrite);
-
-// generate the .kmz file
-$zip = new ZipArchive();
-$zip_file_ext = $file_prefix.'.kmz';
-$zip_filename = 'temp/'.$zip_file_ext;
-
-if ($zip->open($zip_filename, ZIPARCHIVE::CREATE)!==TRUE) {
-   exit("cannot open <$zip_filename>\n");
-}
-$zip->addFile($filename,"doc.kml");
-//echo "numfiles: " . $zip->numFiles . "\n";
-$zip->close();
-// finally, delete the original .kml file
-unlink($filename);
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$full_url = "http://".$_SERVER['HTTP_HOST'].dirname( $_SERVER['REQUEST_URI'])."/".$zip_filename;
-
+  $full_url = "http://" . $_SERVER['HTTP_HOST']  .dirname( $_SERVER['REQUEST_URI'])."/temp/".$file_ext;
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -547,8 +414,8 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname( $_SERVER['REQUEST_URI'])."/
     </head>
     <body>
           <?php
-            if(file_exists($zip_filename)) {
-              echo ("<p>to download source kml file <a href=\"$zip_filename\">click here</a>.</p>");
+            if(file_exists($filename)) {
+              echo ("<p>to download source kml file <a href=\"temp/$file_ext\">click here</a>.</p>");
             } else {
               echo( "If you can see this, something is wrong..." );
             }

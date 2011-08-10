@@ -40,7 +40,7 @@
 		ret_res($selected_blade." connected successfuly!");
 	}
 	
-
+	/*
 	if($_POST["func"]=="SQL2XML")
 	{
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
@@ -72,5 +72,7 @@
 			
 		}
 	}
+	 * 
+	 */
 
 ?>
