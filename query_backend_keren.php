@@ -96,19 +96,26 @@
         
 		$edgeTbl = $_POST["edge"];
 		$popTbl = $_POST["pop"];
-		/*
+		
 		$query ="" ; // TODO COMPLETE
-		$AS = "";       
+		
+		$AS = "";
+		$ASinfo = simplexml_load_file("xml\ASN_info.xml");       
         if ($result = $mysqli->query($query)){
         	 while ($row = $result->fetch_assoc()) {
 		        foreach($row as $key => $value){
-					$AS .= $value . " ";
+					$AS .= $value . " ";		 										
+					$result = $ASinfo->xpath("/DATA/ROW[ASNumber=".$value."]");		
+					if($result!=FALSE)
+					{
+						 $AS.=$result[0]->Country." ".$result[0]->ISPName;
+					}
+					$AS.= "*";		  
 				}
 		     }
         }
-        			   
-		*/
-		$AS = "172 90";
+        	
+		//$AS = "172 90";
 		header('Content-type: application/text');        
         echo json_encode(array("result"=>$AS));                                    
 		$mysqli->close();
@@ -126,17 +133,22 @@
         
 		$edgeTbl = $_POST["edge"];
 		$popTbl = $_POST["pop"];
-		$ASlist = $_POST["AS"];
+		$ASlist = $_POST["as"]; // an array of AS
 		$username = $_POST["username"];
 		
-		$queryID = md5($edgeTbl.$popTbl.$ASlist);
+		$tmp = "";
+		foreach ($ASlist as &$as) {
+		    $tmp.= "_".($as);
+		}
+		
+		$queryID = md5($edgeTbl."_".$popTbl.$tmp);
 		
 		$queries = simplexml_load_file("queries\query.xml");
 		//print_r($queries);					
 		$result = $queries->xpath("/DATA/QUERY[queryID=".$queryID."]");		
 		if($result!=FALSE) // this query already exists
 		{
-			// ->add user to users
+			// TODO ->add user to users
 			/*
 			foreach ($result as $i => $value) {												
 				echo "<tr>";
