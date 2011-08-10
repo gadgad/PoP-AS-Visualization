@@ -1,5 +1,6 @@
 <?php
 	include("bin/load_config.php");
+	$ASN_LIST = array()
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
@@ -14,11 +15,11 @@
 		$(document).ready(function() {
 			globalData.blade = $("#mySelect").val();
 			testConnection("#myContainer");
-			sql2html("show processlist","#tableArea");
+			//sql2html("show processlist","#tableArea");
 			$("#mySelect").change(function() {
 				globalData.blade = $("#mySelect").val();
 				testConnection("#myContainer");
-				sql2html("show processlist","#tableArea");
+				//sql2html("#tableArea","show processlist");
 			});
 		});
 		</script>
@@ -31,7 +32,7 @@
 					foreach($Blades as $blade)
 					{
 						$name = $blade["@attributes"]["name"];
-						if($name!="")
+						if($name!="" && $Blade_Map[$name]["db"]=="DIMES_DISTANCES")
 							echo "<option>$name</option>";
 					}
 				?>

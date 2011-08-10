@@ -12,13 +12,7 @@ and open the template in the editor.
     </head>
     <body>
         <?php
-        // put your code here
-        $username="codeLimited";
-        $password="codeLimited";
-        $database="DIMES_DISTANCES";
-        mysql_connect('127.0.0.1:5554',$username);
-        echo "connected!";
-        mysql_close();
+        	echo(hexdec(51));
         ?>
     </body>
 </html>
