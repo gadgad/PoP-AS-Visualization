@@ -4,6 +4,8 @@
 	class xmlWriter
 	{
 		private $xml_dst_dir;
+		private $pop_xmlString;
+		private $edge_xmlString;
 		
 		function __construct($xml_dst_dir)
 		{
@@ -44,6 +46,14 @@
 			$filepath = ($this->xml_dst_dir.'/pop.xml');
 			$filewrite = fopen($filepath, "w");
 			fwrite($filewrite, $this->pop_xmlString);
+			fclose($filewrite);
+		}
+		
+		function write_edge_XML()
+		{
+			$filepath = ($this->xml_dst_dir.'/edge.xml');
+			$filewrite = fopen($filepath, "w");
+			fwrite($filewrite, $this->edge_xmlString);
 			fclose($filewrite);
 		}
 	}
