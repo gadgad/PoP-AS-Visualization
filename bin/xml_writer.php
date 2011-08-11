@@ -1,19 +1,40 @@
 <?php
     require_once("bin/load_config.php");
+    require_once("bin/idgen.php");
 	
-	class xmlWriter
+	class xml_Writer
 	{
 		private $xml_dst_dir;
 		private $pop_xmlString;
 		private $edge_xmlString;
+		private $idg;
+		private $blade;
+		private $schema;
 		
-		function __construct($xml_dst_dir)
+		function __construct($blade,$queryID)
 		{
-			$this->xml_dst_dir = $xml_dst_dir;
+			$this->blade = (string)$blade;
+			$this->idg = new idGen($queryID);
+			$this->xml_dst_dir = 'queries/'.$this->idg->getDirName();
+			$this->schema = $GLOBALS["Blade_Map"][$this->blade]["write-db"];
 		}
 		
-		function sql2xml($sql)
+		
+		private function getPoPQuery(){return "select * from `".$this->schema."`.`".$this->idg->getPoPTblName()."`;";}
+		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."`;";}
+		
+		private function sql2xml($sql)
 		{
+			$selected_blade = $this->blade;
+			$blade = $GLOBALS["Blade_Map"][$selected_blade];
+			$host = (string)$blade["host"];
+			$port = (int)$blade["port"];
+			//$hostNport = (string)$blade["host"].":".(string)$blade["port"];
+			$user = (string)$blade["user"];
+			$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+			$database = (string)$blade["db"];
+			
+			
 			$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		
 			if ($mysqli->connect_error) {
@@ -41,20 +62,31 @@
 			return $xml_output;
 		}
 		
-		function write_pop_XML()
+		private function write_pop_XML()
 		{
 			$filepath = ($this->xml_dst_dir.'/pop.xml');
 			$filewrite = fopen($filepath, "w");
+			$this->pop_xmlStrig = $this->sql2xml($this->getPoPQuery());
 			fwrite($filewrite, $this->pop_xmlString);
 			fclose($filewrite);
+			return true;
 		}
 		
-		function write_edge_XML()
+		private function write_edge_XML()
 		{
 			$filepath = ($this->xml_dst_dir.'/edge.xml');
 			$filewrite = fopen($filepath, "w");
+			$this->edge_xmlString = $this->sql2xml($this->getEdgeQuery());
 			fwrite($filewrite, $this->edge_xmlString);
 			fclose($filewrite);
+			return true;
+		}
+		
+		public function writeXML()
+		{
+			if($this->write_pop_XML() && $this->write_edge_XML())
+				return true;
+			return false;
 		}
 	}
 ?>
