@@ -1,6 +1,7 @@
 <?php
-	include("bin/load_config.php");	
-		
+	include_once("bin/load_config.php");
+	include_once("bin/idgen.php");
+				
 	// Turn off all error reporting
 	error_reporting(0);
 		
@@ -26,6 +27,35 @@
 		header('Content-type: application/json');
 		echo json_encode(array("result"=>$message ,"type"=>$type));
 		die();	
+	}
+	
+	function parse($mysqli,$query,$prev){
+		$res = "";			
+		if ($result = $mysqli->query($query)){
+        	 while ($row = $result->fetch_assoc()) {
+		        foreach($row as $key => $value){
+					$pos = strpos($prev,$value);					
+					if($pos === false) {
+					 	$res .= $value . " ";
+					}
+				}	
+		     }
+        }
+		return $res;
+	}
+	
+	function getTblFromDB($mysqli,$table,$year,$week){
+
+		$res = "";	
+		$query = "show tables like '".$table."\_".$year."\_week_".$week."'";
+		$res.= parse($mysqli,$query,$res); 			    
+		$query = "show tables like '".$table."\_".$year."\_week_".$week."\_%'";
+		$res.= parse($mysqli,$query,$res);
+		$query = "show tables like '".$table."\_".$year."\_".$week."'";
+		$res.= parse($mysqli,$query,$res);
+		$query = "show tables like '".$table."\_".$year."\_".$week."\_%'";
+		$res.= parse($mysqli,$query,$res);
+		return $res;        
 	}
 	
 	if($_POST["func"]=="testConnection")
@@ -56,29 +86,11 @@
 		$week = $_POST["week"];
 		
 		$table = $DataTables["ip-edges"]["prefix"];        
-		$edges = "";
-		//$query = "show tables like 'IPEdgesMedianTbl_".$year."_week_".$week."%'";
-		$query = "show tables like '".$table."_".$year."%_".$week."%'"; 			    
-        if ($result = $mysqli->query($query)){
-        	 while ($row = $result->fetch_assoc()) {
-		        foreach($row as $key => $value){
-					$edges .= $value . " ";
-				}
-		     }
-        }
+		$edges = getTblFromDB($mysqli,$table,$year,$week);
 		
 		$table = $DataTables["pop-locations"]["prefix"];
-		$pops = "";
-		$query = "show tables like '".$table."_".$year."%_".$week."%'";
-		
-		if ($result = $mysqli->query($query)){
-        	 while ($row = $result->fetch_assoc()) {
-		        foreach($row as $key => $value){
-					$pops .= $value . " ";
-				}
-		     }
-        }
-	    
+		$pops = getTblFromDB($mysqli,$table,$year,$week);
+			    
 		header('Content-type: application/json');
         echo json_encode(array("edge"=>$edges,"pop"=>$pops));                                    
 		$mysqli->close();
@@ -87,6 +99,8 @@
 	
 	if($_POST["func"]=="getASlist")
 	{
+			
+			
 		$blade = $_POST["blade"];
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		
@@ -97,25 +111,25 @@
 		$edgeTbl = $_POST["edge"];
 		$popTbl = $_POST["pop"];
 		
-		$query ="" ; // TODO COMPLETE
+		$query ="SELECT distinct ASN FROM `".$database."`.`".$popTbl."` order by ASN limit 20" ;		
 		
 		$AS = "";
-		$ASinfo = simplexml_load_file("xml\ASN_info.xml");       
-        if ($result = $mysqli->query($query)){
-        	 while ($row = $result->fetch_assoc()) {
+		$ASinfo = simplexml_load_file("xml\ASN_info.xml");
+		
+		if ($result = $mysqli->query($query)){			
+	    	 while ($row = $result->fetch_assoc()) {
 		        foreach($row as $key => $value){
-					$AS .= $value . " ";		 										
-					$result = $ASinfo->xpath("/DATA/ROW[ASNumber=".$value."]");		
-					if($result!=FALSE)
+					$AS .= $value . " ";											 									
+					$res = $ASinfo->xpath('/DATA/ROW[ASNumber="'.$value.'"]');		
+					if($res!=FALSE)
 					{
-						 $AS.=$result[0]->Country." ".$result[0]->ISPName;
+						$AS.=$res[0]->Country." ".$res[0]->ISPName;
 					}
-					$AS.= "*";		  
+					$AS.= "*";							  
 				}
 		     }
-        }
-        	
-		//$AS = "172 90";
+    	}else $AS = "no result";       
+			   			   
 		header('Content-type: application/text');        
         echo json_encode(array("result"=>$AS));                                    
 		$mysqli->close();
@@ -130,22 +144,16 @@
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
 		}
-        
-		$edgeTbl = $_POST["edge"];
-		$popTbl = $_POST["pop"];
-		$ASlist = $_POST["as"]; // an array of AS
-		$username = $_POST["username"];
+        		
+		$username = $_POST["username"];			
 		
-		$tmp = "";
-		foreach ($ASlist as &$as) {
-		    $tmp.= "_".($as);
-		}
+		$pop = $_POST["pop"];
+		$edge = $_POST["edge"];
+		$idg = new idGen($edge,$pop,$_POST["as"]);
+		$queryID = $idg->getqueryID();
 		
-		$queryID = md5($edgeTbl."_".$popTbl.$tmp);
-		
-		$queries = simplexml_load_file("queries\query.xml");
-		//print_r($queries);					
-		$result = $queries->xpath("/DATA/QUERY[queryID=".$queryID."]");		
+		$queries = simplexml_load_file("queries\query.xml");							
+		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');		
 		if($result!=FALSE) // this query already exists
 		{
 			// TODO ->add user to users
@@ -160,28 +168,38 @@
 			 * */
 		}else { 
 		
-		/* Step 1. I need to know the absolute path to where I am now, ie where this script is running from...*/ 
-		$thisdir = getcwd(); 
-		$querydir = $thisdir."/queries";
-		
-		/* Step 2. From this folder, I want to create a subfolder called "myfiles".  Also, I want to try and make this folder world-writable (CHMOD 0777). Tell me if success or failure... */ 		
-		if(mkdir($thisdir ."/".$queryID , 0777)) 
-		{ 
-		   echo "Directory has been created successfully..."; 
-		} 
-		else 
-		{ 
-		   echo "Failed to create directory..."; 
-		} 
-		
-		/*
-		$query1 ="" ; // TODO COMPLETE
-		$query2 ="" ; // TODO COMPLETE
-		$result1 = $mysqli->query($query1);
-		$result2 = $mysqli->query($query2)  		               			   
-		*/
-		
-		// update query.xml file	
+			/* Step 1. I need to know the absolute path to where I am now, ie where this script is running from...*/ 
+			$thisdir = getcwd(); 
+			$querydir = $thisdir."/queries";
+			
+			/* Step 2. From this folder, I want to create a subfolder called "myfiles".  Also, I want to try and make this folder world-writable (CHMOD 0777). Tell me if success or failure... */ 		
+			if(mkdir($thisdir ."/".$queryID , 0777)) 
+			{ 
+			   echo "Directory has been created successfully..."; 
+			} 
+			else 
+			{ 
+			   echo "Failed to create directory..."; 
+			} 
+			
+			$asp = $_POST["as"];
+			$as = "'";
+			$as .= join("','", $asp); //'174','209'			
+			$as .= "'";
+			
+			// pop query
+			$query1 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getPoPTblName().'` (select * from `'.$database.'`.`'.$pop.'` where ASN in('.$as.') order by ASN';
+			// edge query
+			$query2 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getEdgeTblName().'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID
+				FROM '.$edge.' edges
+				inner join '.$pop.' src on(edges.SourceIP = src.IP)
+				inner join '.$pop.' dest on(edges.DestIP = dest.IP)
+				where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.')';
+			$result1 = $mysqli->query($query1);
+			$result2 = $mysqli->query($query2);  		               			   
+			
+			
+			// update query.xml file	
 		}
 				
 		header('Content-type: application/text');        

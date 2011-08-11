@@ -83,17 +83,17 @@
             $(document).ready(function() {
                     $("#getAS").click(function() {                                                           
                         $.post("query_backend_keren.php", {func: "getASlist", blade: $("#mySelect").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
-                        function(data){                        			
+                        function(data){
+                        	                        			
 	                         var allAS = data.result;
-	                         var AS = allAS.split("*");
-	                         
+							 var AS = allAS.split("*");	
+							 							 	                         	                         
 	                         for(i = 0; i < AS.length; i++){
 	                         	var tmp = AS[i].split(" ");								
-								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 
+								$("#searchable").append('<option value="' + tmp + '">' + AS[i] + "</option> "); 								
 							 }
 	                         
-                        }, "json");	
-                 //$('#searchable').multiselect2side({'search': 'Search: '});
+                        }, "json");	           
                     });                    
             });
             
@@ -107,7 +107,7 @@
             $(document).ready(function() {
                     $("#sendQuery").click(function() {                                                           
                         $.post("query_backend_keren.php", {func: "sendQuery", blade: $("#mySelect").val() ,
-                         edge: $("#Edge").val() , pop: $("#PoP").val(), username: <?php echo $username?>, as: $("#searchable").val() },
+                         edge: $("#Edge").val() , pop: $("#PoP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){                        			
 	                         updateTable(data.queryID);
 	                         // TODO: update table?	                         	                         
@@ -116,10 +116,20 @@
                     });
             });
             
+                                 
+     		// Completed - open map page
+     		$(document).ready(function() {
+                    $("#QstatusC").click(function() {                                                           
+                        $.post("visual_frontend.php", {func: "showMap", QID: $("#QstatusC").val()},"json");                                                                             
+                    });
+            });
+  
+     		       
             // cancels the query
             $(document).ready(function() {
                     $("#abort").click(function() {                                                           
-                        $.post("query_backend_keren.php", {func: "abort", query: $("#abort").val() },"json");                                      	
+                        $.post("query_backend_keren.php", {func: "abort", query: $("#abort").val() },"json");
+                        // -->> delete row from table;                                      	
                     });
             });
                         
@@ -257,19 +267,29 @@
 				
 				<?php
 					$queries = simplexml_load_file("queries\query.xml");
-					//print_r($queries);					
-					//$result = $queries->xpath("/DATA/QUERY[users=".$username."]");
-					$result = $queries->xpath("/DATA/QUERY");
+					$result = $queries->xpath('/DATA/QUERY[users/user="'.$username.'"]');					
 					if($result!=FALSE)
 					{
 						echo "<tr>";
-						echo "<th>Query ID</th><th>SQL query</th><th>Status</th><th>Abort</th>";
+						echo "<th>Edge table</th><th>PoP table</th><th>Status</th><th>Delete</th>";
 						echo "</tr>";
 						foreach ($result as $i => $value) {												
-							echo "<tr>";
-							echo "<td>".$result[$i]->queryID."</td>" . "<td>my query</td>" . "<td>".$result[$i]->lastKnownStatus."</td>" . 
-							'<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
-							// change id to unique value
+							echo "<tr>";							
+							echo "<td>".$result[$i]->EdgeTbl."</td>" . "<td>".$result[$i]->PopTbl."</td>" . "<td>";
+							if ($result[$i]->lastKnownStatus=="running"){
+								echo "running";
+								
+								?>
+								// add code to check query status
+								
+								<?php
+							}elseif ($result[$i]->lastKnownStatus=="completed"){
+								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
+							}else {
+								echo 'ambigues status';
+							}
+							echo "</td>" . '<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
+							// --->>>> change id to unique value ?
 							echo "</tr>";
 						} 
 					}else echo "you have no queries yet... ";
