@@ -5,13 +5,13 @@
 	error_reporting(0);
 		
 	
-	////// globals
 	if(!isset($_POST["blade"]))
 	{
 		echo "You are not permited to this page!";
 		die();
 	}
 	
+	// globals
 	$selected_blade = $_POST["blade"];
 	$blade = $Blade_Map[$selected_blade];
 	$host = (string)$blade["host"];
@@ -20,7 +20,7 @@
 	$user = (string)$blade["user"];
 	$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
 	$database = (string)$blade["db"];
-	
+		
 	function ret_res($message, $type)
 	{
 		header('Content-type: application/json');
@@ -96,22 +96,109 @@
         
 		$edgeTbl = $_POST["edge"];
 		$popTbl = $_POST["pop"];
-		/*
+		
 		$query ="" ; // TODO COMPLETE
-		$AS = "";       
+		
+		$AS = "";
+		$ASinfo = simplexml_load_file("xml\ASN_info.xml");       
         if ($result = $mysqli->query($query)){
         	 while ($row = $result->fetch_assoc()) {
 		        foreach($row as $key => $value){
-					$AS .= $value . " ";
+					$AS .= $value . " ";		 										
+					$result = $ASinfo->xpath("/DATA/ROW[ASNumber=".$value."]");		
+					if($result!=FALSE)
+					{
+						 $AS.=$result[0]->Country." ".$result[0]->ISPName;
+					}
+					$AS.= "*";		  
 				}
 		     }
         }
-        			   
-		*/
-		$AS = "172 90";
+        	
+		//$AS = "172 90";
 		header('Content-type: application/text');        
         echo json_encode(array("result"=>$AS));                                    
 		$mysqli->close();
+	}
+	
+	
+	if($_POST["func"]=="sendQuery")
+	{
+		$blade = $_POST["blade"];
+		$mysqli = new mysqli($host,$user,$pass,$database,$port);
+		
+		if ($mysqli->connect_error) {
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+		}
+        
+		$edgeTbl = $_POST["edge"];
+		$popTbl = $_POST["pop"];
+		$ASlist = $_POST["as"]; // an array of AS
+		$username = $_POST["username"];
+		
+		$tmp = "";
+		foreach ($ASlist as &$as) {
+		    $tmp.= "_".($as);
+		}
+		
+		$queryID = md5($edgeTbl."_".$popTbl.$tmp);
+		
+		$queries = simplexml_load_file("queries\query.xml");
+		//print_r($queries);					
+		$result = $queries->xpath("/DATA/QUERY[queryID=".$queryID."]");		
+		if($result!=FALSE) // this query already exists
+		{
+			// TODO ->add user to users
+			/*
+			foreach ($result as $i => $value) {												
+				echo "<tr>";
+				echo "<td>".$result[$i]->queryID."</td>" . "<td>my query</td>" . "<td>".$result[$i]->lastKnownStatus."</td>" . 
+				'<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
+				// change id to unique value
+				echo "</tr>";
+			} 
+			 * */
+		}else { 
+		
+		/* Step 1. I need to know the absolute path to where I am now, ie where this script is running from...*/ 
+		$thisdir = getcwd(); 
+		$querydir = $thisdir."/queries";
+		
+		/* Step 2. From this folder, I want to create a subfolder called "myfiles".  Also, I want to try and make this folder world-writable (CHMOD 0777). Tell me if success or failure... */ 		
+		if(mkdir($thisdir ."/".$queryID , 0777)) 
+		{ 
+		   echo "Directory has been created successfully..."; 
+		} 
+		else 
+		{ 
+		   echo "Failed to create directory..."; 
+		} 
+		
+		/*
+		$query1 ="" ; // TODO COMPLETE
+		$query2 ="" ; // TODO COMPLETE
+		$result1 = $mysqli->query($query1);
+		$result2 = $mysqli->query($query2)  		               			   
+		*/
+		
+		// update query.xml file	
+		}
+				
+		header('Content-type: application/text');        
+        echo json_encode(array("queryID"=>$queryID));
+		                                    
+		$mysqli->close();
+	}
+	
+	if($_POST["func"]=="abort")
+	{
+		$queryID = $_POST["query"];
+		/*
+		 TODO: check if ther is only 1 user for the query, if so:
+		 * 1) cancel it
+		 * 2) update query.xml
+		 * remove user from users list
+		 */ 
 	}
 	
 ?>
