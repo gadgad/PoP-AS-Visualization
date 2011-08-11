@@ -28,6 +28,28 @@
 		die();	
 	}
 	
+	function parse($mysqli,$query){
+		$res = "";			
+		if ($result = $mysqli->query($query)){
+        	 while ($row = $result->fetch_assoc()) {
+		        foreach($row as $key => $value){
+					$res .= $value . " ";
+				}
+		     }
+        }
+		return $res;
+	}
+	
+	function getTblFromDB($mysqli,$table,$year,$week){
+			//$query = "show tables like 'IPEdgesMedianTbl_".$year."_week_".$week."%'";
+		$query = "show tables like '".$table."_".$year."_week_".$week."%'"; 			    
+		$query = "show tables like '".$table."_".$year."_week_".$week."_%'";
+		$query = "show tables like '".$table."_".$year."_".$week."%'";
+		$query = "show tables like '".$table."_".$year."_".$week."_%'";
+		
+        
+	}
+	
 	if($_POST["func"]=="testConnection")
 	{ 
 		if(isset($pass) && $pass!=""){
@@ -58,7 +80,11 @@
 		$table = $DataTables["ip-edges"]["prefix"];        
 		$edges = "";
 		//$query = "show tables like 'IPEdgesMedianTbl_".$year."_week_".$week."%'";
-		$query = "show tables like '".$table."_".$year."%_".$week."%'"; 			    
+		$query = "show tables like '".$table."_".$year."_week_".$week."%'"; 			    
+		$query = "show tables like '".$table."_".$year."_week_".$week."_%'";
+		$query = "show tables like '".$table."_".$year."_".$week."%'";
+		$query = "show tables like '".$table."_".$year."_".$week."_%'";
+		
         if ($result = $mysqli->query($query)){
         	 while ($row = $result->fetch_assoc()) {
 		        foreach($row as $key => $value){
@@ -145,7 +171,7 @@
 		
 		$queries = simplexml_load_file("queries\query.xml");
 		//print_r($queries);					
-		$result = $queries->xpath("/DATA/QUERY[queryID=".$queryID."]");		
+		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');		
 		if($result!=FALSE) // this query already exists
 		{
 			// TODO ->add user to users
