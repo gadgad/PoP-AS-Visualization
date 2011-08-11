@@ -93,8 +93,7 @@
 								$("#searchable").append('<option value="' + tmp + '">' + AS[i] + "</option> "); 								
 							 }
 	                         
-                        }, "json");	
-                 //$('#searchable').multiselect2side({'search': 'Search: '});
+                        }, "json");	           
                     });                    
             });
             
