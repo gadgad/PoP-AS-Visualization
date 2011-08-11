@@ -1,17 +1,36 @@
+<?xml version="1.0"?>
 <DATA>
 	
 	<QUERY>
 		<queryID>2010_23_12345</queryID>
 		<processID>123</processID>
-		<users>keren</users>
-		<lastKnownStatus>running</lastKnownStatus>
+		<users>
+			<user>keren</user>
+		</users>
+		<lastKnownStatus>completed</lastKnownStatus>
+		<EdgeTbl>rrtt</EdgeTbl>
+		<PopTbl>rrtt</PopTbl>
 	</QUERY>
 	
 	<QUERY>
 		<queryID>2010_23_12345</queryID>
 		<processID>123</processID>
-		<users>keren</users>
-		<lastKnownStatus>running</lastKnownStatus>
+		<users>
+			<user>keren</user>
+		</users>
+		<lastKnownStatus>bla bla</lastKnownStatus>
+		<EdgeTbl>rrtt</EdgeTbl>
+		<PopTbl>rrt33t</PopTbl>
 	</QUERY>
-	
-</DATA>	
+
+	<QUERY>
+		<queryID>1111</queryID>
+		<processID>2222</processID>
+		<EdgeTbl>edge1</EdgeTbl>
+		<PopTbl>pop1</PopTbl>
+		<users>
+			<user>keren</user>
+		</users>
+	</QUERY>
+
+</DATA>
