@@ -83,13 +83,14 @@
             $(document).ready(function() {
                     $("#getAS").click(function() {                                                           
                         $.post("query_backend_keren.php", {func: "getASlist", blade: $("#mySelect").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
-                        function(data){                        			
+                        function(data){
+                        	                        			
 	                         var allAS = data.result;
-	                         var AS = allAS.split("*");
-	                         
+							 var AS = allAS.split("*");	
+							 							 	                         	                         
 	                         for(i = 0; i < AS.length; i++){
 	                         	var tmp = AS[i].split(" ");								
-								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 
+								$("#searchable").append('<option value="' + tmp + '">' + AS[i] + "</option> "); 								
 							 }
 	                         
                         }, "json");	
@@ -274,11 +275,7 @@
 				
 				<?php
 					$queries = simplexml_load_file("queries\query.xml");
-					print_r($queries);					
-					$result = $queries->xpath('/DATA/QUERY[users/user="'.$username.'"]');
-					//$result = $queries->xpath("/DATA/QUERY");
-					echo "!!!!!!!!!!!!!!!!!!!!!!";
-					echo var_dump($result);
+					$result = $queries->xpath('/DATA/QUERY[users/user="'.$username.'"]');					
 					if($result!=FALSE)
 					{
 						echo "<tr>";
