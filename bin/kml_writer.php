@@ -40,17 +40,6 @@ class kmlWriter
 	
 	public function __construct($xml_src_dir,$kml_dst_dir)
 	{
-		/*
-		if(func_num_args()==2)
-		{
-			$this->xml_src_dir = func_get_arg(0);
-			$this->kml_dst_dir = func_get_arg(1);
-		} else {
-			$this->xml_src_dir = 'xml';
-			$this->kml_dst_dir = 'temp';
-		}
-		 * 
-		 */
 		
 		$this->xml_src_dir = $xml_src_dir;
 		$this->kml_dst_dir = $kml_dst_dir;
