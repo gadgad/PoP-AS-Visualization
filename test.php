@@ -116,10 +116,27 @@
                     });
             });
             
+            
+            // Ready to fetch data - get info from DB
+     		$(document).ready(function() {
+                    $("#QstatusR").click(function() {                                                           
+                        $.post("visual_frontend.php", {func: "fetchData", QID: $("#QstatusR").val()},"json");                                                                             
+                    });
+            });
+            
+     		// Completed - open map page
+     		$(document).ready(function() {
+                    $("#QstatusC").click(function() {                                                           
+                        $.post("visual_frontend.php", {func: "showMap", QID: $("#QstatusC").val()},"json");                                                                             
+                    });
+            });
+  
+     		       
             // cancels the query
             $(document).ready(function() {
                     $("#abort").click(function() {                                                           
-                        $.post("query_backend_keren.php", {func: "abort", query: $("#abort").val() },"json");                                      	
+                        $.post("query_backend_keren.php", {func: "abort", query: $("#abort").val() },"json");
+                        // -->> delete row from table;                                      	
                     });
             });
                         
@@ -257,19 +274,33 @@
 				
 				<?php
 					$queries = simplexml_load_file("queries\query.xml");
-					//print_r($queries);					
-					//$result = $queries->xpath("/DATA/QUERY[users=".$username."]");
-					$result = $queries->xpath("/DATA/QUERY");
+					print_r($queries);					
+					$result = $queries->xpath('/DATA/QUERY[users/user="'.$username.'"]');
+					//$result = $queries->xpath("/DATA/QUERY");
+					echo "!!!!!!!!!!!!!!!!!!!!!!";
+					echo var_dump($result);
 					if($result!=FALSE)
 					{
 						echo "<tr>";
-						echo "<th>Query ID</th><th>SQL query</th><th>Status</th><th>Abort</th>";
+						echo "<th>Edge table</th><th>PoP table</th><th>Status</th><th>Delete</th>";
 						echo "</tr>";
 						foreach ($result as $i => $value) {												
-							echo "<tr>";
-							echo "<td>".$result[$i]->queryID."</td>" . "<td>my query</td>" . "<td>".$result[$i]->lastKnownStatus."</td>" . 
-							'<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
-							// change id to unique value
+							echo "<tr>";							
+							echo "<td>".$result[$i]->EdgeTbl."</td>" . "<td>".$result[$i]->PopTbl."</td>" . "<td>";
+							if ($result[$i]->lastKnownStatus=="running"){
+								echo "running";
+								
+								?>
+								// add code to check query status
+								
+								<?php
+							}elseif ($result[$i]->lastKnownStatus=="completed"){
+								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
+							}else {
+								echo 'ambigues status';
+							}
+							echo "</td>" . '<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
+							// --->>>> change id to unique value ?
 							echo "</tr>";
 						} 
 					}else echo "you have no queries yet... ";
