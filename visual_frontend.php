@@ -18,8 +18,7 @@ include("bin/kml_writer.php");
 $kmlWriter = new kmlWriter('xml','temp');
 $kmlWriter->writeKMZ();
 $filename=$kmlWriter->getFileName();
-$full_url = "http://".$_SERVER['HTTP_HOST'].dirname( $_SERVER['REQUEST_URI'])."/".$filename;
-
+$full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/".$filename;
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
