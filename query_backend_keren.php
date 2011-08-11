@@ -1,6 +1,7 @@
 <?php
-	include("bin/load_config.php");	
-		
+	include_once("bin/load_config.php");
+	include_once("bin/idgen.php");
+				
 	// Turn off all error reporting
 	error_reporting(0);
 		
@@ -28,26 +29,33 @@
 		die();	
 	}
 	
-	function parse($mysqli,$query){
+	function parse($mysqli,$query,$prev){
 		$res = "";			
 		if ($result = $mysqli->query($query)){
         	 while ($row = $result->fetch_assoc()) {
 		        foreach($row as $key => $value){
-					$res .= $value . " ";
-				}
+					$pos = strpos($prev,$value);					
+					if($pos === false) {
+					 	$res .= $value . " ";
+					}
+				}	
 		     }
         }
 		return $res;
 	}
 	
 	function getTblFromDB($mysqli,$table,$year,$week){
-			//$query = "show tables like 'IPEdgesMedianTbl_".$year."_week_".$week."%'";
-		$query = "show tables like '".$table."_".$year."_week_".$week."%'"; 			    
-		$query = "show tables like '".$table."_".$year."_week_".$week."_%'";
-		$query = "show tables like '".$table."_".$year."_".$week."%'";
-		$query = "show tables like '".$table."_".$year."_".$week."_%'";
-		
-        
+
+		$res = "";	
+		$query = "show tables like '".$table."\_".$year."\_week_".$week."'";
+		$res.= parse($mysqli,$query,$res); 			    
+		$query = "show tables like '".$table."\_".$year."\_week_".$week."\_%'";
+		$res.= parse($mysqli,$query,$res);
+		$query = "show tables like '".$table."\_".$year."\_".$week."'";
+		$res.= parse($mysqli,$query,$res);
+		$query = "show tables like '".$table."\_".$year."\_".$week."\_%'";
+		$res.= parse($mysqli,$query,$res);
+		return $res;        
 	}
 	
 	if($_POST["func"]=="testConnection")
@@ -78,33 +86,11 @@
 		$week = $_POST["week"];
 		
 		$table = $DataTables["ip-edges"]["prefix"];        
-		$edges = "";
-		//$query = "show tables like 'IPEdgesMedianTbl_".$year."_week_".$week."%'";
-		$query = "show tables like '".$table."_".$year."_week_".$week."%'"; 			    
-		$query = "show tables like '".$table."_".$year."_week_".$week."_%'";
-		$query = "show tables like '".$table."_".$year."_".$week."%'";
-		$query = "show tables like '".$table."_".$year."_".$week."_%'";
-		
-        if ($result = $mysqli->query($query)){
-        	 while ($row = $result->fetch_assoc()) {
-		        foreach($row as $key => $value){
-					$edges .= $value . " ";
-				}
-		     }
-        }
+		$edges = getTblFromDB($mysqli,$table,$year,$week);
 		
 		$table = $DataTables["pop-locations"]["prefix"];
-		$pops = "";
-		$query = "show tables like '".$table."_".$year."%_".$week."%'";
-		
-		if ($result = $mysqli->query($query)){
-        	 while ($row = $result->fetch_assoc()) {
-		        foreach($row as $key => $value){
-					$pops .= $value . " ";
-				}
-		     }
-        }
-	    
+		$pops = getTblFromDB($mysqli,$table,$year,$week);
+			    
 		header('Content-type: application/json');
         echo json_encode(array("edge"=>$edges,"pop"=>$pops));                                    
 		$mysqli->close();
@@ -123,25 +109,25 @@
 		$edgeTbl = $_POST["edge"];
 		$popTbl = $_POST["pop"];
 		
-		$query ="" ; // TODO COMPLETE
+		$query ="SELECT distinct ASN FROM `".$database."`.`".$popTbl."` order by ASN limit 10" ;		
 		
 		$AS = "";
-		$ASinfo = simplexml_load_file("xml\ASN_info.xml");       
-        if ($result = $mysqli->query($query)){
-        	 while ($row = $result->fetch_assoc()) {
+		$ASinfo = simplexml_load_file("xml\ASN_info.xml");
+		
+		if ($result = $mysqli->query($query)){			
+	    	 while ($row = $result->fetch_assoc()) {
 		        foreach($row as $key => $value){
-					$AS .= $value . " ";		 										
-					$result = $ASinfo->xpath("/DATA/ROW[ASNumber=".$value."]");		
-					if($result!=FALSE)
+					$AS .= $value . " ";											 									
+					$res = $ASinfo->xpath('/DATA/ROW[ASNumber="'.$value.'"]');		
+					if($res!=FALSE)
 					{
-						 $AS.=$result[0]->Country." ".$result[0]->ISPName;
+						$AS.=$res[0]->Country." ".$res[0]->ISPName;
 					}
-					$AS.= "*";		  
+					$AS.= "*";							  
 				}
 		     }
-        }
-        	
-		//$AS = "172 90";
+    	}else $AS = "no result";       
+               
 		header('Content-type: application/text');        
         echo json_encode(array("result"=>$AS));                                    
 		$mysqli->close();
@@ -156,21 +142,13 @@
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
 		}
-        
-		$edgeTbl = $_POST["edge"];
-		$popTbl = $_POST["pop"];
-		$ASlist = $_POST["as"]; // an array of AS
-		$username = $_POST["username"];
+        		
+		$username = $_POST["username"];			
 		
-		$tmp = "";
-		foreach ($ASlist as &$as) {
-		    $tmp.= "_".($as);
-		}
+		$idg = new idGen($_POST["edge"],$_POST["pop"],$_POST["as"]);
+		$queryID = $idg->getqueryID();
 		
-		$queryID = md5($edgeTbl."_".$popTbl.$tmp);
-		
-		$queries = simplexml_load_file("queries\query.xml");
-		//print_r($queries);					
+		$queries = simplexml_load_file("queries\query.xml");							
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');		
 		if($result!=FALSE) // this query already exists
 		{

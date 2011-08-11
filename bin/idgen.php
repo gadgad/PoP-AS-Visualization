@@ -22,5 +22,6 @@
     	public function getEdgeTblName() { return "DPV_EDGE_".$this->queryID; }
     	public function getPoPTblName() { return "DPV_POP_".$this->queryID; }
     	public function getDirName() { return $this->queryID; }	
+		public function getqueryID() { return $this->queryID; }
     }
 ?>
