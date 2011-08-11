@@ -1,5 +1,5 @@
 <?php
-	require("xml2array.php");
+	require_once("xml2array.php");
 	
 	$xml_filename = "config/config.xml";
 	$arr = xmlstr_to_array($xml_filename);
