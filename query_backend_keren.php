@@ -99,6 +99,8 @@
 	
 	if($_POST["func"]=="getASlist")
 	{
+			
+			
 		$blade = $_POST["blade"];
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		
@@ -109,7 +111,7 @@
 		$edgeTbl = $_POST["edge"];
 		$popTbl = $_POST["pop"];
 		
-		$query ="SELECT distinct ASN FROM `".$database."`.`".$popTbl."` order by ASN limit 10" ;		
+		$query ="SELECT distinct ASN FROM `".$database."`.`".$popTbl."` order by ASN limit 20" ;		
 		
 		$AS = "";
 		$ASinfo = simplexml_load_file("xml\ASN_info.xml");
@@ -127,7 +129,7 @@
 				}
 		     }
     	}else $AS = "no result";       
-               
+			   			   
 		header('Content-type: application/text');        
         echo json_encode(array("result"=>$AS));                                    
 		$mysqli->close();
@@ -145,7 +147,9 @@
         		
 		$username = $_POST["username"];			
 		
-		$idg = new idGen($_POST["edge"],$_POST["pop"],$_POST["as"]);
+		$pop = $_POST["pop"];
+		$edge = $_POST["edge"];
+		$idg = new idGen($edge,$pop,$_POST["as"]);
 		$queryID = $idg->getqueryID();
 		
 		$queries = simplexml_load_file("queries\query.xml");							
@@ -164,28 +168,38 @@
 			 * */
 		}else { 
 		
-		/* Step 1. I need to know the absolute path to where I am now, ie where this script is running from...*/ 
-		$thisdir = getcwd(); 
-		$querydir = $thisdir."/queries";
-		
-		/* Step 2. From this folder, I want to create a subfolder called "myfiles".  Also, I want to try and make this folder world-writable (CHMOD 0777). Tell me if success or failure... */ 		
-		if(mkdir($thisdir ."/".$queryID , 0777)) 
-		{ 
-		   echo "Directory has been created successfully..."; 
-		} 
-		else 
-		{ 
-		   echo "Failed to create directory..."; 
-		} 
-		
-		/*
-		$query1 ="" ; // TODO COMPLETE
-		$query2 ="" ; // TODO COMPLETE
-		$result1 = $mysqli->query($query1);
-		$result2 = $mysqli->query($query2)  		               			   
-		*/
-		
-		// update query.xml file	
+			/* Step 1. I need to know the absolute path to where I am now, ie where this script is running from...*/ 
+			$thisdir = getcwd(); 
+			$querydir = $thisdir."/queries";
+			
+			/* Step 2. From this folder, I want to create a subfolder called "myfiles".  Also, I want to try and make this folder world-writable (CHMOD 0777). Tell me if success or failure... */ 		
+			if(mkdir($thisdir ."/".$queryID , 0777)) 
+			{ 
+			   echo "Directory has been created successfully..."; 
+			} 
+			else 
+			{ 
+			   echo "Failed to create directory..."; 
+			} 
+			
+			$asp = $_POST["as"];
+			$as = "'";
+			$as .= join("','", $asp); //'174','209'			
+			$as .= "'";
+			
+			// pop query
+			$query1 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getPoPTblName().'` (select * from `'.$database.'`.`'.$pop.'` where ASN in('.$as.') order by ASN';
+			// edge query
+			$query2 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getEdgeTblName().'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID
+				FROM '.$edge.' edges
+				inner join '.$pop.' src on(edges.SourceIP = src.IP)
+				inner join '.$pop.' dest on(edges.DestIP = dest.IP)
+				where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.')';
+			$result1 = $mysqli->query($query1);
+			$result2 = $mysqli->query($query2);  		               			   
+			
+			
+			// update query.xml file	
 		}
 				
 		header('Content-type: application/text');        

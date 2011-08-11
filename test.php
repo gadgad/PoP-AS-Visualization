@@ -107,7 +107,7 @@
             $(document).ready(function() {
                     $("#sendQuery").click(function() {                                                           
                         $.post("query_backend_keren.php", {func: "sendQuery", blade: $("#mySelect").val() ,
-                         edge: $("#Edge").val() , pop: $("#PoP").val(), username: <?php echo $username?>, as: $("#searchable").val() },
+                         edge: $("#Edge").val() , pop: $("#PoP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){                        			
 	                         updateTable(data.queryID);
 	                         // TODO: update table?	                         	                         
@@ -116,14 +116,7 @@
                     });
             });
             
-            
-            // Ready to fetch data - get info from DB
-     		$(document).ready(function() {
-                    $("#QstatusR").click(function() {                                                           
-                        $.post("visual_frontend.php", {func: "fetchData", QID: $("#QstatusR").val()},"json");                                                                             
-                    });
-            });
-            
+                                 
      		// Completed - open map page
      		$(document).ready(function() {
                     $("#QstatusC").click(function() {                                                           
