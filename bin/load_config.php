@@ -6,6 +6,7 @@
 	
 	$Blades = $arr["blades"]["blade"];
 	$DataTables = $arr["data-tables"];
+	$FileLocations = $arr["file-locations"];
 	
 	foreach($Blades as $blade)
 	{
