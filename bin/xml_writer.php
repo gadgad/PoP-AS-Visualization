@@ -21,7 +21,7 @@
 		
 		
 		private function getPoPQuery(){return "select * from `".$this->schema."`.`".$this->idg->getPoPTblName()."`;";}
-		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."`;";}
+		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where Source_PoPID is not null and Dest_PoPID is not null;";}
 		
 		private function sql2xml($sql)
 		{
@@ -66,7 +66,7 @@
 		{
 			$filepath = ($this->xml_dst_dir.'/pop.xml');
 			$filewrite = fopen($filepath, "w");
-			$this->pop_xmlStrig = $this->sql2xml($this->getPoPQuery());
+			$this->pop_xmlString = $this->sql2xml($this->getPoPQuery());
 			fwrite($filewrite, $this->pop_xmlString);
 			fclose($filewrite);
 			return true;
@@ -74,7 +74,7 @@
 		
 		private function write_edge_XML()
 		{
-			$filepath = ($this->xml_dst_dir.'/edge.xml');
+			$filepath = ($this->xml_dst_dir.'/edges.xml');
 			$filewrite = fopen($filepath, "w");
 			$this->edge_xmlString = $this->sql2xml($this->getEdgeQuery());
 			fwrite($filewrite, $this->edge_xmlString);

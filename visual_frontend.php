@@ -1,23 +1,8 @@
 <?php
-define('MIN_LINE_WIDTH',3);
-define('MAX_LINE_WIDTH',5);
-define('INITIAL_ALTITUDE',10);
-define('ALTITUDE_DELTA',5000);
-define('MAX_EDGES_RESULTS',10);
-define('DRAW_CIRCLES',true);
-define('INTER_CON',true);
-define('INTRA_CON',true);
-define('CONNECTED_POPS_ONLY',false);
-define('USE_COLOR_PICKER',false);
-define('DEFAULT_COLOR_PICKER_POOL_SIZE',isset($_POST["num_of_asns"])?$_POST["num_of_asns"]:10);
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-include("bin/kml_writer.php");
-
-//write generated KML file to disk
-$kmlWriter = new kmlWriter('xml','temp');
-$kmlWriter->writeKMZ();
-$filename=$kmlWriter->getFileName();
+require_once("bin/idgen.php");
+$queryID = isset($_POST["QID"])? $_POST("QID") : '2df5efc4b99b9486e245a49f6400a90f';
+$idg = new idGen($queryID);
+$filename='queries/'.$idg->getDirName().'/result.kmz';
 $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/".$filename;
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

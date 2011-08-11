@@ -1,6 +1,20 @@
 <?php
 require_once("bin/load_config.php");
 require_once("bin/color.php");
+require_once("bin/idgen.php");
+
+// TODO: fetch this data from cookie!
+define('MIN_LINE_WIDTH',3);
+define('MAX_LINE_WIDTH',5);
+define('INITIAL_ALTITUDE',10);
+define('ALTITUDE_DELTA',5000);
+define('MAX_EDGES_RESULTS',10);
+define('DRAW_CIRCLES',true);
+define('INTER_CON',true);
+define('INTRA_CON',true);
+define('CONNECTED_POPS_ONLY',false);
+define('USE_COLOR_PICKER',false);
+define('DEFAULT_COLOR_PICKER_POOL_SIZE',isset($_POST["num_of_asns"])?$_POST["num_of_asns"]:10);
 
 define("PRECISION",4); //precision of floating point calculations
 define("EARTH_RADIUS",6371); // earth raius in km
@@ -36,13 +50,13 @@ class kmlWriter
 	
 	private $xml_src_dir;
 	private $kml_dst_dir;
+	private $idg;
 	
 	
-	public function __construct($xml_src_dir,$kml_dst_dir)
+	public function __construct($queryID)
 	{
-		
-		$this->xml_src_dir = $xml_src_dir;
-		$this->kml_dst_dir = $kml_dst_dir;
+		$this->idg = new idGen($queryID);
+		$this->xml_src_dir = $this->kml_dst_dir = $xml_src_dir = 'queries/'.$this->idg->getDirName();
 		
 		$this->kmlString = '';
 		$this->pop_xml = simplexml_load_file($this->xml_src_dir."\pop.xml");
@@ -372,12 +386,12 @@ class kmlWriter
 		
 		//write generated KML file to disk
 		// use a random 5-digit number appended to the date for the name of the kml file
-		$day = date("m-d-y-");
-		srand( microtime() * 1000000);
-		$randomnum = rand(10000,99999);
-		$file_prefix = $day.$randomnum;
-		$file_ext = $file_prefix.'.kml';
-		$filename = ($this->kml_dst_dir.'/'.$file_ext);
+		
+		//$day = date("m-d-y-");
+		//srand( microtime() * 1000000);
+		//$randomnum = rand(10000,99999);
+		//$file_prefix = $day.$randomnum;
+		$filename = ($this->kml_dst_dir.'/result.kml');
 		
 		// define initial write and appends
 		$filewrite = fopen($filename, "w");
@@ -389,8 +403,8 @@ class kmlWriter
 		
 		// generate the .kmz file
 		$zip = new ZipArchive();
-		$zip_file_ext = $file_prefix.'.kmz';
-		$zip_filename = $this->kml_dst_dir.'/'.$zip_file_ext;
+		//$zip_file_ext = $file_prefix.'.kmz';
+		$zip_filename = ($this->kml_dst_dir.'/result.kmz');
 		$this->filename = $zip_filename;
 		
 		if ($zip->open($zip_filename, ZIPARCHIVE::CREATE)!==TRUE) {
@@ -401,6 +415,7 @@ class kmlWriter
 		$zip->close();
 		// finally, delete the original .kml file
 		unlink($filename);
+		return true;
 	}
 
 	public function getFileName()
