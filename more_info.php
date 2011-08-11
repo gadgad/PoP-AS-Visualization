@@ -1,5 +1,7 @@
 <?php
 
+// http://localhost/PoPVisualizer/more_info.php?src_pop=000209.1066447842&dst_pop=000209.1066564486&threshold=2
+
 if(!isset($_GET["src_pop"]) || !isset($_GET["dst_pop"]) || !isset($_GET["threshold"]))
 {
 	echo "missing parameters!";
