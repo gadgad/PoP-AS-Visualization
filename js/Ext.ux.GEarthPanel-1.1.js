@@ -238,11 +238,11 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
                 }
             }}}
         });
-
+		
         var kmlPanel = new Ext.FormPanel({
             title: 'KML Documents',
             labelAlign: 'top',
-            items: [this.kmlTreePanel, kmlUrlField]
+            items: [this.kmlTreePanel, kmlUrlField ]
         });
 
         return kmlPanel;
@@ -258,6 +258,16 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
         if (kmlObject) {
        		this.earth.getFeatures().appendChild(kmlObject);
        		this.kmlTreePanel.getRootNode().appendChild(this.treeNodeFromKml(kmlObject));
+       		
+       		var link = this.earth.createLink('');
+        	link.setHref(kmlObject.getUrl());
+        	this.networkLink = this.earth.createNetworkLink('');
+        	this.networkLink.set(link, true,true); // Sets the link, refreshVisibility, and flyToView.
+        	this.earth.getFeatures().appendChild(this.networkLink);
+        	
+       		if (kmlObject.getAbstractView() !== null)
+      			this.earth.getView().setAbstractView(kmlObject.getAbstractView());
+      		
    		} else {
        		alert('Bad KML');
    		}
