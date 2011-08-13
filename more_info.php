@@ -2,11 +2,14 @@
 
 // http://localhost/PoPVisualizer/more_info.php?src_pop=000209.1066447842&dst_pop=000209.1066564486&threshold=2
 
-if(!isset($_GET["src_pop"]) || !isset($_GET["dst_pop"]) || !isset($_GET["threshold"]))
-{
-	echo "missing parameters!";
-	die();
-}
+if(!isset($_GET["src_pop"]) || 
+	!isset($_GET["dst_pop"]) ||
+	!isset($_GET["threshold"]) ||
+	!isset($_GET["inter_con"]) ||
+	!isset($_GET["intra_con"])) {
+		echo "missing parameters!";
+		die();
+	}
 
 $src = $_GET["src_pop"];
 $dst = $_GET["dst_pop"];
@@ -20,8 +23,8 @@ $EDGES=array();
 $POP_2_LOC_MAP=array();
 $LOC_2_POP_MAP=array();
 
-define('INTER_CON',true);
-define('INTRA_CON',true);
+define('INTER_CON',$_GET["inter_con"]);
+define('INTRA_CON',$_GET["intra_con"]);
 
 define('STDEV_THRESHOLD',$_GET["threshold"]);
 

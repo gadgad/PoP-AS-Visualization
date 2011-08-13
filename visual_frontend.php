@@ -15,6 +15,64 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
     <script type="text/javascript" src="http://extjs.cachefly.net/builds/ext-cdn-611.js"></script>
   	<script type="text/javascript" src="js/Ext.ux.GEarthPanel-1.1.js"></script>
     <script type="text/javascript">
+    
+	function getGlobalsPanel(){
+		   	
+		   	var globalParams = {
+				MIN_LINE_WIDTH: [3,'number','Min Edge Line Width'],
+				MAX_LINE_WIDTH: [5,'number','Max Edge Line Width'],
+				INITIAL_ALTITUDE: [10,'number','Initial ASN Altitude'],
+				ALTITUDE_DELTA: [5000,'number','ASN Altitude Delta'],
+				DRAW_CIRCLES: [true,'checkbox','PoP Location Convergence Radiuses'],
+				INTER_CON: [true,'checkbox','Inter-Connectivity'],
+				INTRA_CON: [true,'checkbox','Intra-Connectivity'],
+				CONNECTED_POPS_ONLY: [false,'checkbox','Connected PoPs only'],
+				USE_COLOR_PICKER: [false,'checkbox','Web-Safe Color-Picking'],
+				STDEV_THRESHOLD: [2,'number','Standard Deviation Threshold']
+		   	}
+		
+		
+		    // Create checkbox for each layer
+		    var items = [];
+		    for (param in globalParams){
+		    	if(globalParams[param][1]=='checkbox') {
+					items.push({
+			            boxLabel: globalParams[param][2],
+			            checked: globalParams[param][0],
+			            hideLabel: true,
+			            name: param
+					});
+				}
+				if(globalParams[param][1]=='number') {
+					items.push({
+			            xtype: 'numberfield',
+		                fieldLabel: globalParams[param][2],
+		                minValue: 0,
+		                value: globalParams[param][0],
+		                //maxValue: 100,
+		                //hideTrigger: true,
+		                //allowDecimals: true,
+		                //decimalPrecision: 1,
+		                //step: 0.4
+		                name: param
+					});
+				}
+		    }
+		
+		    // Create FormPanel with all layers
+		    var globalPanel = new Ext.FormPanel({
+		        title: 'Kml Renderer Options',
+		        defaultType: 'checkbox',
+		        defaults: {
+		            //hideLabel: true
+		        },
+		        items: items
+		    });
+		
+		    return globalPanel;
+		}
+
+////////////////////////////////////////////////////////////////////////////////////////
 
         google.load("earth", "1");
         google.load("maps", "2.xx");
@@ -48,25 +106,8 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
                 }
             });
             
-            var bottomPanel = new Ext.Panel({
-                region: 'south',
-                contentEl: 'southPanel',
-                title: 'more info',
-                border: true,
-                collapsible: true,
-                // top , right , bottom , left
-                //margins: '5 5 5 5',
-                //cmargins: '5 0 0 0',
-                height: 150,
-    			minSize: 75,
-    			maxSize: 250,
-                defaultType: 'panel',
-                defaults: {
-                    bodyStyle: 'padding: 10px'
-                }
-            });
             
-            var basicPanel = new Ext.Panel({
+            var downloadPanel = new Ext.Panel({
 				contentEl: 'downloadPanel',
 				border: false,
 				defaultType: 'panel'	
@@ -86,10 +127,11 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
 
                 // Add panels
                 controlPanel.add(earthPanel.getKmlPanel());
+                controlPanel.add(getGlobalsPanel());
                 controlPanel.add(earthPanel.getLocationPanel());
                 controlPanel.add(earthPanel.getLayersPanel());
                 controlPanel.add(earthPanel.getOptionsPanel());
-                controlPanel.items.items[0].add(basicPanel);
+                controlPanel.items.items[0].add(downloadPanel);
                 
                 controlPanel.doLayout();
                 
@@ -107,7 +149,6 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
 <body>
     <div id="westPanel"></div>
     <div id="eastPanel"></div>
-    <div id="southPanel"></div>
     <div id="downloadPanel">
     	  <?php
             if(file_exists($filename)) {
