@@ -14,6 +14,7 @@ define('INTER_CON',true);
 define('INTRA_CON',true);
 define('CONNECTED_POPS_ONLY',false);
 define('USE_COLOR_PICKER',false);
+define('STDEV_THRESHOLD',2);
 define('DEFAULT_COLOR_PICKER_POOL_SIZE',isset($_POST["num_of_asns"])?$_POST["num_of_asns"]:10);
 
 define("PRECISION",4); //precision of floating point calculations
