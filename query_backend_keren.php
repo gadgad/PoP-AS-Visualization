@@ -199,7 +199,7 @@
 			$result2 = $mysqli->query($query2);  		               			   
 			
 			
-			// update query.xml file	
+			// update query.xml file	-> write to xml
 		}
 				
 		header('Content-type: application/text');        

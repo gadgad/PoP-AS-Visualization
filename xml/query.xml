@@ -26,6 +26,7 @@
 	<QUERY>
 		<queryID>1111</queryID>
 		<processID>2222</processID>
+		<lastKnownStatus>running</lastKnownStatus>
 		<EdgeTbl>edge1</EdgeTbl>
 		<PopTbl>pop1</PopTbl>
 		<users>
