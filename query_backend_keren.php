@@ -149,7 +149,8 @@
 		
 		$pop = $_POST["pop"];
 		$edge = $_POST["edge"];
-		$idg = new idGen($edge,$pop,$_POST["as"]);
+		$as = $_POST["as"];
+		$idg = new idGen($edge,$pop,$as);
 		$queryID = $idg->getqueryID();
 		
 		$queries = simplexml_load_file("xml\query.xml");							
@@ -163,7 +164,7 @@
 			/* Step 1. I need to know the absolute path to where I am now, ie where this script is running from...*/ 
 			$thisdir = getcwd(); 
 			$querydir = $thisdir."/queries";
-			
+			echo "creatig directory";
 			/* Step 2. From this folder, I want to create a subfolder called "myfiles".  Also, I want to try and make this folder world-writable (CHMOD 0777). Tell me if success or failure... */ 		
 			if(mkdir($thisdir ."/".$queryID , 0777)) 
 			{ 
