@@ -128,7 +128,7 @@
             // cancels the query
             $(document).ready(function() {
                     $("#abort").click(function() {                                                           
-                        $.post("query_backend_keren.php", {func: "abort", query: $("#abort").val() },"json");
+                        $.post("user_query_managment.php", {func: "abort", query: $("#abort").val(), username: <?php echo '"'.$username.'"'?> },"json");
                         // -->> delete row from table;                                      	
                     });
             });
@@ -266,7 +266,7 @@
 				<table class="imagetable" style="alignment-baseline: central">				
 				
 				<?php
-					$queries = simplexml_load_file("queries\query.xml");
+					$queries = simplexml_load_file("xml\query.xml");
 					$result = $queries->xpath('/DATA/QUERY[users/user="'.$username.'"]');					
 					if($result!=FALSE)
 					{
@@ -279,16 +279,14 @@
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo "running";
 								
-								?>
-								// add code to check query status
+								//add code to check query status
 								
-								<?php
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
 								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
 							}else {
 								echo 'ambigues status';
 							}
-							echo "</td>" . '<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
+							echo "</td>" . '<td> <button type="submit" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
 							// --->>>> change id to unique value ?
 							echo "</tr>";
 						} 
