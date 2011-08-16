@@ -3,20 +3,25 @@ require_once("bin/load_config.php");
 require_once("bin/color.php");
 require_once("bin/idgen.php");
 
-// TODO: fetch this data from cookie!
-define('MIN_LINE_WIDTH',3);
-define('MAX_LINE_WIDTH',5);
-define('INITIAL_ALTITUDE',10);
-define('ALTITUDE_DELTA',5000);
-define('MAX_EDGES_RESULTS',10);
-define('DRAW_CIRCLES',true);
-define('INTER_CON',true);
-define('INTRA_CON',true);
-define('CONNECTED_POPS_ONLY',false);
-define('USE_COLOR_PICKER',false);
-define('STDEV_THRESHOLD',2);
-define('DEFAULT_COLOR_PICKER_POOL_SIZE',isset($_POST["num_of_asns"])?$_POST["num_of_asns"]:10);
 
+// TODO: fetch this data from cookie!
+if(!defined('KML_RENDER_GLOBALS'))
+{
+	define('MIN_LINE_WIDTH',3);
+	define('MAX_LINE_WIDTH',5);
+	define('INITIAL_ALTITUDE',10);
+	define('ALTITUDE_DELTA',5000);
+	define('DRAW_CIRCLES',true);
+	define('INTER_CON',true);
+	define('INTRA_CON',true);
+	define('CONNECTED_POPS_ONLY',false);
+	define('USE_COLOR_PICKER',false);
+	define('STDEV_THRESHOLD',2);
+	define('KML_RENDER_GLOBALS',true);
+}
+
+
+define('MAX_EDGES_RESULTS',10);
 define("PRECISION",4); //precision of floating point calculations
 define("EARTH_RADIUS",6371); // earth raius in km
 
@@ -52,6 +57,7 @@ class kmlWriter
 	private $xml_src_dir;
 	private $kml_dst_dir;
 	private $idg;
+	private $num_of_asns;
 	
 	
 	public function __construct($queryID)
@@ -64,6 +70,7 @@ class kmlWriter
 		$this->edges_xml = simplexml_load_file($this->xml_src_dir."\edges.xml");
 		
 		$as_info_path = $GLOBALS["FileLocations"]["as-info"];
+		$this->num_of_asns = 10; //TODO: fetch value from query.xml!!!
 		$this->asn_info_xml = simplexml_load_file($as_info_path);
 		
 		$this->ASN_LIST=array();
@@ -141,7 +148,7 @@ class kmlWriter
 			}
 			
 			if(USE_COLOR_PICKER)
-				$cp = new ColorPicker(DEFAULT_COLOR_PICKER_POOL_SIZE);
+				$cp = new ColorPicker($this->num_of_asns);
 			
 			$asn = intval($pop->ASN);
 			if(!array_key_exists($asn,$this->ASN_LIST)){

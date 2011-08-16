@@ -53,6 +53,7 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
     // Called by above function
     onEarthReady: function(object){
         this.earth = object;
+        this.currentKmlObject = null;
         this.earth.getWindow().setVisibility(true);
         this.earth.getNavigationControl().setVisibility(this.earth.VISIBILITY_SHOW);
         this.setLayers(this.earthLayers);
@@ -252,12 +253,24 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
     fetchKml: function(kmlUrl){
 		google.earth.fetchKml(this.earth, kmlUrl, this.addKml.createDelegate(this));
     },
+    
+    resetKml: function(){
+    	if(this.currentKmlObject!= null){
+	    	var kmlObjects = this.earth.getFeatures().getChildNodes();
+	    	for(var i=0; i<kmlObjects.getLength(); i++ ){
+	    		this.earth.getFeatures().removeChild(kmlObjects.item(i));
+	    	}
+	    	this.kmlTreePanel.getRootNode().item(0).remove();
+	    	this.currentKmlObject = null;
+    	}
+    },
 
     // Add KML object (called by above function)
     addKml: function(kmlObject){
         if (kmlObject) {
        		this.earth.getFeatures().appendChild(kmlObject);
        		this.kmlTreePanel.getRootNode().appendChild(this.treeNodeFromKml(kmlObject));
+       		this.currentKmlObject = kmlObject;
        		
        		var link = this.earth.createLink('');
         	link.setHref(kmlObject.getUrl());
@@ -310,3 +323,10 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
 });
 
 Ext.reg('gearthpanel', Ext.ux.GEarthPanel);
+/*
+Ext.define('Ext.ux.GEarthPanel', {
+    extend: 'Ext.Panel',
+    alias: 'widget.gearthpanel'
+});
+*/
+
