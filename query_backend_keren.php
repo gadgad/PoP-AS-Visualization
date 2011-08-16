@@ -1,11 +1,11 @@
 <?php
 	include_once("bin/load_config.php");
 	include_once("bin/idgen.php");
+	include_once("writeToXML.php");
 				
 	// Turn off all error reporting
 	error_reporting(0);
-		
-	
+			
 	if(!isset($_POST["blade"]))
 	{
 		echo "You are not permited to this page!";
@@ -149,29 +149,22 @@
 		
 		$pop = $_POST["pop"];
 		$edge = $_POST["edge"];
-		$idg = new idGen($edge,$pop,$_POST["as"]);
+		$as = $_POST["as"];
+		$idg = new idGen($edge,$pop,$as);
 		$queryID = $idg->getqueryID();
 		
-		$queries = simplexml_load_file("queries\query.xml");							
-		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');		
+		$queries = simplexml_load_file("xml\query.xml");							
+		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users');		
 		if($result!=FALSE) // this query already exists
 		{
-			// TODO ->add user to users
-			/*
-			foreach ($result as $i => $value) {												
-				echo "<tr>";
-				echo "<td>".$result[$i]->queryID."</td>" . "<td>my query</td>" . "<td>".$result[$i]->lastKnownStatus."</td>" . 
-				'<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
-				// change id to unique value
-				echo "</tr>";
-			} 
-			 * */
-		}else { 
+			$result->addChild('user', $username);
+			
+		}else { // making a new quary 
 		
 			/* Step 1. I need to know the absolute path to where I am now, ie where this script is running from...*/ 
 			$thisdir = getcwd(); 
 			$querydir = $thisdir."/queries";
-			
+			echo "creatig directory";
 			/* Step 2. From this folder, I want to create a subfolder called "myfiles".  Also, I want to try and make this folder world-writable (CHMOD 0777). Tell me if success or failure... */ 		
 			if(mkdir($thisdir ."/".$queryID , 0777)) 
 			{ 
@@ -198,8 +191,9 @@
 			$result1 = $mysqli->query($query1);
 			$result2 = $mysqli->query($query2);  		               			   
 			
+			// TODO: get process ID for the query			
+			AddQuery($queryID,$processID,$$username,$edge, $pop);
 			
-			// update query.xml file	
 		}
 				
 		header('Content-type: application/text');        
@@ -207,16 +201,6 @@
 		                                    
 		$mysqli->close();
 	}
-	
-	if($_POST["func"]=="abort")
-	{
-		$queryID = $_POST["query"];
-		/*
-		 TODO: check if ther is only 1 user for the query, if so:
-		 * 1) cancel it
-		 * 2) update query.xml
-		 * remove user from users list
-		 */ 
-	}
+		
 	
 ?>
