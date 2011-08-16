@@ -50,7 +50,7 @@
 						?>
 						<p style="margin-left: 50px"><input type="submit" value="Login" name="login" /></p>
 					</form>
-					<p>not a user? <a href="register.php">Register</a> now! </p>
+					<p style="margin-left: 10px">not a user? <a href="register.php">Register</a> now! </p>
 					                          
 	            </div>
             </div>
