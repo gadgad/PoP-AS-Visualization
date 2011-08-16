@@ -12,6 +12,7 @@
         <script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
         <script type="text/javascript" src="js/loadData.js"></script>
         <link rel="stylesheet" href="css/jquery.multiselect2side.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
 		<script type="text/javascript" src="js/jquery.multiselect2side.js" ></script>
           
           
@@ -134,33 +135,6 @@
             });
                         
             </script>
-            
-            <style type="text/css">
-            	table{margin-left:auto; margin-right:auto;}
-				table.imagetable {
-				font-family: verdana,arial,sans-serif;
-				font-size:11px;
-				color:#333333;
-				border-width: 1px;
-				border-color: #999999;
-				border-collapse: collapse;
-			}
-			table.imagetable th {
-				background:#b5cfd2 url('images/table-images/cell-blue.jpg');
-				border-width: 1px;
-				padding: 8px;
-				border-style: solid;
-				border-color: #999999;
-			}
-			table.imagetable td {
-				background:#dcddc0 url('images/table-images/cell-grey.jpg');
-				border-width: 1px;
-				padding: 8px;
-				border-style: solid;
-				border-color: #999999;
-			}
-			</style>
-
                   
     </head>
 
@@ -168,15 +142,14 @@
     
     <body>        
         
-        <div id="container" style="font-family:font-family: verdana,arial,sans-serif;">
-        	<!--comic sans ms;-->
+        <div id="container">
 
             <div id="header">
             	<p>
                 <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?>                	
                 	<a href="logout.php"> <u>Logout</u></a>	
                 </h5>
-                <h1 style="margin-bottom:10px;text-align:center;color:Navy">PoP/AS Visualizer</h1>
+                <h1 id="main-title">PoP/AS Visualizer</h1>
                 </p>                
             </div>
 						                       
@@ -186,9 +159,9 @@
             <h3 style="text-decoration: underline;text-align: center; size: 4; color: teal">Make a new query</h3>
                 
                 <form style="font-size:14px;">
-                	<p style="color:navy; margin-bottom: 10px; font-size:16px;">Select blade</p>
+                	<p class="selection-header">Select blade</p>
                     <!-- <legend style="color:teal">Choose blade:</legend> -->
-                    Blade:
+                    <p class="selection-text">Blade:</p>
                     <select id="mySelect">
                     	<option value="">Select blade</option>
                             <?php                                                          
@@ -205,8 +178,8 @@
                 
                 <form id="AS" name="get AS list" style="font-size:14px;">                               
                     
-                    <p style="color:navy; margin-bottom: 10px; font-size:16px;">Select date</p>       
-                    <div align="left">Year  :                       
+                    <p class="selection-header">Select date</p>       
+                    <div align="left" class="selection-text">Year  :                       
                         <select id="year" >
                             <option value="">Select year</option>
                             <?php
@@ -218,7 +191,7 @@
                         </select>
                     </div>
 
-                     <div align="left">Week:
+                     <div align="left" class="selection-text">Week:
                         <select id="week">                               
                             <option selected="selected" value="">Select week</option>
                             <?php                            	
@@ -229,14 +202,14 @@
                         </select>
                     </div>
                     
-                    <p style="color:navy; margin-bottom: 10px; font-size:16px;">Select table</p>                                       
-               		<div align="left">PoP  :                       
+                    <p class="selection-header">Select table</p>                                       
+               		<div align="left" class="selection-text">PoP  :                       
                         <select id="PoP" >
                             <option value="">Select PoP table</option>                            
                         </select>
                     </div>
 
-                     <div align="left">Edge:
+                     <div align="left" class="selection-text">Edge:
                         <select id="Edge">                               
                             <option selected="selected" value="">Select edge table</option>                            
                         </select>
@@ -296,7 +269,7 @@
 				</table>                
             </div>
             
-            <div id="footer" style="background-color:#FFA500;clear:both;text-align:center;margin-top: 10px">
+            <div id="footer">
                 Copyright © 2011 DIMES
             </div>
             
