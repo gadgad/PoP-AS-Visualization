@@ -13,12 +13,13 @@
 	</QUERY>
 	
 	<QUERY>
-		<queryID>2010_23_12345</queryID>
+		<queryID>2010_24_12345</queryID>
 		<processID>123</processID>
 		<users>
 			<user>keren</user>
+			<user>gadi</user>
 		</users>
-		<lastKnownStatus>bla bla</lastKnownStatus>
+		<lastKnownStatus>running</lastKnownStatus>
 		<EdgeTbl>rrtt</EdgeTbl>
 		<PopTbl>rrt33t</PopTbl>
 	</QUERY>
@@ -26,6 +27,7 @@
 	<QUERY>
 		<queryID>1111</queryID>
 		<processID>2222</processID>
+		<lastKnownStatus>running</lastKnownStatus>
 		<EdgeTbl>edge1</EdgeTbl>
 		<PopTbl>pop1</PopTbl>
 		<users>
