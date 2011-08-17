@@ -1,4 +1,5 @@
 <?php
+	require_once("verify.php");
     require_once("bin/xml_writer.php");
     require_once("bin/kml_writer.php");
     require_once("bin/idgen.php");

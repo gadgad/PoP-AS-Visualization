@@ -10,6 +10,7 @@
 			if($password == $xml->password){
 				session_start();
 				$_SESSION['username'] = $username;
+				setcookie('username',$username,time()+3600*24*31*12);
 				header('Location: test.php');
 				die();
 			}
