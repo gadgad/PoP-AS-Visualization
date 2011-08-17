@@ -30,6 +30,18 @@
 	margin-left: 10px;
 }
 
+#user-select{
+	border:1px solid navy; 
+	padding-right:2%; 
+	padding-left:2%; 
+	margin-left:3%; 
+	background-color: #EEEEFF; 
+	color:#333333; 
+	width:30%;
+    height:85%; 
+    float:left; 
+    clear:none;
+}
 .selection-text{
 }			
 
