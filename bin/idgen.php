@@ -9,7 +9,7 @@
     	
     	public function __construct()
     	{
-    		if(func_num_args()==3)
+    		if(func_num_args()==4)
     		{
     			$this->edgeTbl = func_get_arg(0);
     			$this->popTbl = func_get_arg(1);
