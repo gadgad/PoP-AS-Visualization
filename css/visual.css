@@ -1,10 +1,9 @@
 #container{
 	font-family: verdana,arial,sans-serif;
 }
-#main-title{
+.main-title{
 	margin-bottom:10px;
 	text-align:center;
-	color:Navy;
 } 
 .selection-header{
 	color:navy; 
@@ -31,21 +30,30 @@
 }
 
 #user-select{
-	border:1px solid navy; 
+	font-family: verdana,arial,sans-serif;
 	padding-right:2%; 
 	padding-left:2%; 
-	margin-left:3%; 
+	margin-left:3%;
+	/*border:1px solid navy; */
 	background-color: #EEEEFF; 
 	color:#333333; 
 	width:30%;
-    height:85%; 
+    height:92%; 
     float:left; 
     clear:none;
 }
 .selection-text{
 }			
 
-
+#My_queries{
+	margin-right: 3%;
+	border:1px solid #999999;
+	width:58%;
+	height:92%;
+	float: right; 
+	clear:right; 
+	text-align:center;
+}
 table{
 	margin-left:auto; 
 	margin-right:auto;
@@ -75,17 +83,18 @@ table.imagetable td {
 
 .about{
 	margin-right: 3%;
+	border:1px solid #999999; 	
 	background-color:#EEEFEE;
-	width:67%;
+	width:64%;
 	height:85%;
 	float:right; 
 	clear:right; 
 	text-align:center;
 }
 
-#footer{
-	background-color:#FFA500;
+.footer{	
 	clear:both;
 	text-align:center;
-	margin-top:10px;
+	padding: 5px;
+	font-size:10px;
 }
