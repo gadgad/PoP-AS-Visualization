@@ -1,9 +1,13 @@
 <?php
+require_once("verify.php");	
 require_once("bin/idgen.php");
-$queryID = isset($_POST["QID"])? $_POST("QID") : '2df5efc4b99b9486e245a49f6400a90f';
+require_once("bin/kml_render_globals.php");
+
+$queryID = isset($_REQUEST["QID"])? $_REQUEST("QID") : '2df5efc4b99b9486e245a49f6400a90f';
 $idg = new idGen($queryID);
 $filename='queries/'.$idg->getDirName().'/result.kmz';
 $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/".$filename."?".rand(0,10000000000);
+
 ?>
 <html>
 <head>
@@ -21,15 +25,17 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
     <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAvQLslBJZByOlS8Y3iPXgexSV5romlzgkIRRVpZz7TQ7Jsa0ZQxRh2GVXWb7jYX7ajChOO9olKH0Sgg"></script>
   	<script type="text/javascript" src="js/Ext.ux.GEarthPanel-1.1.js"></script>
     <script type="text/javascript">
-    
+    	
         google.load("earth", "1");
         google.load("maps", "2.xx");
         
         Ext.onReady(function(){
         	
+        	/*
         	Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
         		expires: new Date(new Date().getTime()+(1000*60*60*24*365)), //1 year from now
         	}));
+        	*/
 
 
             // Create Google Earth panel
@@ -59,7 +65,21 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
                 }
             });
             
-            
+	    	 var userPanel = new Ext.Panel({
+	            title: 'User Admin',
+		        border: false,
+		        autoHeight: true,
+		        autoWidth: true,
+		        buttonAlign: 'center',
+		        html: 'currently connected as: <?php echo $username; ?>',
+		        buttons: [{
+		        	text: 'Logout',
+                	handler: function() {
+                   		location.href='logout.php'; 
+                	}
+		        }]
+	        });
+
             var downloadPanel = new Ext.Panel({
 				contentEl: 'downloadPanel',
 				border: false,
@@ -76,16 +96,16 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
 			function  getGlobalsPanel(){
 		
 				var globalParams = {
-					MIN_LINE_WIDTH: 	 { value: 3,	 type: 'number',	name: 'Min Edge Line Width'},
-					MAX_LINE_WIDTH: 	 { value: 5,	 type: 'number',	name: 'Max Edge Line Width'},
-					INITIAL_ALTITUDE:	 { value: 10,	 type: 'number',	name: 'Initial ASN Altitude'},
-					ALTITUDE_DELTA:		 { value: 5000,  type: 'number',	name: 'ASN Altitude Delta'},
-					STDEV_THRESHOLD: 	 { value: 2,	 type: 'number',	name: 'Standard Deviation Threshold'},
-					DRAW_CIRCLES:		 { value: true,	 type: 'checkbox',	name: 'PoP Location Convergence Radiuses'},
-					INTER_CON: 			 { value: true,	 type: 'checkbox',	name: 'Inter-Connectivity'},
-					INTRA_CON: 			 { value: true,	 type: 'checkbox',	name: 'Intra-Connectivity'},
-					CONNECTED_POPS_ONLY: { value: false, type: 'checkbox',	name: 'Connected PoPs only'},
-					USE_COLOR_PICKER: 	 { value: false, type: 'checkbox',	name: 'Web-Safe Color-Picking'}
+					MIN_LINE_WIDTH: 	 { value: <?php echo MIN_LINE_WIDTH; ?>, 	type: 'number',		name: 'Min Edge Line Width'},
+					MAX_LINE_WIDTH: 	 { value: <?php echo MAX_LINE_WIDTH; ?>,	type: 'number',		name: 'Max Edge Line Width'},
+					INITIAL_ALTITUDE:	 { value: <?php echo INITIAL_ALTITUDE; ?>,	type: 'number',		name: 'Initial ASN Altitude'},
+					ALTITUDE_DELTA:		 { value: <?php echo ALTITUDE_DELTA; ?>,	type: 'number',		name: 'ASN Altitude Delta'},
+					STDEV_THRESHOLD: 	 { value: <?php echo STDEV_THRESHOLD; ?>,	type: 'number',		name: 'Standard Deviation Threshold'},
+					DRAW_CIRCLES:		 { value: <?php echo DRAW_CIRCLES; ?>,	type: 'checkbox',	name: 'PoP Location Convergence Radiuses'},
+					INTER_CON: 			 { value: <?php echo INTER_CON; ?>,	type: 'checkbox',	name: 'Inter-Connectivity'},
+					INTRA_CON: 			 { value: <?php echo INTRA_CON; ?>,	type: 'checkbox',	name: 'Intra-Connectivity'},
+					CONNECTED_POPS_ONLY: { value: <?php echo CONNECTED_POPS_ONLY; ?>,	type: 'checkbox',	name: 'Connected PoPs only'},
+					USE_COLOR_PICKER: 	 { value: <?php echo USE_COLOR_PICKER; ?>,	type: 'checkbox',	name: 'Web-Safe Color-Picking'}
 			   };
 			
 			
@@ -94,6 +114,11 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
 			    	xtype: 'hidden',
 			    	name: 'queryID',
 			    	value: '<?php echo $queryID; ?>'
+			    });
+			    items.push({
+			    	xtype: 'hidden',
+			    	name: 'submitted',
+			    	value: 'yes'
 			    });
 			    for (param in globalParams){
 			    	if(globalParams[param]['type']=='checkbox') {
@@ -123,14 +148,12 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
 		        // Create FormPanel with all layers
 		        var globalsPanel = new Ext.FormPanel({
 		            title: 'Kml Renderer Options',
-			        //height: 340,
-			        //width: 280,
 			        border: false,
 			        autoHeight: true,
 			        autoWidth: true,
 			        formId: 'globalsForm',
 			        labelWidth: 120,
-			        stateful: true,
+			        //stateful: true,
 			        url: 'render_kml.php',
 			        defaults: {
 			        	//stateful: true,
@@ -191,7 +214,7 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
                 // Add panels
                 controlPanel.add(earthPanel.getKmlPanel());
                 controlPanel.add(getGlobalsPanel());
-                //controlPanel.add(globalsPanel);
+                controlPanel.add(userPanel);
                 controlPanel.add(earthPanel.getLocationPanel());
                 controlPanel.add(earthPanel.getLayersPanel());
                 controlPanel.add(earthPanel.getOptionsPanel());
@@ -222,6 +245,5 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
             }
         ?>
     </div>
-    <div id="globalsFormContainer"></div>
 </body>
 </html>

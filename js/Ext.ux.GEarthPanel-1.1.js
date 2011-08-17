@@ -125,6 +125,8 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
         // Create FormPanel with all layers
         var layersPanel = new Ext.FormPanel({
             title: 'Google Earth Layers',
+            autoHeight: true,
+			autoWidth: true,
             defaultType: 'checkbox',
             defaults: {
                 hideLabel: true
@@ -171,6 +173,8 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
         // Create FormPanel with all options
         var optionsPanel = new Ext.FormPanel({
             title: 'Options',
+            autoHeight: true,
+			autoWidth: true,
             defaultType: 'checkbox',
             defaults: {
                 hideLabel: true
@@ -185,6 +189,8 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
     getLocationPanel: function(){
         var locationPanel = new Ext.FormPanel({
             title: 'Find Location',
+            autoHeight: true,
+			autoWidth: true,
             labelAlign: 'top',
             items: new Ext.form.TriggerField({
                 fieldLabel: 'Location',
@@ -243,6 +249,8 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
         var kmlPanel = new Ext.FormPanel({
             title: 'KML Documents',
             labelAlign: 'top',
+            autoHeight: true,
+			autoWidth: true,
             items: [this.kmlTreePanel, kmlUrlField ]
         });
 

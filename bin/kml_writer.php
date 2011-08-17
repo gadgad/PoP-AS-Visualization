@@ -4,23 +4,10 @@ require_once("bin/color.php");
 require_once("bin/idgen.php");
 
 
-// TODO: fetch this data from cookie!
-if(!defined('KML_RENDER_GLOBALS'))
-{
-	define('MIN_LINE_WIDTH',3);
-	define('MAX_LINE_WIDTH',5);
-	define('INITIAL_ALTITUDE',10);
-	define('ALTITUDE_DELTA',5000);
-	define('DRAW_CIRCLES',true);
-	define('INTER_CON',true);
-	define('INTRA_CON',true);
-	define('CONNECTED_POPS_ONLY',false);
-	define('USE_COLOR_PICKER',false);
-	define('STDEV_THRESHOLD',2);
-	define('KML_RENDER_GLOBALS',true);
-}
+// important global constants defined here
+require_once("bin/kml_render_globals.php");
 
-
+// some more global constants
 define('MAX_EDGES_RESULTS',10);
 define("PRECISION",4); //precision of floating point calculations
 define("EARTH_RADIUS",6371); // earth raius in km
