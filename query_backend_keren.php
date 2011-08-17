@@ -41,6 +41,7 @@
 				}	
 		     }
         }
+		$result->close();
 		return $res;
 	}
 	
@@ -132,6 +133,7 @@
 					$AS.= "*";							  
 				}
 		     }
+			 $result->close();
     	}else $AS = "no result";       
 			   			   
 		header('Content-type: application/text');        
@@ -142,13 +144,7 @@
 	
 	if($_POST["func"]=="sendQuery")
 	{
-		$blade = $_POST["blade"];
-		$mysqli = new mysqli($host,$user,$pass,$database,$port);
-		
-		if ($mysqli->connect_error) {
- 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
-		}
-        		
+		$blade = $_POST["blade"];       		
 		$username = $_POST["username"];			
 		
 		$pop = $_POST["pop"];
@@ -188,10 +184,17 @@
 			// edge query			
 			$query2 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getEdgeTblName().'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID FROM '.$edge.' edges inner join '.$popIP.' src on(edges.SourceIP = src.IP) inner join '.$popIP.' dest on(edges.DestIP = dest.IP) where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.'))';
 			 
-			$result1 = $mysqli->query($query1);			
-			$result2 = $mysqli->query($query2);  		               			   
+			$mysqli = new mysqli($host,$user,$pass,$database,$port);
+		
+			if ($mysqli->connect_error) {
+	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+			} 
+			 
+			$result1 = $mysqli->query($query1);					
+			$result2 = $mysqli->query($query2);			  		               			   
 			
 			$processID = $mysqli->thread_id;
+			//$processID="dummyPID";
 						
 			AddQuery($queryID,$processID,$username,$edge, $pop);
 			

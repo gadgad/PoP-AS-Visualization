@@ -3,6 +3,24 @@
 	include_once("bin/idgen.php");
 	include_once("writeToXML.php");	
 	
+	// globals
+	$selected_blade = $_POST["blade"];
+	$blade = $Blade_Map[$selected_blade];
+	$host = (string)$blade["host"];
+	$port = (int)$blade["port"];
+	$hostNport = (string)$blade["host"].":".(string)$blade["port"];
+	$user = (string)$blade["user"];
+	$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+	$database = (string)$blade["db"];		
+	
+	function ret_res($message, $type)
+	{
+		header('Content-type: application/json');
+		echo json_encode(array("result"=>$message ,"type"=>$type));
+		die();	
+	}
+	
+	
 	function deleteUser($queries,$username,$queryID){
 		//unset($queries->xpath('/DATA/QUERY/users/user[user="'.$username.'"]'));
 		//unset($result[0]->xpath('/QUERY/users/user'));
@@ -48,6 +66,12 @@
 				if ($numOfUsers>1){					
 					deleteUser($queries,$username,$queryID);					
 				}else{
+						$mysqli = new mysqli($host,$user,$pass,$database,$port);
+						$PID = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/processID');
+						$sql = 'kill '.$PID[0];
+						if ($mysqli->connect_error) {
+				 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+						}
 						// TODO: stop the query - kill the process and erase it from XML	
 					}								
 			}else {												
