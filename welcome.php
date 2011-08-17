@@ -32,7 +32,9 @@
         <div id="container">
 
             <div id="header">
-                <h1 id="main-title">PoP/AS Visualizer</h1>
+                <div class="main-title">
+                	<img src="images/logo.png">
+                </div>
             </div>
 						                       
             <div id="login" class="enter">
@@ -59,8 +61,8 @@
                 <h3>About the project</h3>                	            
             </div>
             
-            <div id="footer">
-                Copyright © 2011 DIMES
+            <div class="footer">
+                Copyright © 2011 <a href="http://www.netdimes.org/new/">DIMES</a>
             </div>
             
          </div>
