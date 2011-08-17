@@ -134,11 +134,9 @@
                     });
             });
                         
-            </script>
-                  
+            </script>                  
     </head>
 
-    
     
     <body>        
         
@@ -146,21 +144,18 @@
 
             <div id="header">
             	<p>
-                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?>                	
-                	<a href="logout.php"> <u>Logout</u></a>	
-                </h5>
-                <h1 id="main-title">PoP/AS Visualizer</h1>
+	                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?>                	
+	                	<a href="logout.php"> <u>Logout</u></a>	
+	                </h5>
+                	<h1 id="main-title">PoP/AS Visualizer</h1>
                 </p>                
             </div>
 						                       
-            <div id="user-select" style="border:1px solid navy; padding-right:2%; padding-left:2%; margin-left:3%; background-color: #EEEEFF; color:#333333; width:30%;
-            height:85%; float:left; clear:none">
-            <!--another bg color EEEEFF-->
+            <div id="user-select">          
             <h3 style="text-decoration: underline;text-align: center; size: 4; color: teal">Make a new query</h3>
                 
                 <form style="font-size:14px;">
-                	<p class="selection-header">Select blade</p>
-                    <!-- <legend style="color:teal">Choose blade:</legend> -->
+                	<p class="selection-header">Select blade</p>                    
                     <p class="selection-text">Blade:</p>
                     <select id="mySelect">
                     	<option value="">Select blade</option>
