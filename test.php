@@ -49,6 +49,15 @@
 								 }
 	                         }else {$("#PoP").append("<option>No tables available</option> ");}
 	                         
+	                         var allPops2 = data.popIP;
+	                         if (allPops2!=false){
+	                         	var pops2 = allPops2.split(" ");
+	                         	for(i = 0; i < pops2.length; i++){								
+									$("#popIP").append("<option>" + pops2[i] + "</option> ");
+								 }
+	                         }else {$("#popIP").append("<option>No tables available</option> ");}
+	                         
+	                         
                         }, "json");	
                     }
              } 
@@ -91,7 +100,7 @@
 							 							 	                         	                         
 	                         for(i = 0; i < AS.length; i++){
 	                         	var tmp = AS[i].split(" ");								
-								$("#searchable").append('<option value="' + tmp + '">' + AS[i] + "</option> "); 								
+								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
 							 }
 	                         
                         }, "json");	           
@@ -108,10 +117,14 @@
             $(document).ready(function() {
                     $("#sendQuery").click(function() {                                                           
                         $.post("query_backend_keren.php", {func: "sendQuery", blade: $("#mySelect").val() ,
-                         edge: $("#Edge").val() , pop: $("#PoP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
-                         function(data){                        			
-	                         updateTable(data.queryID);
-	                         // TODO: update table?	                         	                         
+                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
+                         function(data){
+                         	if (data==null){
+                         		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
+                         	}else{
+                         		updateTable(data.queryID);
+	                         // TODO: update table?	
+                         	}                         	                        				                         	                         	                         
                         }
                          ,"json");                                                    
                     });
@@ -134,11 +147,9 @@
                     });
             });
                         
-            </script>
-                  
+            </script>                  
     </head>
 
-    
     
     <body>        
         
@@ -146,21 +157,18 @@
 
             <div id="header">
             	<p>
-                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?>                	
-                	<a href="logout.php"> <u>Logout</u></a>	
-                </h5>
-                <h1 id="main-title">PoP/AS Visualizer</h1>
+	                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?>                	
+	                	<a href="logout.php"> <u>Logout</u></a>	
+	                </h5>
+                	<h1 id="main-title">PoP/AS Visualizer</h1>
                 </p>                
             </div>
 						                       
-            <div id="user-select" style="border:1px solid navy; padding-right:2%; padding-left:2%; margin-left:3%; background-color: #EEEEFF; color:#333333; width:30%;
-            height:85%; float:left; clear:none">
-            <!--another bg color EEEEFF-->
+            <div id="user-select">          
             <h3 style="text-decoration: underline;text-align: center; size: 4; color: teal">Make a new query</h3>
                 
                 <form style="font-size:14px;">
-                	<p class="selection-header">Select blade</p>
-                    <!-- <legend style="color:teal">Choose blade:</legend> -->
+                	<p class="selection-header">Select blade</p>                    
                     <p class="selection-text">Blade:</p>
                     <select id="mySelect">
                     	<option value="">Select blade</option>
@@ -201,8 +209,15 @@
                             ?>                             
                         </select>
                     </div>
-                    
+                                                           
                     <p class="selection-header">Select table</p>                                       
+               		
+               		<div align="left" class="selection-text">PoP IP:                       
+                        <select id="popIP" >
+                            <option value="">Select PoP IP table</option>                            
+                        </select>
+                    </div>
+
                		<div align="left" class="selection-text">PoP  :                       
                         <select id="PoP" >
                             <option value="">Select PoP table</option>                            
@@ -226,7 +241,7 @@
                     
                     </div>
                     
-                    <input id="sendQuery" type="submit" value="Send query!" style="margin-left: 20px; margin-top: 10px"/>    
+                    <input id="sendQuery" type="button" value="Send query!" style="margin-left: 20px; margin-top: 10px"/>    
                     
                 </form>
               
@@ -259,8 +274,9 @@
 							}else {
 								echo 'ambigues status';
 							}
-							echo "</td>" . '<td> <button type="submit" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
+							echo "</td>" . '<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
 							// --->>>> change id to unique value ?
+							// if changing to "submit",  add: onsubmit="return false;" ?
 							echo "</tr>";
 						} 
 					}else echo "you have no queries yet... ";
