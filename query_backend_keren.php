@@ -90,9 +90,13 @@
 		
 		$table = $DataTables["pop-locations"]["prefix"];
 		$pops = getTblFromDB($mysqli,$table,$year,$week);
+		
+		$table = $DataTables["popip"]["prefix"];
+		$popsIP = getTblFromDB($mysqli,$table,$year,$week);
+		
 			    
 		header('Content-type: application/json');
-        echo json_encode(array("edge"=>$edges,"pop"=>$pops));                                    
+        echo json_encode(array("edge"=>$edges,"pop"=>$pops,"popIP"=>$popsIP));                                    
 		$mysqli->close();
 	}
 	
@@ -148,9 +152,10 @@
 		$username = $_POST["username"];			
 		
 		$pop = $_POST["pop"];
+		$popIP = $_POST["popIP"];
 		$edge = $_POST["edge"];
 		$as = $_POST["as"];
-		$idg = new idGen($edge,$pop,$as);
+		$idg = new idGen($edge,$pop,$as,$popIP);
 		$queryID = $idg->getqueryID();
 		
 		$queries = simplexml_load_file("xml\query.xml");							
@@ -161,43 +166,39 @@
 			
 		}else { // making a new quary 
 		
-			/* Step 1. I need to know the absolute path to where I am now, ie where this script is running from...*/ 
 			$thisdir = getcwd(); 
-			$querydir = $thisdir."/queries";
-			echo "creatig directory";
-			/* Step 2. From this folder, I want to create a subfolder called "myfiles".  Also, I want to try and make this folder world-writable (CHMOD 0777). Tell me if success or failure... */ 		
-			if(mkdir($thisdir ."/".$queryID , 0777)) 
+			$querydir = $thisdir."/queries";			 		
+			if(mkdir($querydir ."/".$queryID , 0777)) 
 			{ 
-			   echo "Directory has been created successfully..."; 
+			   //echo "Directory has been created successfully..."; 
 			} 
 			else 
 			{ 
 			   echo "Failed to create directory..."; 
 			} 
 			
-			$asp = $_POST["as"];
+			$asp = $_POST["as"];			
 			$as = "'";
-			$as .= join("','", $asp); //'174','209'			
+			$as .= join("','", $asp);						
 			$as .= "'";
 			
 			// pop query
-			$query1 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getPoPTblName().'` (select * from `'.$database.'`.`'.$pop.'` where ASN in('.$as.') order by ASN';
-			// edge query
-			$query2 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getEdgeTblName().'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID
-				FROM '.$edge.' edges
-				inner join '.$pop.' src on(edges.SourceIP = src.IP)
-				inner join '.$pop.' dest on(edges.DestIP = dest.IP)
-				where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.')';
-			$result1 = $mysqli->query($query1);
+			$query1 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getPoPTblName().'` (select * from `'.$database.'`.`'.$pop.'` where ASN in('.$as.')) order by ASN';
+			
+			// edge query			
+			$query2 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getEdgeTblName().'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID FROM '.$edge.' edges inner join '.$popIP.' src on(edges.SourceIP = src.IP) inner join '.$popIP.' dest on(edges.DestIP = dest.IP) where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.'))';
+			 
+			$result1 = $mysqli->query($query1);			
 			$result2 = $mysqli->query($query2);  		               			   
 			
-			// TODO: get process ID for the query			
-			AddQuery($queryID,$processID,$$username,$edge, $pop);
+			$processID = $mysqli->thread_id;
+						
+			AddQuery($queryID,$processID,$username,$edge, $pop);
 			
 		}
 				
 		header('Content-type: application/text');        
-        echo json_encode(array("queryID"=>$queryID));
+        echo json_encode(array("queryID"=>$queryID));		
 		                                    
 		$mysqli->close();
 	}
