@@ -2,47 +2,14 @@
 <DATA>
 	
 	<QUERY>
-		<queryID>2010_23_12345</queryID>
-		<processID>123</processID>
+		<queryID/>
+		<processID>26227</processID>
+		<lastKnownStatus>running</lastKnownStatus>
+		<EdgeTbl>IPEdgesMedianTbl_2010_1</EdgeTbl>
+		<PopTbl>PoPLocationTbl_2010_week_1_2weeks</PopTbl>
 		<users>
 			<user>keren</user>
 		</users>
-		<lastKnownStatus>completed</lastKnownStatus>
-		<EdgeTbl>rrtt</EdgeTbl>
-		<PopTbl>rrtt</PopTbl>
 	</QUERY>
 	
-	<QUERY>
-		<queryID>2010_24_12345</queryID>
-		<processID>123</processID>
-		<users>
-			<user>keren</user>
-			<user>gadi</user>
-		</users>
-		<lastKnownStatus>running</lastKnownStatus>
-		<EdgeTbl>rrtt</EdgeTbl>
-		<PopTbl>rrt33t</PopTbl>
-	</QUERY>
-
-	<QUERY>
-		<queryID>1111</queryID>
-		<processID>2222</processID>
-		<lastKnownStatus>running</lastKnownStatus>
-		<EdgeTbl>edge1</EdgeTbl>
-		<PopTbl>pop1</PopTbl>
-		<users>
-			<user>keren</user>
-		</users>
-	</QUERY>
-
-<QUERY>
-	<queryID>ad9a51c6be1030372da87293604c5993</queryID>
-	<processID/>
-	<lastKnownStatus>running</lastKnownStatus>
-	<EdgeTbl>IPEdgesMedianTbl_2010_1</EdgeTbl>
-	<PopTbl>PoPLocationTbl_2010_week_1_2weeks</PopTbl>
-	<users><user/>
-	</users>
-	</QUERY>
-	<QUERY><queryID>1746cbb5cbb90c7a591aad49405df026</queryID><processID/><lastKnownStatus>running</lastKnownStatus><EdgeTbl>IPEdgesMedianTbl_2010_1</EdgeTbl><PopTbl>PoPLocationTbl_2010_week_1_2weeks</PopTbl><users><user/></users></QUERY><QUERY><queryID>1684e9457245a8e6803e1b25abeb6d3c</queryID><processID/><lastKnownStatus>running</lastKnownStatus><EdgeTbl>IPEdgesMedianTbl_2010_1</EdgeTbl><PopTbl>PoPLocationTbl_2010_week_1_2weeks</PopTbl><users><user/></users></QUERY><QUERY><queryID>de7dbf6ce475dfb6939c973c0408bba6</queryID><processID/><lastKnownStatus>running</lastKnownStatus><EdgeTbl>IPEdgesMedianTbl_2010_1</EdgeTbl><PopTbl>PoPLocationTbl_2010_week_1_2weeks</PopTbl><users><user/></users></QUERY>
-<QUERY><queryID>c597b873c4fab31e78723fb8818deb97</queryID><processID/><lastKnownStatus>running</lastKnownStatus><EdgeTbl>IPEdgesMedianTbl_2010_1</EdgeTbl><PopTbl>PoPLocationTbl_2010_week_1_2weeks</PopTbl><users><user>keren</user></users></QUERY><QUERY><queryID/><processID>26207</processID><lastKnownStatus>running</lastKnownStatus><EdgeTbl>IPEdgesMedianTbl_2010_1</EdgeTbl><PopTbl>PoPLocationTbl_2010_week_1_2weeks</PopTbl><users><user>keren</user></users></QUERY></DATA>
+</DATA>
