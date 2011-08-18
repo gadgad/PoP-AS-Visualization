@@ -151,7 +151,7 @@
 		$popIP = $_POST["popIP"];
 		$edge = $_POST["edge"];
 		$as = $_POST["as"];
-		$idg = new idGen($edge,$pop,$as,$popIP);
+		$idg = new idGen($edge,$pop,$as,$popIP,$blade);
 		$queryID = $idg->getqueryID();
 		
 		$queries = simplexml_load_file("xml\query.xml");							
@@ -190,13 +190,12 @@
 	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
 			} 
 			 
-			$result1 = $mysqli->query($query1);					
-			$result2 = $mysqli->query($query2);			  		               			   
+			$result1 = $mysqli->send_query($query1);					
+			$result2 = $mysqli->send_query($query2);			  		               			   
 			
 			$processID = $mysqli->thread_id;
-			//$processID="dummyPID";
-						
-			AddQuery($queryID,$processID,$username,$edge, $pop);
+			
+			AddQuery($queryID,$processID,$username,$edge, $pop,count($asp),$asp,$blade);
 			
 		}
 				
