@@ -1,32 +1,39 @@
 <?php
 
 // http://localhost/PoPVisualizer/more_info.php?src_pop=000209.1066447842&dst_pop=000209.1066564486&threshold=2
+require_once("bin/load_config.php");
+require_once("bin/idgen.php");
 
-if(!isset($_GET["src_pop"]) || 
-	!isset($_GET["dst_pop"]) ||
-	!isset($_GET["threshold"]) ||
-	!isset($_GET["inter_con"]) ||
-	!isset($_GET["intra_con"])) {
+if(!isset($_REQUEST["src_pop"]) || 
+	!isset($_REQUEST["dst_pop"]) ||
+	!isset($_REQUEST["threshold"]) ||
+	!isset($_REQUEST["inter_con"]) ||
+	!isset($_REQUEST["intra_con"]) ||
+	!isset($_REQUEST["QID"])) {
 		echo "missing parameters!";
 		die();
 	}
 
-$src = $_GET["src_pop"];
-$dst = $_GET["dst_pop"];
+define('INTER_CON',$_REQUEST["inter_con"]);
+define('INTRA_CON',$_REQUEST["intra_con"]);
+define('STDEV_THRESHOLD',$_REQUEST["threshold"]);
 
-$pop_xml = simplexml_load_file("xml\pop.xml");
-$EDGES_xml = simplexml_load_file("xml\edges.xml");
-$asn_info_xml = simplexml_load_file("xml\ASN_info.xml");
+$src = $_REQUEST["src_pop"];
+$dst = $_REQUEST["dst_pop"];
+
+$queryID = $_REQUEST["QID"];
+$idg = new idGen($queryID);
+$baseDir='queries/'.$idg->getDirName();
+$as_info_dir = $FileLocations["as-info"];
+
+$pop_xml = simplexml_load_file($baseDir."/pop.xml");
+$EDGES_xml = simplexml_load_file($baseDir."/edges.xml");
+$asn_info_xml = simplexml_load_file($as_info_dir);
 
 $ASN_LIST=array();
 $EDGES=array();
 $POP_2_LOC_MAP=array();
 $LOC_2_POP_MAP=array();
-
-define('INTER_CON',$_GET["inter_con"]);
-define('INTRA_CON',$_GET["intra_con"]);
-
-define('STDEV_THRESHOLD',$_GET["threshold"]);
 
 //////////////////////////////////////////////////////////////////////////////
 function cmp($a,$b)

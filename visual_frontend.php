@@ -18,7 +18,11 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
 	<link rel="stylesheet" type="text/css" href="js/ext-2.2/resources/css/ext-all.css">
     <script type="text/javascript" src="js/ext-2.2/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="js/ext-2.2/ext-all.js"></script>
-
+    
+    <!-- includes for jQuery -->
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="js/loadData.js"></script>
+    
     <!--<link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2/resources/css/ext-all.css" />-->
     <!--<script type="text/javascript" src="http://extjs.cachefly.net/builds/ext-cdn-611.js"></script>-->
     <link rel="stylesheet" type="text/css" href="css/Ext.ux.GEarthPanel-1.1.css" />
@@ -26,6 +30,7 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
   	<script type="text/javascript" src="js/Ext.ux.GEarthPanel-1.1.js"></script>
     <script type="text/javascript">
     	
+    	var ge;
         google.load("earth", "1");
         google.load("maps", "2.xx");
         
@@ -193,6 +198,7 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
 		    	earthPanel.resetKml();
 		    	earthPanel.fetchKml('<?php echo("$full_url");?>?'+Math.random()*10000000000);
 		    }
+		    
 
             // Add panels to browser viewport
             var viewport = new Ext.Viewport({
@@ -222,12 +228,37 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
                 
                 controlPanel.doLayout();
                 
-                var ge = earthPanel.earth;
+                ge = earthPanel.earth;
 				google.earth.addEventListener(ge.getView(), 'viewchangeend', function() {
 					ge.getFeatures().removeChild(earthPanel.networkLink);
 				});
                 
-
+	            //set a click listener that affects all placemarks
+				google.earth.addEventListener(
+				    ge.getGlobe(), 'click', function(event) {
+				    var obj = event.getTarget();
+				    if (obj.getType() == 'KmlPlacemark'){
+				      event.preventDefault();
+				      var placemark = obj;
+				      var placemark_name = placemark.getName();
+				      //get the full balloon html
+				      var placemark_desc_active = placemark.getBalloonHtmlUnsafe();
+				      //same as above, except with 'active' content like JS stripped out
+				      //var placemark_desc = placemark.getBalloonHtml();
+				      //create new balloon with rendered content
+				      var balloon = ge.createHtmlStringBalloon('');
+				      balloon.setFeature(placemark);
+				      //balloon.setMaxWidth(300);
+				      //balloon.setContentString('<h3>' + placemark_name + '</h3>' + placemark_desc_active);
+				      balloon.setContentString(placemark_desc_active);
+				      if(placemark_name.toLowerCase().indexOf('edge')!=-1){
+				      	balloon.setMinWidth(800);
+				      	balloon.setMinHeight(400);
+				      }
+				      ge.setBalloon(balloon);
+				    }
+				});
+				
             });
         });
 
