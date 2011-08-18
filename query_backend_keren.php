@@ -190,8 +190,8 @@
 	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
 			} 
 			 
-			$result1 = $mysqli->query($query1);					
-			$result2 = $mysqli->query($query2);			  		               			   
+			$result1 = $mysqli->send_query($query1);					
+			$result2 = $mysqli->send_query($query2);			  		               			   
 			
 			$processID = $mysqli->thread_id;
 			//$processID="dummyPID";

@@ -49,6 +49,7 @@ class kmlWriter
 	
 	public function __construct($queryID)
 	{
+		$this->queryID = $queryID;
 		$this->idg = new idGen($queryID);
 		$this->xml_src_dir = $this->kml_dst_dir = $xml_src_dir = 'queries/'.$this->idg->getDirName();
 		
@@ -312,6 +313,7 @@ class kmlWriter
 			$srcPOP = $link["SourcePoP"];
 			$dstPOP = $link["DestPoP"];
 			
+			/*
 			$numOfEdges = $link["numOfEdges"];
 			$edge_lst_str = "<P>#Edges: ".$numOfEdges."</BR>";
 			for($i=0;$i<min($numOfEdges,MAX_EDGES_RESULTS); $i++)
@@ -321,10 +323,14 @@ class kmlWriter
 			$edge_lst_str.="</P>";
 			if($numOfEdges>MAX_EDGES_RESULTS)
 			{
-				$edge_lst_str.="<P>And there are ".($numOfEdges-MAX_EDGES_RESULTS)." more...</P>\n";
+				$edge_lst_str.="<P>And there are ".($numOfEdges-MAX_EDGES_RESULTS)." <A href=\"more_info.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&threshold=".STDEV_THRESHOLD."\"  rel=\"popup console 400 400\" target=\"_blank\">more</A>...</P>\n";
 			}
+			* 
+			*/
 			
-	        $kmlString.="<Placemark>\n<name>Edge#".$counter++."</name>\n<description>\n<![CDATA[\n<P>Source AS: ".$srcAS."</BR>Dest AS: ".$dstAS."</BR>Source PoP: ".$srcPOP."</BR>Dest PoP: ".$dstPOP."</P>".$edge_lst_str."\n]]>\n</description>\n<visibility>1</visibility>\n<Style>\n<LineStyle>\n<color>".($this->ASN_LIST[$srcAS]["color"]->gm_format())."</color>\n<width>".max(MIN_LINE_WIDTH,min($link["numOfEdges"],MAX_LINE_WIDTH))."</width>\n</LineStyle>\n<PolyStyle>\n<color>".($this->ASN_LIST[$srcAS]["color"]->gm_format())."</color>\n</PolyStyle>\n</Style>\n<LineString>\n<tessellate>1</tessellate>\n<altitudeMode>relativeToGround</altitudeMode>\n<coordinates>\n";
+			// \n<P>Source AS: ".$srcAS."</BR>Dest AS: ".$dstAS."</BR>Source PoP: ".$srcPOP."</BR>Dest PoP: ".$dstPOP."</P>".$edge_lst_str."\n
+			
+	        $kmlString.="<Placemark>\n<name>Edge#".$counter++."</name>\n<description>\n<![CDATA[<A href=\"more_info.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&threshold=".STDEV_THRESHOLD."&inter_con=".INTER_CON."&intra_con=".INTRA_CON."&QID=".$this->queryID."\" target=\"_blank\">Open in new window</A></BR><div class=\"ifrm\"><iframe name=\"ifrm\" id=\"ifrm\" src=\"more_info.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&threshold=".STDEV_THRESHOLD."&inter_con=".INTER_CON."&intra_con=".INTRA_CON."&QID=".$this->queryID."\" frameborder=\"0\" width=\"100%\" height=\"90%\">Your browser doesn't support iframes.</iframe></div>]]>\n</description>\n<visibility>1</visibility>\n<Style>\n<LineStyle>\n<color>".($this->ASN_LIST[$srcAS]["color"]->gm_format())."</color>\n<width>".max(MIN_LINE_WIDTH,min($link["numOfEdges"],MAX_LINE_WIDTH))."</width>\n</LineStyle>\n<PolyStyle>\n<color>".($this->ASN_LIST[$srcAS]["color"]->gm_format())."</color>\n</PolyStyle>\n</Style>\n<LineString>\n<tessellate>1</tessellate>\n<altitudeMode>relativeToGround</altitudeMode>\n<coordinates>\n";
 	        $kmlString.=$srcLNG.",".$srcLAT.",".$this->ASN_LIST[$srcAS]["altitude"]."\n"; //first coordinate
 	        $dist = $this->calcDist($srcLAT, $dstLAT,$srcLNG, $dstLNG);
 	        $brng = $this->calcBearing($srcLAT, $dstLAT,$srcLNG, $dstLNG);
