@@ -6,16 +6,18 @@
     	private $asList;
     	private $queryID;
 		private $popIPTbl;
+		private $blade;
     	
     	public function __construct()
     	{
-    		if(func_num_args()==4)
+    		if(func_num_args()==5)
     		{
     			$this->edgeTbl = func_get_arg(0);
     			$this->popTbl = func_get_arg(1);
     			$this->asList = func_get_arg(2);
 				$this->popIPTbl = func_get_arg(3);
-    			$this->queryID = md5($this->edgeTbl."_".$this->popTbl."_".$this->popIPTbl.join('_',$this->asList));
+				$this->blade = func_get_arg(4);
+    			$this->queryID = md5($this->blade."_".$this->edgeTbl."_".$this->popTbl."_".$this->popIPTbl.join('_',$this->asList));
 			} else if(func_num_args()==1) {
 				$this->queryID = func_get_arg(0);
 			}

@@ -28,38 +28,42 @@
              }
              
              function getTables(){
-             	if ($("#blade").val()!="" && $("#year").val()!="" && $("#week").val()!=""){                                   
-                        $.post("query_backend_keren.php", {func: "showTables", blade: $("#blade").val(),
-                         year: $("#year").val(),week: $("#week").val()},
-                        function(data){                        			
-	                         
-	                         var allEdges = data.edge;	                      
-	                         if (allEdges!= false){
-	                         	var edges = allEdges.split(" ");
-	                         	for(i = 0; i < edges.length; i++){								
-									$("#Edge").append("<option>" + edges[i] + "</option> "); 									
-								 }
-	                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                        
-	                         
-	                         var allPops = data.pop;
-	                         if (allPops!=false){
-	                         	var pops = allPops.split(" ");
-	                         	for(i = 0; i < pops.length; i++){								
-									$("#PoP").append("<option>" + pops[i] + "</option> ");
-								 }
-	                         }else {$("#PoP").append("<option>No tables available</option> ");}
-	                         
-	                         var allPops2 = data.popIP;
-	                         if (allPops2!=false){
-	                         	var pops2 = allPops2.split(" ");
-	                         	for(i = 0; i < pops2.length; i++){								
-									$("#popIP").append("<option>" + pops2[i] + "</option> ");
-								 }
-	                         }else {$("#popIP").append("<option>No tables available</option> ");}
-	                         
-	                         
-                        }, "json");	
-                    }
+             	if ($("#blade").val()!="" && $("#year").val()!="" && $("#week").val()!=""){
+             		
+             		$.preLoadImages("images/ajax-loader.gif");
+					$('#button-wrap-t').html('<p><img src="images/ajax-loader.gif"/></p>');                                   
+					
+                    $.post("query_backend_keren.php", {func: "showTables", blade: $("#blade").val(),
+                     year: $("#year").val(),week: $("#week").val()},
+                    function(data){                        			
+                         
+                         var allEdges = data.edge;	                      
+                         if (allEdges!= false){
+                         	var edges = allEdges.split(" ");
+                         	for(i = 0; i < edges.length; i++){								
+								$("#Edge").append("<option>" + edges[i] + "</option> "); 									
+							 }
+                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                        
+                         
+                         var allPops = data.pop;
+                         if (allPops!=false){
+                         	var pops = allPops.split(" ");
+                         	for(i = 0; i < pops.length; i++){								
+								$("#PoP").append("<option>" + pops[i] + "</option> ");
+							 }
+                         }else {$("#PoP").append("<option>No tables available</option> ");}
+                         
+                         var allPops2 = data.popIP;
+                         if (allPops2!=false){
+                         	var pops2 = allPops2.split(" ");
+                         	for(i = 0; i < pops2.length; i++){								
+								$("#popIP").append("<option>" + pops2[i] + "</option> ");
+							 }
+                         }else {$("#popIP").append("<option>No tables available</option> ");}
+                         
+                         $('#button-wrap-t').html('<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>');
+                    }, "json");	
+                }
              } 
              
              function updateTable(queryID){
@@ -77,6 +81,13 @@
                                                           
             //get possible tables ----------------------------------------------------------------------
             $(document).ready(function() {              	 
+                $("#getTables").click(function() {
+                	getTables();                    
+                });              
+            });
+            
+            /*
+            $(document).ready(function() {              	 
                 $("#week").change(function() {
                 	getTables();                    
                 });              
@@ -87,7 +98,7 @@
                 	getTables();                    
                 });              
             });
-            
+            */
             
             // get all relevant AS by parameters TODO: change click
             $(document).ready(function() {
@@ -96,7 +107,7 @@
   						$('#button-wrap').html('<p><img src="images/ajax-loader.gif"/></p>');                                                           
                         $.post("query_backend_keren.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){
-                        	                        			
+									                        	                        			
 	                         var allAS = data.result;
 							 var AS = allAS.split("*");	
 							 							 	                         	                         
@@ -105,7 +116,7 @@
 								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
 							 }
 							 
-							 $('#button-wrap').html('<p>Try the search!</p>');
+							 $('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
 	                         
                         }, "json");	           
                     });                    
@@ -213,6 +224,9 @@
 								 }	
                             ?>                             
                         </select>
+                    </div>
+                    <div id="button-wrap-t">
+                    	<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>
                     </div>
                                                            
                     <p class="selection-header">Select table</p>                                       

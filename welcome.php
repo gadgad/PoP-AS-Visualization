@@ -50,9 +50,13 @@
 							echo '<p style="color:red; font-size:0.9em; margin-left:10px">Invalid username and/or password</p>';
 						}
 						?>
-						<p style="margin-left: 50px"><input type="submit" value="Login" name="login" /></p>
+						
+						<input type="image" value="Login" src="images/Login.png" name="login" alt="Submit" style="margin-left: 50px"/>
+						
+					<!--	<input type="submit" value="Login" name="login" style="margin-left: 50px"/>-->
 					</form>
-					<p style="margin-left: 10px">not a user? <a href="register.php">Register</a> now! </p>
+					<p style="margin-left: 10px; font-size: 12px">not a user? <a href="register.php">Register</a> now! </p>
+					<br></br>					
 					                          
 	            </div>
             </div>
