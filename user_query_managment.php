@@ -72,6 +72,8 @@
 						if ($mysqli->connect_error) {
 				 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
 						}
+						$res = $mysqli->query($sql);
+						$mysqli->close();
 						// TODO: stop the query - kill the process and erase it from XML	
 					}								
 			}else {												

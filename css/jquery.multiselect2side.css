@@ -12,7 +12,8 @@
 
 .ms2side__header {
 	color: #000088;
-	background-color: #EEEEFF;
+	/*background-color: #EEEEFF;*/
+	background-color: rgb(215,231,232);
 	margin-left: 3px;
 	width: 220px;
 	height: 20px;
