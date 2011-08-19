@@ -60,7 +60,7 @@ if(isset($_POST['login'])){
 							<p style="margin-left: 10px">Email <input type="text" name="email" size="18"/></p>
 							<p style="margin-left: 10px">Password <input type="password" name="password" size="18"/></p>						
 							<p style="margin-left: 10px">Confirm Password <input type="password" name="c_password" size="18" /></p>
-							<p style="margin-left: 10px; color: gray" size = "2">For username use letters only</p>
+							<p style="margin-left: 10px; color: gray; font-size: 12px">For username use letters only</p>
 							<?php
 							
 							  if(count($errors) > 0){
@@ -72,7 +72,8 @@ if(isset($_POST['login'])){
 							  }
 							 				
 							?>
-							<p style="margin-left: 50px"><input type="submit" value="Register" name="login" /></p>
+							<input type="image" value="Register" src="images/Register.png" name="login" alt="Submit" style="margin-left: 50px"/>
+					
 							<br></br>							
 						</form>
 												                          

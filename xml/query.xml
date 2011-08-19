@@ -1,15 +1,4 @@
 <?xml version="1.0"?>
 <DATA>
 	
-	<QUERY>
-		<queryID/>
-		<processID>26227</processID>
-		<lastKnownStatus>running</lastKnownStatus>
-		<EdgeTbl>IPEdgesMedianTbl_2010_1</EdgeTbl>
-		<PopTbl>PoPLocationTbl_2010_week_1_2weeks</PopTbl>
-		<users>
-			<user>keren</user>
-		</users>
-	</QUERY>
-	
 </DATA>

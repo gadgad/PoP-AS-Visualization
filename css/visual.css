@@ -35,7 +35,8 @@
 	padding-left:2%; 
 	margin-left:3%;
 	/*border:1px solid navy; */
-	background-color: #EEEEFF; 
+	/*background-color: #EEEEFF;*/ 
+	background-color: rgb(215,231,232);
 	color:#333333; 
 	width:30%;
     height:92%; 
