@@ -1,0 +1,92 @@
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+Connect Error (2006) MySQL server has gone awayEnd proces 
+Starting proces 
+host:
+ user:
+ pass:
+ db:
+ port:0
+Connect Error (2002) No connection could be made because the target machine actively refused it.
+End proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+Connect Error (2006) MySQL server has gone awayEnd proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26881
+End proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26886
+End proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26900
+End proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26905
+End proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26910
+Mysqli Error (1050): Table 'DPV_POP_37f774883065e0f650c02d5dcd483ec1' already existsEnd proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+Connect Error (2006) MySQL server has gone awayEnd proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+Connect Error (2006) MySQL server has gone awayEnd proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26922
+                                                                                                                                                                                                                                                                End proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26924
+                                                                                                                                                                                                                                                                Mysqli Error (1050): Table 'DPV_POP_32d42086f275bad8623fb4f194b829b8' already existsEnd proces 
