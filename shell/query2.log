@@ -1,0 +1,39 @@
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+Connect Error (2006) MySQL server has gone awayEnd proces 
+Starting proces 
+host:
+ user:
+ pass:
+ db:
+ port:0
+Connect Error (2002) No connection could be made because the target machine actively refused it.
+End proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26879
+Mysqli Error (1053): Server shutdown in progressEnd proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26913
+Mysqli Error (1105): MyISAM table 'DPV_EDGE_37f774883065e0f650c02d5dcd483ec1' is in use (most likely by a MERGE table). Try FLUSH TABLES.End proces 
+Starting proces 
+host:
+ user:codeLimited
+ pass:
+ db:DIMES_DISTANCES
+ port:5554
+processID:26919
+Mysqli Error (2006): MySQL server has gone awayEnd proces 
