@@ -1,13 +1,18 @@
 <?php
-    function win_backgrounder($cmd,$log_filename)
+    function win_backgrounder($cmd,$id)
     {
 	    chdir( dirname ( __FILE__ ) );
 	    chdir ('../');
 		$thisdir = str_replace('\\','/',getcwd());
 		$shelldir = $thisdir."/shell";
-		$filename = strstr($log_filename,'.log',true);
-	    $bat_filename = $shelldir."/".$filename."_run.bat";
-		$bat_log_filename = $shelldir."/".$log_filename;
+		
+		$day = date("m-d-y-");
+		srand( microtime() * 1000000);
+		$randomnum = rand(10000,99999);
+		$file_prefix = $day.$randomnum;
+		
+	    $bat_filename = $shelldir."/".$id."_run.bat";
+		$bat_log_filename = $shelldir."/".$id.'-'.$file_prefix.'.log';
 		$bat_file = fopen($bat_filename, "w");
 		if($bat_file) {
 		    fwrite($bat_file, "@echo off"."\n");
