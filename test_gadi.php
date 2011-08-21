@@ -14,16 +14,38 @@
         <link rel="stylesheet" href="css/jquery.multiselect2side.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
 		<script type="text/javascript" src="js/jquery.multiselect2side.js" ></script>
-          
+        <style>
+	      .formGrayOut{
+	          background: #ccc;
+	       }
+	       .validator {
+			    display: inline;
+			    height: 16px;
+			    margin-left: 6px;
+			    margin-top: -2px;
+			    width: 16px;
+			}
+	    </style>
           
           <script type="text/javascript">
 			 // Test connection to blade ---------------------------------------------------          
-             function testConnection() {             	                
+             function testConnection() {
+             	$.preLoadImages("images/ajax-loader.gif");
+             	$.preLoadImages("images/icon_OK.png");
+				$('#blade').after('<img id="testStatus" class="validator" src="images/ajax-loader.gif"/>');
+             	$('#AS input').addClass('formGrayOut').attr('disabled','disabled');           	                
                 $.post("query_backend_gadi.php", { func: "testConnection", blade: $("#blade").val() },
                     function(data){
                              var result = data.result;
-                             if (data.type =="ERROR")
-                             	{alert(result);}                             
+                             if(data!=null){
+	                             if (data.type =="ERROR"){
+	                             	$('#AS input#blade').removeClass('formGrayOut').removeAttr('disabled');
+	                             	alert(result);
+	                             } else {
+	                             	$("#testStatus").replaceWith('<img id="testStatus" class="validator" src="images/icon_OK.png"/>');
+	                             	$('#AS input').removeClass('formGrayOut').removeAttr('disabled');
+	                             }
+	                          }                            
                     }, "json");	
              }
              
@@ -74,22 +96,29 @@
              myNameSpace.processID = [];
              
              function updateTable(){
-             	$("#My_queries").append("<p text-align:center>Query " + queryID + "is now running with pid: "+myNameSpace.processID+"</p>");
+             	$("#My_queries").append("<p text-align:center>Query " + queryID + " is now running with pid: "+myNameSpace.processID+"</p>");
              	// add a table line ?             		
              }
              
+             var error_counter;
              function stageOne(){
+             	error_counter = 0;
+             	//$.preLoadImages("images/ajax-loader.gif");
+				$("#sendQuery").after('<img id="sendQueryStatus" class="validator" src="images/ajax-loader.gif"/>');
              	$.post("query_backend_gadi.php", {func: "sendQuery", stage:1, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
                          		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
+                         		$("#sendQueryStatus").remove();
                          		if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
                          	}else if(data.type=="ALL_COMPLETE"){
-                         		$("#My_queries").append("<p text-align:center>"+data.result+"</p> ");	
+                         		$("#My_queries").append("<p text-align:center>"+data.result+"</p> ");
+                         		$("#sendQueryStatus").remove();	
                          	} else {
                          		if(data.type!="STAGE1_COMPLETE"){
                          			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
+                         			$("#sendQueryStatus").remove();
                          		} else {
                          			stageTwo();
                          		}
@@ -107,9 +136,11 @@
                          	if (data==null || data.type=="ERROR"){
                          		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
                          		if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
+                         		$("#sendQueryStatus").remove();
                          	} else {
                          		if(data.type!="STAGE2_COMPLETE"){
                          			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
+                         			$("#sendQueryStatus").remove();
                          		} else {
 	                     			stageThree();
                          		}
@@ -128,22 +159,32 @@
             }
             */
              
+             
              function stageThree()
              {
+             	if(error_counter==3) {
+             		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
+             		$("#sendQueryStatus").remove();
+             		return;
+             	}
              	$.post("query_backend_gadi.php", {func: "sendQuery", stage:3, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
-                         		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
-                         		if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
+                         		//$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
+                         		//if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
+                         		error_counter++;
+                         		stageThree();
                          	} else {
                          		if(data.type!="ALL_COMPLETE"){
                          			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
+                         			$("#sendQueryStatus").remove();
                          		} else {
                          			queryID=data.queryID;
                          			myNameSpace.processID.push(data.pid1);
                          			myNameSpace.processID.push(data.pid2);
 	                     			updateTable();
+	                     			$("#sendQueryStatus").remove();
 	                         		// TODO: update table?
                          		}
                          	}                         	                        				                         	                         	                         
@@ -238,7 +279,7 @@
     </head>
 
     
-    <body>        
+
         
         <div id="container">
 
@@ -271,8 +312,9 @@
                                             echo "<option>$name</option>";
                                 }
 	                            ?>
-	                    </select>          
+	                    </select>
                    </div>
+                   
                     
                     <p class="selection-header">Select date</p>       
                     <div align="left" class="selection-text">Year  :                       
