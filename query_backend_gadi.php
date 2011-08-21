@@ -190,10 +190,10 @@
 		// execute query on mysql server
 		if($stage==2)
 		{
-			$cmd = "send_query.php --host:".$host." --user=".$user." --pass=".$pass." --database=".$database." --port=".$port." --PoPTblName=".$idg->getPoPTblName()." --pop=".$pop." --as=".$as." --EdgeTblName=".$idg->getEdgeTblName()." --edge=".$edge." --popIP=".$popIP." --query=";
-			win_backgrounder($cmd."1",'query1.log');
+			$cmd = "send_query.php --host=".$host." --user=".$user." --pass=".$pass." --database=".$database." --port=".$port." --PoPTblName=".$idg->getPoPTblName()." --pop=".$pop." --as=".$as." --EdgeTblName=".$idg->getEdgeTblName()." --edge=".$edge." --popIP=".$popIP." --query=";
+			win_backgrounder($cmd."1",'query1');
 			//sleep(2);
-			win_backgrounder($cmd."2",'query2.log');
+			win_backgrounder($cmd."2",'query2');
 			//sleep(2);
 			ret_res("stage2 complete","STAGE2_COMPLETE");
 			/*
