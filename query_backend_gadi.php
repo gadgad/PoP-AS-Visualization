@@ -296,7 +296,7 @@
 					}
 				}
 				header('Content-type: application/json');
-				echo json_encode(array("result"=>"query is now running..." ,"type"=>"ALL_COMPLETE","queryID"=>$queryID,"pid1"=>$pid1,"pid2"=>$pid2));
+				echo json_encode(array("result"=>"query is now running..." ,"type"=>"GOOD","queryID"=>$queryID,"pid1"=>$pid1,"pid2"=>$pid2));
 			}
 		}	
 	}

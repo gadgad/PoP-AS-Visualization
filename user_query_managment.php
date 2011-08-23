@@ -110,8 +110,9 @@
 			}else {												
 				deleteUser($username,$queryID);
 			}
+		ret_res("","GOOD");
 			
-		}else { echo "ERROR - this query doesnt exists"; } //this line should never be reached		 
+		}else { ret_res("The query doesnt exists","ERROR");} //this line should never be reached		 
 	}
 
 ?>
