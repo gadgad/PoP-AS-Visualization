@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <DATA>
 <QUERY><queryID>2df5efc4b99b9486e245a49f6400a90f</queryID><processID/><lastKnownStatus>completed</lastKnownStatus><blade>B4</blade><EdgeTbl>IPEdgesMedianTbl_2010_31</EdgeTbl><PopTbl>PoPLocationTbl_2010_week_31</PopTbl><ASnum>2</ASnum><users><user>gadi</user></users></QUERY>
-
 <QUERY><queryID>32d42086f275bad8623fb4f194b829b8</queryID><processID/><lastKnownStatus>running</lastKnownStatus><blade>B4</blade><EdgeTbl>IPEdgesMedianTbl_2010_9</EdgeTbl><PopTbl>PoPLocationTbl_2010_week_9_2weeks</PopTbl><ASnum>20</ASnum><users><user>keren</user><user>gadi</user></users></QUERY>
 <QUERY><queryID>c39246e64e9827e6335f999ecd4edc25</queryID><processID/><lastKnownStatus>running</lastKnownStatus><blade>B4</blade><EdgeTbl>IPEdgesMedianTbl_2010_1</EdgeTbl><PopTbl>PoPLocationTbl_2010_week_1_2weeks</PopTbl><ASnum>21</ASnum><users><user>gadi</user></users></QUERY>
-
 <QUERY><queryID>c6b5013b138ff7cd45003fe21b347bcc</queryID><processID/><lastKnownStatus>running</lastKnownStatus><blade>B4</blade><EdgeTbl>IPEdgesMedianTbl_2009_7</EdgeTbl><PopTbl>PoPLocationTbl_2009_week_7_2weeks</PopTbl><ASnum>3</ASnum><users><user>gadi</user></users></QUERY>
+<QUERY><queryID>16b5013b138ff7cd45003fe21b347bcc</queryID><processID/><lastKnownStatus>running</lastKnownStatus><blade>B4</blade><EdgeTbl>IPEdgesMedianTbl_2009_7</EdgeTbl><PopTbl>PoPLocationTbl_2009_week_7_2weeks</PopTbl><ASnum>3</ASnum><users><user>keren</user></users></QUERY>
+
+
+
 </DATA>
