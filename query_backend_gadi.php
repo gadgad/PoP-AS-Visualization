@@ -13,7 +13,6 @@
 		die();
 	}
 	
-	
 	// globals
 	$selected_blade = $_POST["blade"];
 	$blade = $Blade_Map[$selected_blade];
