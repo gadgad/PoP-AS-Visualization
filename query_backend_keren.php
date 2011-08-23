@@ -161,9 +161,9 @@
 			$result->addChild('user', $username);
 			
 		}else { // making a new quary 
-		
-			$thisdir = getcwd(); 
-			$querydir = $thisdir."/queries";			 		
+		 
+			$querydir = getcwd()."/queries";
+						 		
 			if(mkdir($querydir ."/".$queryID , 0777)) 
 			{ 
 			   //echo "Directory has been created successfully..."; 
