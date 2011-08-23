@@ -2,7 +2,12 @@
 	include_once("bin/load_config.php");	
 	
 	// globals
-	$selected_blade = $_POST["blade"];
+	$queryID = $_POST["query"];
+	$username = $_POST["username"];
+		
+	$queries = simplexml_load_file("xml\query.xml");
+	$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/blade');
+	$selected_blade = (string)$res[0];
 	$blade = $Blade_Map[$selected_blade];
 	$host = (string)$blade["host"];
 	$port = (int)$blade["port"];
@@ -17,7 +22,6 @@
 		echo json_encode(array("result"=>$message ,"type"=>$type));
 		die();	
 	}
-	
 	
 	function deleteUser($username,$queryID){
 		
@@ -50,11 +54,22 @@
 		$queries->asXML("xml\query.xml");
 		
 	}
-			
+	
+	 function rrmdir($dir) { 
+	   if (is_dir($dir)) { 
+	     $objects = scandir($dir); 
+	     foreach ($objects as $object) { 
+	       if ($object != "." && $object != "..") { 
+	         if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object); 
+	       } 
+	     } 
+	     reset($objects); 
+	     rmdir($dir); 
+	   } 
+	 } 
+		
 	if($_POST["func"]=="abort")
 	{
-		$queryID = $_POST["query"];
-		$username = $_POST["username"];
 		
 		$queries = simplexml_load_file("xml\query.xml");									
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');		
@@ -65,12 +80,7 @@
 			if ($result[0]->lastKnownStatus=="running"){
 					
 				$allUsers = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users/user');
-				$numOfUsers = 0;
-				foreach ($allUsers as $i => $value) {												
-					$numOfUsers++;							
-				}
-				
-				if ($numOfUsers>1){					
+				if (count($allUsers)>1){					
 					deleteUser($username,$queryID);					
 				}else{
 					// Kill the process
@@ -90,8 +100,11 @@
 					// Erase the process from query.XML 
 					deleteQuery($queryID);
 					
-					// Remove the query folder						
-					rmdir(getcwd()."/queries/".$queryID);
+					// Remove the query folder
+					$dir = getcwd()."/queries/".$queryID; 
+					if (is_dir($dir)){
+						rrmdir($dir);	
+					}						
 						
 				}								
 			}else {												
