@@ -71,10 +71,20 @@
              	// add a table line ?             		
              }
              
-             function abort(queryID){
-             
-             	$.post("user_query_managment.php", {func: "abort", query: queryID, username: <?php echo '"'.$username.'"'?> },"json");
-            // -->> refresh table;                                      	
+             function abort(queryID){             	
+             	//$('#queryTable').fadeOut('fast');
+             	$.preLoadImages("images/ajax-loader.gif");
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
+             	$.post("user_query_managment.php", {func: "abort", query: queryID, username: <?php echo '"'.$username.'"'?> },
+             	function(data){
+             		if(data.type=="GOOD"){
+             			$('#queryTable').load('test.php #queryTable').fadeIn("slow");
+             		}
+             		if (data.type =="ERROR")
+                     	{alert(data.result);}
+             	}
+             	,"json");
+                                                  	
              }
                                   
             $(document).ready(function() {                   
@@ -137,14 +147,15 @@
             // send the query to server
             $(document).ready(function() {
                     $("#sendQuery").click(function() {                                                           
-                        $.post("query_backend_keren.php", {func: "sendQuery", blade: $("#blade").val() ,
+                        $.post("query_backend_gadi.php", {func: "sendQuery", blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
-                         	if (data==null){
+                         	if (data==null || data.type=="ERROR"){
                          		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
-                         	}else{
-                         		updateTable(data.queryID);
-	                         // TODO: update table?	
+                         	}else{          
+         						if(data.type=="GOOD"){
+			             			$('#queryTable').fadeOut('slow').load('test.php #queryTable').fadeIn("slow");
+			             		}			           				
                          	}                         	                        				                         	                         	                         
                         }
                          ,"json");                                                    
@@ -269,7 +280,7 @@
                 <h3 style="size:4; color: rgb(112,97,68)">My queries</h3>                	
                 <br></br>                
 
-				<table class="imagetable" style="alignment-baseline: central">				
+				<table id="queryTable" class="imagetable" style="alignment-baseline: central">				
 				
 				<?php
 					echo "<tr>";
