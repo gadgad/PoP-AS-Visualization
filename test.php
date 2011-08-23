@@ -70,6 +70,12 @@
              	$("#My_queries").append("<p text-align:center>Query" + queryID + "is now running</p> ");
              	// add a table line ?             		
              }
+             
+             function abort(queryID){
+             
+             	$.post("user_query_managment.php", {func: "abort", query: queryID, username: <?php echo '"'.$username.'"'?> },"json");
+            // -->> refresh table;                                      	
+             }
                                   
             $(document).ready(function() {                   
                     $("#blade").change(function() {
@@ -155,13 +161,8 @@
   
      		       
             // cancels the query
-            $(document).ready(function() {
-                    $("#abort").click(function() {                                                           
-                        $.post("user_query_managment.php", {func: "abort", query: $("#abort").val(), username: <?php echo '"'.$username.'"'?> },"json");
-                        // -->> delete row from table;                                      	
-                    });
-            });
-                        
+            
+                                    
             </script>                  
     </head>
 
@@ -282,16 +283,13 @@
 							echo "<tr>";							
 							echo "<td>".$result[$i]->EdgeTbl."</td>" . "<td>".$result[$i]->PopTbl."</td>" . "<td>";
 							if ($result[$i]->lastKnownStatus=="running"){
-								echo "running";
-								
-								//add code to check query status
-								
+								echo "running";													
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
 								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
 							}else {
 								echo 'ambigues status';
 							}
-							echo "</td>" . '<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
+							echo "</td>" . '<td> <button type="button" onclick="abort(this.value)" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
 							// --->>>> change id to unique value ?
 							// if changing to "submit",  add: onsubmit="return false;" ?
 							echo "</tr>";
