@@ -26,8 +26,7 @@
 		
 		foreach ($res as $key => $user){
 			if ($user == $username){			  
-				$theNodeToBeDeleted = $res[$key];				
-				//list($theNodeToBeDeleted) = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users/user["'.$username.'"]');
+				$theNodeToBeDeleted = $res[$key];								
 				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 				if (!$oNode) {
 				    echo 'Error while converting SimpleXMLelement to DOM';
@@ -37,7 +36,21 @@
 		}		
 		$queries->asXML("xml\query.xml");			
 	}
+	
+	function deleteQuery($queryID){
 		
+		$queries = simplexml_load_file("xml\query.xml");
+		
+		$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');							
+		$oNode = dom_import_simplexml($res[0]);				
+		if (!$oNode) {
+		    echo 'Error while converting SimpleXMLelement to DOM';
+		}		
+		$oNode->parentNode->removeChild($oNode); 						
+		$queries->asXML("xml\query.xml");
+		
+	}
+			
 	if($_POST["func"]=="abort")
 	{
 		$queryID = $_POST["query"];
@@ -60,30 +73,32 @@
 				if ($numOfUsers>1){					
 					deleteUser($username,$queryID);					
 				}else{
-						// kill the process
-						$mysqli = new mysqli($host,$user,$pass,$database,$port);
-						if ($mysqli->connect_error) {
-				 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
-						}
-						$PID = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/processID');
-						$sql = 'kill '.$PID[0];						
-						$res = $mysqli->query($sql);
-						$sql = 'drop table if exists DPV_EDGE_'.$queryID;						
-						$res = $mysqli->query($sql);
-						$sql = 'drop table if exists DPV_POP_'.$queryID;						
-						$res = $mysqli->query($sql);
-						$mysqli->close();
+					// Kill the process
+					$mysqli = new mysqli($host,$user,$pass,$database,$port);
+					if ($mysqli->connect_error) {
+			 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+					}
+					$PID = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/processID');
+					$sql = 'kill '.$PID[0];						
+					$res = $mysqli->query($sql);
+					$sql = 'drop table if exists DPV_EDGE_'.$queryID;						
+					$res = $mysqli->query($sql);
+					$sql = 'drop table if exists DPV_POP_'.$queryID;						
+					$res = $mysqli->query($sql);
+					$mysqli->close();
+					
+					// Erase the process from query.XML 
+					deleteQuery($queryID);
+					
+					// Remove the query folder						
+					rmdir(getcwd()."/queries/".$queryID);
 						
-						// erase the process from query.XML
-							
-					}								
+				}								
 			}else {												
 				deleteUser($username,$queryID);
 			}
-			$queries->asXML();
 			
 		}else { echo "ERROR - this query doesnt exists"; } //this line should never be reached		 
 	}
 
-	deleteUser('keren','c6b5013b138ff7cd45003fe21b347bcc');
 ?>
