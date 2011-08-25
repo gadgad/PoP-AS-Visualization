@@ -1,5 +1,6 @@
 <?php
-	include("bin/load_config.php");
+	include_once("bin/load_config.php");
+	include_once("bin/xml_writer.php");
 	
 	$error = false;
 	if(isset($_POST['login'])){
@@ -74,11 +75,11 @@
     </body>
 </html>
 <?php
-
+	echo "checking";
 	// run a script to check running queries
 
 	$xml = simplexml_load_file("xml\query.xml");							
-	$queries = $xml->xpath('/DATA/QUERY[lastKnownStatus=running"]');		
+	$queries = $xml->xpath('/DATA/QUERY[lastKnownStatus="running"]');		
 	if($queries!=FALSE) // there are running queries
 	{
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
@@ -89,7 +90,7 @@
 		
 		$sql = "show processlist";
 		if ($processes = $mysqli->query($sql)){
-			$processArr[];	
+			//$processArr[];	
 			while ($row = $processes->fetch_assoc()) {
 		        foreach($row as $key => $value){
 					//get all PIDs that are running(State!=null) to an array
@@ -103,7 +104,10 @@
 			foreach ($queries as $key => $value){
 			// check if the query finished. if so - create files & drop temp. tables
 				if (!in_array($queries[$key]->processID,$processArr)){ //the query finished.
+					
 					//generate files
+					$XW = new xml_Writer($queries[$key]->blade,$queries[$key]->queryID);
+					$done = $XW->writeXML();
 					
 					//drop tables
 					$sql = 'drop table if exist DPV_EDGE_'.$queries[$key]->queryID;
