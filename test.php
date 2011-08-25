@@ -94,35 +94,26 @@
                        	}
                     });
             });
-                                                          
+                    
             //get possible tables ----------------------------------------------------------------------
             $(document).ready(function() {              	 
                 $("#getTables").click(function() {
                 	getTables();                    
                 });              
             });
-            
-            /*
-            $(document).ready(function() {              	 
-                $("#week").change(function() {
-                	getTables();                    
-                });              
-            });
-            
-            $(document).ready(function() {              	 
-                $("#year").change(function() {
-                	getTables();                    
-                });              
-            });
-            */
-            
+                                
             // get all relevant AS by parameters TODO: change click
             $(document).ready(function() {
                     $("#getAS").click(function() {
                     	$.preLoadImages("images/ajax-loader.gif");
-  						$('#button-wrap').html('<p><img src="images/ajax-loader.gif"/></p>');                                                           
+  						$('#button-wrap').html('<p><img src="images/ajax-loader.gif"/></p>');  						                                                           
                         $.post("query_backend_keren.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){
+							
+							// remove the object
+							//$('#searchable').remove();
+							// add the object
+							$("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>").insertAfter('#button-wrap');
 									                        	                        			
 	                         var allAS = data.result;
 							 var AS = allAS.split("*");	
@@ -131,9 +122,9 @@
 	                         	var tmp = AS[i].split(" ");								
 								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
 							 }
-							 
-							 $('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
-	                         
+							$('#searchable').multiselect2side({'search': 'Search: '});							 
+							$('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+	                        	                       
                         }, "json");	           
                     });                    
             });
@@ -238,7 +229,7 @@
                         </select>
                     </div>
                     <div id="button-wrap-t">
-                    	<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>
+                    	<input id="getTables" type="button" value="Get tables" style="margin-left:20px; margin-top:10px"/>
                     </div>
                                                            
                     <p class="selection-header">Select table</p>                                       
@@ -262,13 +253,13 @@
                     </div>
                		
                		<div id="button-wrap">
-                    	<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
-                    </div>
-                    <br></br>
+                    	<input id="getAS" type="button" value="Get AS list!" style="margin-left:20px; margin-top:10px"/>
+                    	<p style="font-size: 10px; color: gray">After clicking the list will apear.</p>
+                    </div>                    
                     
-                    <div>
-                    	<select multiple='multiple' id='searchable' name="searchable[]"></select>                    		
-                    </div>
+                    <!--
+                    <select multiple='multiple' id='searchable' name="searchable[]"></select>                    		
+                    -->
                     	                        
                 </form>
                 <input id="sendQuery" type="image" src="images/send-button.png" style="margin-left: 20px; margin-top: 10px"/>
