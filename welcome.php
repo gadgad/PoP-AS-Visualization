@@ -73,3 +73,46 @@
          </div>
     </body>
 </html>
+<?php
+
+	// run a script to check running queries
+
+	$xml = simplexml_load_file("xml\query.xml");							
+	$queries = $xml->xpath('/DATA/QUERY[lastKnownStatus=running"]');		
+	if($queries!=FALSE) // there are running queries
+	{
+		$mysqli = new mysqli($host,$user,$pass,$database,$port);
+		
+		if ($mysqli->connect_error) {
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+		}
+		
+		$sql = "show processlist";
+		if ($processes = $mysqli->query($sql)){
+				
+			while ($row = $processes->fetch_assoc()) {
+		        foreach($row as $key => $value){
+					//get all PIDs to an array
+				}
+		     }	
+				
+			foreach ($queries as $key => $value){
+			// check if the query finished. if so - create files & drop temp. tables  			
+			}
+				
+			$processes->close();
+		}
+			
+		/*	
+		if($result[0]->user!=$username){
+			$result->addChild('user', $username);
+			ret_res("query already assigned to a different user,adding current user to record","ALL_COMPLETE");
+		} else {
+			ret_res("query already exists!","ALL_COMPLETE");
+		}
+		*/
+		$mysqli->close();
+	}
+	
+
+?>
