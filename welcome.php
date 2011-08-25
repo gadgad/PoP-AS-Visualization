@@ -89,30 +89,41 @@
 		
 		$sql = "show processlist";
 		if ($processes = $mysqli->query($sql)){
-				
+			$processArr[];	
 			while ($row = $processes->fetch_assoc()) {
 		        foreach($row as $key => $value){
-					//get all PIDs to an array
+					//get all PIDs that are running(State!=null) to an array
+					if (!$row["State"]){
+						$processArr[] = $row["Id"];
+					}
 				}
 		     }	
+			$processes->free();
 				
 			foreach ($queries as $key => $value){
-			// check if the query finished. if so - create files & drop temp. tables  			
+			// check if the query finished. if so - create files & drop temp. tables
+				if (!in_array($queries[$key]->processID,$processArr)){ //the query finished.
+					//generate files
+					
+					//drop tables
+					$sql = 'drop table if exist DPV_EDGE_'.$queries[$key]->queryID;
+					$res = $mysqli->query($sql);
+					$sql = 'drop table if exist DPV_POP_'.$queries[$key]->queryID;
+					$res = $mysqli->query($sql);
+					
+					// changes status in XML					
+					$res = $queries->xpath('/DATA/QUERY[queryID="'.$queries[$key]->queryID.'"]/lastKnownStatus');							  
+					$theNodeToBeDeleted = $res[0];								
+					$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+					if (!$oNode) {
+					    echo 'Error while converting SimpleXMLelement to DOM';
+					}		
+					$oNode->parentNode->removeChild($oNode); 								
+					$queries[$key]->addChild('lastKnownStatus','completed');
+				}
+				$xml->asXML("xml\query.xml");  			
 			}
-				
-			$processes->close();
 		}
-			
-		/*	
-		if($result[0]->user!=$username){
-			$result->addChild('user', $username);
-			ret_res("query already assigned to a different user,adding current user to record","ALL_COMPLETE");
-		} else {
-			ret_res("query already exists!","ALL_COMPLETE");
-		}
-		*/
 		$mysqli->close();
 	}
-	
-
 ?>
