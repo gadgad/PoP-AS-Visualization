@@ -17,7 +17,8 @@
           
           
           <script type="text/javascript">
-			 // Test connection to blade ---------------------------------------------------          
+			 
+			 // Test connection to blade          
              function testConnection() {             	                
                 $.post("query_backend_keren.php", { func: "testConnection", blade: $("#blade").val() },
                     function(data){
@@ -65,12 +66,7 @@
                     }, "json");	
                 }
              } 
-             
-             function updateTable(queryID){
-             	$("#My_queries").append("<p text-align:center>Query" + queryID + "is now running</p> ");
-             	// add a table line ?             		
-             }
-             
+                                  
              function abort(queryID){             	
              	//$('#queryTable').fadeOut('fast');
              	$.preLoadImages("images/ajax-loader.gif");
@@ -110,9 +106,6 @@
                         $.post("query_backend_keren.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){
 							
-							// remove the object
-							//$('#searchable').remove();
-							// add the object
 							$("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>").insertAfter('#button-wrap');
 									                        	                        			
 	                         var allAS = data.result;
@@ -160,10 +153,6 @@
                         $.post("visual_frontend.php", {func: "showMap", QID: $("#QstatusC").val()},"json");                                                                             
                     });
             });
-  
-     		       
-            // cancels the query
-            
                                     
             </script>                  
     </head>
@@ -291,14 +280,13 @@
 							}else {
 								echo 'ambigues status';
 							}
-							echo "</td>" . '<td> <button type="button" onclick="abort(this.value)" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
-							// --->>>> change id to unique value ?
-							// if changing to "submit",  add: onsubmit="return false;" ?
+							echo "</td>" . '<td> <button type="button" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
+							// reload the page? if changing to "submit",  add: onsubmit="return false;" ?
 							echo "</tr>";
 						} 
 					}//else echo "you have no queries yet... ";
 				?>																
-				<!-- enable adding a new row when a query is sent-->
+				
 				</table>                
             </div>
             

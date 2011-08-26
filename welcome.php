@@ -1,5 +1,6 @@
 <?php
-	include("bin/load_config.php");
+	include_once("bin/load_config.php");
+	include_once("bin/xml_writer.php");
 	
 	$error = false;
 	if(isset($_POST['login'])){
@@ -73,3 +74,70 @@
          </div>
     </body>
 </html>
+<?php
+	//$selected_blade = $_POST["blade"];
+	$selected_blade = "B4";
+	$blade = $Blade_Map[$selected_blade];
+	$host = (string)$blade["host"];
+	$port = (int)$blade["port"];
+	$hostNport = (string)$blade["host"].":".(string)$blade["port"];
+	$user = (string)$blade["user"];
+	$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+	$database = (string)$blade["db"];
+
+	$xml = simplexml_load_file("xml\query.xml");							
+	$queries = $xml->xpath('/DATA/QUERY[lastKnownStatus="running"]');		
+	if($queries!=FALSE) // there are running queries
+	echo "we have running queries!    ";
+	{
+		$mysqli = new mysqli($host,$user,$pass,$database,$port);
+		
+		if ($mysqli->connect_error) {
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+		}
+		 
+		$sql = "show processlist";
+		if ($processes = $mysqli->query($sql)){
+			$processArr=array();	
+			while ($row = $processes->fetch_assoc()) {
+		        foreach($row as $key => $value){
+					//get all PIDs that are running(State!=null) to an array
+					if (!$row["State"]){
+						if (!in_array($row["Id"],$processArr)){
+							$processArr[] = $row["Id"];	
+						}						
+					}
+				}
+		    }	
+			$processes->free();
+			
+			foreach ($queries as $key => $value){
+			// check if the query finished. if so - create files & drop temp. tables
+				if (!in_array($queries[$key]->processID,$processArr)){ //the query finished.
+					
+					//generate files
+					$XW = new xml_Writer($queries[$key]->blade,$queries[$key]->queryID);
+					$done = $XW->writeXML();
+					
+					//drop tables
+					$sql = 'drop table if exist DPV_EDGE_'.$queries[$key]->queryID;
+					$res = $mysqli->query($sql);
+					$sql = 'drop table if exist DPV_POP_'.$queries[$key]->queryID;
+					$res = $mysqli->query($sql);
+					
+					// changes status in XML					
+					$res = $xml->xpath('/DATA/QUERY[queryID="'.$queries[$key]->queryID.'"]/lastKnownStatus');							  
+					$theNodeToBeDeleted = $res[0];								
+					$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+					if (!$oNode) {
+					    echo 'Error while converting SimpleXMLelement to DOM';
+					}		
+					$oNode->parentNode->removeChild($oNode); 								
+					$queries[$key]->addChild('lastKnownStatus','completed');
+				}
+				$xml->asXML("xml\query.xml");  			
+			}
+		}
+		$mysqli->close();
+	}
+?>
