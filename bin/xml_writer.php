@@ -11,7 +11,7 @@
 		private $blade;
 		private $schema;
 		
-		function __construct($blade,$queryID)
+		public function __construct($blade,$queryID)
 		{
 			$this->blade = (string)$blade;
 			$this->idg = new idGen($queryID);
