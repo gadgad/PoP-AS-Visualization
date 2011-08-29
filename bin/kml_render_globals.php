@@ -11,12 +11,9 @@
 				//$_COOKIE[$param] = $_POST[$param];	
 			}
 		} else if(isset($_COOKIE[$param])){
-			if(is_bool($value) && $_COOKIE[$param]=='on')
-				define($param,true);
-			else
 				define($param,$_COOKIE[$param]);
-		} else {
-			setcookie($param,$value,time()+3600*24*30);
+		} else { // not submitted and no data in cookie
+			setcookie($param,$value,time()+3600*24*30);	
 			define($param,$value);
 		}
 	}
