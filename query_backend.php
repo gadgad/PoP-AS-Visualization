@@ -72,7 +72,48 @@
         
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
     
-    
+    if($_POST["func"]=="getWeeks")
+	{
+		$blade = $_POST["blade"];
+		$year = $_POST["year"];
+		
+		$weeks[] = array();
+		$xml = simplexml_load_file("xml\weeks.xml");
+		$result = $xml->xpath('/DATA/YEAR[year="'.$year.'"]/WEEK');					
+		if($result!=FALSE)
+		{
+			foreach($result as $index=>$object){
+				$weeks[] = (string)$result[$index];					
+			}								
+		}
+		else{
+			$mysqli = new mysqli($host,$user,$pass,$database,$port);
+			if ($mysqli->connect_error) {
+	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+			}
+			
+			for($i=1;$i<53;$i++){
+				
+				$table = $DataTables["ip-edges"]["prefix"];        
+				$edges = getTblFromDB($mysqli,$table,$year,$i);
+				if ($edges!=""){
+					$table = $DataTables["pop-locations"]["prefix"];
+					$pops = getTblFromDB($mysqli,$table,$year,$i);
+					if ($pops!=""){
+						$table = $DataTables["popip"]["prefix"];
+						$popsIP = getTblFromDB($mysqli,$table,$year,$i);
+						if ($popsIP!=""){
+							$weeks[] = $i;
+						}
+					}
+				}				
+			}			
+		}   
+		header('Content-type: application/json');
+    	echo json_encode(array("weeks"=>$weeks));      
+		
+	}
+			
 	if($_POST["func"]=="showTables")
 	{
 		$blade = $_POST["blade"];		 
@@ -94,10 +135,9 @@
 		$table = $DataTables["popip"]["prefix"];
 		$popsIP = getTblFromDB($mysqli,$table,$year,$week);
 		
-			    
+		$mysqli->close();	    
 		header('Content-type: application/json');
-        echo json_encode(array("edge"=>$edges,"pop"=>$pops,"popIP"=>$popsIP));                                    
-		$mysqli->close();
+        echo json_encode(array("edge"=>$edges,"pop"=>$pops,"popIP"=>$popsIP));                                    		
 	}
 	
 	
