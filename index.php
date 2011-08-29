@@ -177,16 +177,16 @@
                          		error_counter++;
                          		stageThree();
                          	} else {
-                         		if(data.type!="ALL_COMPLETE"){
+                         		if(data.type!="GOOD"){
                          			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
                          			$("#sendQueryStatus").remove();
                          		} else {
                          			queryID=data.queryID;
-                         			myNameSpace.processID.push(data.pid1);
-                         			myNameSpace.processID.push(data.pid2);
+                         			//myNameSpace.processID.push(data.pid1);
+                         			//myNameSpace.processID.push(data.pid2);
 	                     			updateTable();
 	                     			$("#sendQueryStatus").remove();
-$('#queryTable').fadeOut('slow').load('test.php #queryTable').fadeIn("slow");
+									$('#queryTable').fadeOut('slow').load('index.php #queryTable').fadeIn("slow");
 	                         		// TODO: update table?
                          		}
                          	}                         	                        				                         	                         	                         
