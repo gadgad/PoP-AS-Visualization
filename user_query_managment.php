@@ -1,6 +1,7 @@
 <?php
 	require_once("bin/load_config.php");
-	require_once("bin/idgen.php");	
+	require_once("bin/idgen.php");
+	require_once("bin/query_status.php");	
 	
 	if(!isset($_REQUEST["query"]) || !isset($_REQUEST["func"]))
 		ret_res('missing parameters!','ERROR');
@@ -107,83 +108,26 @@
 		}
 		
 		if(file_exists($edges_filename) || file_exists($pop_filename)){
-			ret_res('fetchnig data into xml files and/or rendering kml','RUNNING');
+			ret_res('fetchnig data into xml files and/or rendering kml','PROCESSING');
 		}
 	
 		// xml/kml files are not present...cheking status on mysql server
 		// 0 - error , 1 - running , 2 - tables ready
-		$edge_state = 0;
-		$pop_state = 0;
+		$query_status = getQueryStatus($queryID);
 		
-		$mysqli = new mysqli($host,$user,$pass,$database,$port);
-				
-		while($mysqli->connect_error) {
-				sleep(3);
-				$mysqli = new mysqli($host,$user,$pass,$database,$port);
- 		    	//ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+		if($query_status==0){
+			ret_res("query is not running yet table doesnt exsist or is locked","ERROR");
 		}
-		
-		$result = $mysqli->query('SHOW FULL PROCESSLIST;');
-		$num = $result->num_rows;
-		for($x = 0 ; $x < $num ; $x++){
-		    $row = $result->fetch_assoc();
-		    if($row['State']!=NULL && stristr($row['Info'],'create table')!=FALSE){
-		    	$tbl = strstr(strstr( $row['Info'] ,'DPV_'),'`',true);
-				if($idg->getPoPTblName()==$tbl){
-					$pop_state = 1;
-				} else if($idg->getEdgeTblName()==$tbl){
-					$edge_state = 1;
-				}
-		    }
-		}
-		
-		if($pop_state==1 || $edge_state==1){
+		 
+		if($query_status==1){
 			ret_res('queries are still running..','RUNNING');
 		}
 		
-		if($pop_state==0){
-			$result = $mysqli->query("show tables from DIMES_POPS_VISUAL like '".$idg->getPoPTblName()."'");
-			$num = $result->num_rows;
-			if($num>0){
-				$result = $mysqli->query("show open tables from DIMES_POPS_VISUAL like '".$idg->getPoPTblName()."'");
-				$num = $result->num_rows;
-				if($num>0){
-					$row = $result->fetch_assoc();
-					if(intval($row['In_use'])==0){
-						$pop_state = 2;
-					}	
-				} else { // table is not open / locked
-					$pop_state = 2;
-				}
-			} 	
+		if($query_status==2){
+			ret_res("ready to fetch data from db","READY");
 		}
-		
-		if($edge_state==0){
-			$result = $mysqli->query("show tables from DIMES_POPS_VISUAL like '".$idg->getEdgeTblName()."'");
-			$num = $result->num_rows;
-			if($num>0){
-				$result = $mysqli->query("show open tables from DIMES_POPS_VISUAL like '".$idg->getEdgeTblName()."'");
-				$num = $result->num_rows;
-				if($num>0){
-					$row = $result->fetch_assoc();
-					if(intval($row['In_use'])==0){
-						$edge_state = 2;
-					}	
-				} else { // table is not open / locked
-					$edge_state = 2;
-				}
-			} 	
-		}
-		
-		$mysqli->close();
-		
-		if($pop_state==0 || $edge_state==0){
-			ret_res("query is not running and table doesnt exsist or is locked","ERROR");
-		} else if($pop_state==2 && $edge_state==2){
-			ret_res("ready to fetch data from db","RUNNING");
-		} else {
-			ret_res("assertion error - ambiguous status","ERROR");
-		}
+		 
+		ret_res("assertion error - ambiguous status","ERROR");
 	}
 		
 	if($_REQUEST["func"]=="abort")
@@ -195,20 +139,30 @@
 		if($result!=FALSE) // the query is found in the queries file - good.
 		{
 					
-			if ($result[0]->lastKnownStatus=="running"){
+			if ($result[0]->lastKnownStatus=="running" && getQueryStatus($queryID)!=2){
+				
 					
 				$allUsers = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users/user');
 				if (count($allUsers)>1){					
 					deleteUser($username,$queryID);					
 				}else{
+					
 					// Kill the process
 					$mysqli = new mysqli($host,$user,$pass,$database,$port);
-					if ($mysqli->connect_error) {
-			 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+					while($mysqli->connect_error) {
+						sleep(3);
+						$mysqli = new mysqli($host,$user,$pass,$database,$port);
 					}
-					$PID = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/processID');
-					$sql = 'kill '.$PID[0];						
-					$res = $mysqli->query($sql);
+					
+					foreach($GLOBALS["PID_MAP"][$queryID] as $pid){
+						$sql = 'kill '.$pid;
+						$res = $mysqli->query($sql);
+					}
+					
+					//$PID = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/processID');
+					//$sql = 'kill '.$PID[0];						
+					//$res = $mysqli->query($sql);
+					
 					$sql = 'drop table if exists DPV_EDGE_'.$queryID;						
 					$res = $mysqli->query($sql);
 					$sql = 'drop table if exists DPV_POP_'.$queryID;						
@@ -224,10 +178,12 @@
 						rrmdir($dir);	
 					}						
 						
-				}								
+				}
+												
 			}else {												
 				deleteUser($username,$queryID);
 			}
+			
 		ret_res("","GOOD");
 			
 		}else { ret_res("The query doesnt exists","ERROR");} //this line should never be reached		 
