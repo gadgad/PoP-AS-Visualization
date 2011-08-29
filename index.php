@@ -414,7 +414,7 @@
 					{						
 						foreach ($result as $i => $value) {												
 							echo "<tr>";							
-							echo "<td>".$result[$i]->queryID."</td>";
+							echo "<td>".substr($result[$i]->queryID,-4)."</td>";
 							echo"<td>".$result[$i]->year."</td>";
 							echo"<td>".$result[$i]->week."</td>";
 							echo"<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
