@@ -92,13 +92,10 @@
              
              /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
              
-             var queryID;
-             var myNameSpace = new Object;
-             myNameSpace.processID = [];
-             
+             var queryID;    
              function updateTable(){
-             	$("#My_queries").append("<p text-align:center>Query " + queryID + " is now running with pid: "+myNameSpace.processID+"</p>");
-             	// add a table line ?             		
+             	//$("#My_queries").append("<p text-align:center>Query " + queryID + " is now running with pid: "+myNameSpace.processID+"</p>");
+             	$('#queryTable').load('index.php #queryTable').fadeIn("slow");            		
              }
              
              var error_counter;
@@ -107,7 +104,7 @@
              	//$.preLoadImages("images/ajax-loader.gif");
 				$("#sendQuery").after('<img id="sendQueryStatus" class="validator" src="images/ajax-loader.gif"/>');
              	$.post("query_backend.php", {func: "sendQuery", stage:1, blade: $("#blade").val() ,
-                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
+                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(), week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
                          		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
@@ -132,7 +129,7 @@
              
              function stageTwo(){
              	$.post("query_backend.php", {func: "sendQuery", stage:2, blade: $("#blade").val() ,
-                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
+                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(),week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
                          		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
@@ -169,7 +166,7 @@
              		return;
              	}
              	$.post("query_backend.php", {func: "sendQuery", stage:3, blade: $("#blade").val() ,
-                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
+                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(),week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
                          		//$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
@@ -182,8 +179,6 @@
                          			$("#sendQueryStatus").remove();
                          		} else {
                          			queryID=data.queryID;
-                         			//myNameSpace.processID.push(data.pid1);
-                         			//myNameSpace.processID.push(data.pid2);
 	                     			updateTable();
 	                     			$("#sendQueryStatus").remove();
 									$('#queryTable').fadeOut('slow').load('index.php #queryTable').fadeIn("slow");
@@ -203,7 +198,7 @@
              	$.post("user_query_managment.php", {func: "abort", query: queryID, username: <?php echo '"'.$username.'"'?> },
              	function(data){
              		if(data.type=="GOOD"){
-             			$('#queryTable').load('test.php #queryTable').fadeIn("slow");
+             			$('#queryTable').load('index.php #queryTable').fadeIn("slow");
              		}
              		if (data.type =="ERROR")
                      	{alert(data.result);}
@@ -411,7 +406,7 @@
 				
 				<?php
 					echo "<tr>";
-					echo "<th>Edge table</th><th>PoP table</th><th>Status</th><th>Delete</th>";
+					echo "<th>QID</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Delete</th>";
 					echo "</tr>";
 					$queries = simplexml_load_file("xml\query.xml");
 					$result = $queries->xpath('/DATA/QUERY[users/user="'.$username.'"]');					
@@ -419,13 +414,18 @@
 					{						
 						foreach ($result as $i => $value) {												
 							echo "<tr>";							
-							echo "<td>".$result[$i]->EdgeTbl."</td>" . "<td>".$result[$i]->PopTbl."</td>" . "<td>";
+							echo "<td>".$result[$i]->queryID."</td>";
+							echo"<td>".$result[$i]->year."</td>";
+							echo"<td>".$result[$i]->week."</td>";
+							echo"<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
+							echo"<td>".$result[$i]->ASnum."</td>";
+							echo "<td>";
 							if ($result[$i]->lastKnownStatus=="running"){
-								echo "running";
+								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus"></div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
 								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
 							}else {
-								echo 'ambigues status';
+								echo 'unknown status';
 							}
 							echo "</td>" . '<td> <button type="button" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
 							// reload the page? if changing to "submit",  add: onsubmit="return false;" ?

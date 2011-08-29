@@ -237,6 +237,45 @@
 			win_backgrounder($cmd."2",'query2',$queryID);
 			//sleep(2);
 			ret_res("stage2 complete","STAGE2_COMPLETE");
+			/*
+			$sub_stage = intval($_POST["sub_stage"]);
+			 
+			$mysqli = new mysqli($host,$user,$pass,$database,$port);
+					
+			if ($mysqli->connect_error) {
+	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+			}
+			
+			$processID = $mysqli->thread_id;
+			
+			header('Content-type: application/json');
+			echo json_encode(array("result"=>"sending query..." ,"type"=>"STAGE2_COMPLETE","queryID"=>$queryID,"processID"=>$processID));
+			session_start();
+			myFlush();
+			
+			//$mysqli->autocommit(FALSE);	
+			$mysqli->select_db($database);
+			//$mysqli->options("max_allowed_packet=50M");
+			//$mysqli->options(MYSQLI_OPT_CONNECT_TIMEOUT, 300);
+			
+			if($sub_stage==1){
+				$_SESSION['pid1'] = $processID;
+				$result = $mysqli->query($query1);
+			}
+			else{ // stage2.2
+				//$mysqli->ping();
+				$_SESSION['pid2'] = $processID;
+				$result = $mysqli->query($query2);
+			}
+			
+			if($mysqli->error){
+				ret_res('Mysqli Error (' . $mysqli->errno . '): '. $mysqli->error,"ERROR");
+			}
+			  		               			   
+			//$mysqli->commit();
+			
+			$mysqli->close();
+			*/
 		}
 		
 		// check if present in 'SHOW PROCESSLIST' and/or table exist, if so add to query.xml 

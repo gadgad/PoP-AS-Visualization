@@ -1,6 +1,6 @@
 <?php 
  
-function AddQuery($queryID,$processID,$usertoadd,$EdgeTbl, $PopTbl,$ASnum,$allAS,$blade) 
+function AddQuery($queryID,$year,$week,$usertoadd,$EdgeTbl,$PopTbl,$PopLocTbl,$ASnum,$allAS,$blade) 
 {
 	 $nameXML = "xml/query.xml";	 
 	// Load XML file
@@ -8,11 +8,13 @@ function AddQuery($queryID,$processID,$usertoadd,$EdgeTbl, $PopTbl,$ASnum,$allAS
 	
 	 $query = $xml->addChild('QUERY');
 	 $query->addChild('queryID', $queryID);
-	 $query->addChild('processID', $processID);
+	 $query->addChild('year', $year);
+	 $query->addChild('week', $week);
 	 $query->addChild('lastKnownStatus',"running");
 	 $query->addChild('blade', $blade);
 	 $query->addChild('EdgeTbl', $EdgeTbl);
 	 $query->addChild('PopTbl', $PopTbl);
+	 $query->addChild('PopLocTbl', $PopLocTbl);
 	 $query->addChild('ASnum', $ASnum);
 	 $query->addChild('allAS', $allAS);
 	 $users = $query->addChild('users');

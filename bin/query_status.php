@@ -5,15 +5,18 @@
 	$PID_MAP = array();
 	
 	// 0 - error , 1 - running , 2 - tables ready
-    function getQueryStatus($QID)
+    function getQueryStatus($QID,$blade)
 	{
 		global $PID_MAP;
 		global $Blade_Map;
 		
 		$queryID = $QID;
-		$queries = simplexml_load_file("xml\query.xml");
-		$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/blade');
-		$selected_blade = (string)$res[0];
+		
+		//$queries = simplexml_load_file("xml\query.xml");
+		//$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/blade');
+		//$selected_blade = $res[0];
+		
+		$selected_blade = $blade;
 		$blade = $Blade_Map[$selected_blade];
 		$host = (string)$blade["host"];
 		$port = (int)$blade["port"];
@@ -39,12 +42,11 @@
 		    $row = $result->fetch_assoc();
 		    if($row['State']!=NULL && stristr($row['Info'],'create table')!=FALSE){
 		    	$tbl = strstr(strstr( $row['Info'] ,'DPV_'),'`',true);
-				if(strlen($tbl)>0){
-					$PID_MAP[$queryID][] = $row['Id'];  
-				}
 				if($idg->getPoPTblName()==$tbl){
+					$PID_MAP[$queryID][] = $row['Id'];
 					$pop_state = 1;
 				} else if($idg->getEdgeTblName()==$tbl){
+					$PID_MAP[$queryID][] = $row['Id'];
 					$edge_state = 1;
 				}
 		    }
