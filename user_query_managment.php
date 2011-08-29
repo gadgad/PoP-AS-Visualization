@@ -25,6 +25,7 @@
 	$user = (string)$blade["user"];
 	$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
 	$database = (string)$blade["db"];
+	$write_db = $blade["write-db"];
 	
 	
 	function ret_res($message, $type)
@@ -113,7 +114,7 @@
 	
 		// xml/kml files are not present...cheking status on mysql server
 		// 0 - error , 1 - running , 2 - tables ready
-		$query_status = getQueryStatus($queryID);
+		$query_status = getQueryStatus($queryID,$selected_blade);
 		
 		if($query_status==0){
 			ret_res("query is not running yet table doesnt exsist or is locked","ERROR");
@@ -139,13 +140,13 @@
 		if($result!=FALSE) // the query is found in the queries file - good.
 		{
 					
-			if ($result[0]->lastKnownStatus=="running" && getQueryStatus($queryID)!=2){
+			if ($result[0]->lastKnownStatus=="running"){
 				
 					
 				$allUsers = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users/user');
 				if (count($allUsers)>1){					
 					deleteUser($username,$queryID);					
-				}else{
+				}else if(getQueryStatus($queryID,$selected_blade)==1){
 					
 					// Kill the process
 					$mysqli = new mysqli($host,$user,$pass,$database,$port);
@@ -162,6 +163,7 @@
 					//$PID = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/processID');
 					//$sql = 'kill '.$PID[0];						
 					//$res = $mysqli->query($sql);
+					$mysqli->select_db($write_db);
 					
 					$sql = 'drop table if exists DPV_EDGE_'.$queryID;						
 					$res = $mysqli->query($sql);
