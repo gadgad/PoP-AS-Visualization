@@ -47,16 +47,14 @@
 	}
 	
 	function getTblFromDB($mysqli,$table,$year,$week){
-
-		$res = "";	
-		$query = "show tables like '".$table."\_".$year."\_week_".$week."'";
-		$res.= parse($mysqli,$query,$res); 			    
-		$query = "show tables like '".$table."\_".$year."\_week_".$week."\_%'";
-		$res.= parse($mysqli,$query,$res);
-		$query = "show tables like '".$table."\_".$year."\_".$week."'";
-		$res.= parse($mysqli,$query,$res);
-		$query = "show tables like '".$table."\_".$year."\_".$week."\_%'";
-		$res.= parse($mysqli,$query,$res);
+					
+		$query1 = "'".$table."\_".$year."\_week_".$week."'";		
+		$query2 = "'".$table."\_".$year."\_week_".$week."\_%'";		
+		$query3 = "'".$table."\_".$year."\_".$week."'";		
+		$query4 = "'".$table."\_".$year."\_".$week."\_%'";					
+		
+		$query = "select TABLE_NAME from INFORMATION_SCHEMA.TABLES WHERE table_schema='DIMES_DISTANCES' and (table_name like ".$query1." or table_name like ".$query2." or table_name like ".$query3." or table_name like ".$query4.")";
+		$res = parse($mysqli,$query,$res);
 		return $res;        
 	}
 	
