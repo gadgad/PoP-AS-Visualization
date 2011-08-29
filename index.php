@@ -28,7 +28,7 @@
 	    </style>
           
           <script type="text/javascript">
-			 // Test connection to blade ---------------------------------------------------          
+			 // Test connection to blade 
              function testConnection() {
              	$.preLoadImages("images/ajax-loader.gif");
              	$.preLoadImages("images/icon_OK.png");
@@ -60,24 +60,24 @@
                      year: $("#year").val(),week: $("#week").val()},
                     function(data){                        			
                          
-                         var allEdges = data.edge;	                      
-                         if (allEdges!= false){
+                         if (data.edge!= ""){
+                         	var allEdges = data.edge;	                                               
                          	var edges = allEdges.split(" ");
                          	for(i = 0; i < edges.length; i++){								
 								$("#Edge").append("<option>" + edges[i] + "</option> "); 									
 							 }
-                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                        
+                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                                                 
                          
-                         var allPops = data.pop;
-                         if (allPops!=false){
+                         if (data.pop!=""){
+                         	var allPops = data.pop;
                          	var pops = allPops.split(" ");
                          	for(i = 0; i < pops.length; i++){								
 								$("#PoP").append("<option>" + pops[i] + "</option> ");
 							 }
                          }else {$("#PoP").append("<option>No tables available</option> ");}
-                         
-                         var allPops2 = data.popIP;
-                         if (allPops2!=false){
+                                                  
+                         if (data.popIP!=""){
+                         	var allPops2 = data.popIP;
                          	var pops2 = allPops2.split(" ");
                          	for(i = 0; i < pops2.length; i++){								
 								$("#popIP").append("<option>" + pops2[i] + "</option> ");
