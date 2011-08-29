@@ -161,16 +161,18 @@
 			$result->addChild('user', $username);
 			
 		}else { // making a new quary 
-			chdir( dirname ( __FILE__ ) );
-			$thisdir = stripslashes(str_replace('\\','/',getcwd()));
-			$querydir = $thisdir."/queries"."/".$queryID;
-			if(!file_exists($querydir)){			 		
-				if(mkdir($querydir, 0777)) { 
-				   //echo "Directory has been created successfully..."; 
-				} else { 
-				   ret_res("Failed to create directory: ".$querydir); 
-				} 
-			}
+		 
+			$querydir = getcwd()."/queries";
+						 		
+			if(mkdir($querydir ."/".$queryID , 0777)) 
+			{ 
+			   //echo "Directory has been created successfully..."; 
+			} 
+			else 
+			{ 
+			   echo "Failed to create directory..."; 
+			} 
+			
 			$asp = $_POST["as"];			
 			$as = "'";
 			$as .= join("','", $asp);						
@@ -186,27 +188,22 @@
 		
 			if ($mysqli->connect_error) {
 	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
-			}
+			} 
+			 
+			$result1 = $mysqli->send_query($query1);					
+			$result2 = $mysqli->send_query($query2);			  		               			   
 			
 			$processID = $mysqli->thread_id;
 			
 			AddQuery($queryID,$processID,$username,$edge, $pop,count($asp),$asp,$blade);
-			echo json_encode(array("queryID"=>$queryID));
 			
-			//$mysqli->autocommit(FALSE);
-			
-			$result1 = $mysqli->send_query($query1);
-			if($mysqli->error)	
-				ret_res('Mysqli Error (' . $mysqli->errno . ') '. $mysqli->error);
-				
-			$result2 = $mysqli->send_query($query2);
-			if($mysqli->error)	
-				ret_res('Mysqli Error (' . $mysqli->errno . ') '. $mysqli->error);			  		               			   
-
-			
-			//$mysqli->commit();
-			$mysqli->close();
 		}
+				
+		header('Content-type: application/text');        
+        echo json_encode(array("queryID"=>$queryID));		
+		                                    
+		$mysqli->close();
 	}
+		
 	
 ?>

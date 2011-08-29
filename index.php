@@ -32,9 +32,10 @@
              function testConnection() {
              	$.preLoadImages("images/ajax-loader.gif");
              	$.preLoadImages("images/icon_OK.png");
+             	$("#testStatus").remove();
 				$('#blade').after('<img id="testStatus" class="validator" src="images/ajax-loader.gif"/>');
              	$('#AS input').addClass('formGrayOut').attr('disabled','disabled');           	                
-                $.post("query_backend_gadi.php", { func: "testConnection", blade: $("#blade").val() },
+                $.post("query_backend.php", { func: "testConnection", blade: $("#blade").val() },
                     function(data){
                              var result = data.result;
                              if(data!=null){
@@ -55,7 +56,7 @@
              		$.preLoadImages("images/ajax-loader.gif");
 					$('#button-wrap-t').html('<p><img src="images/ajax-loader.gif"/></p>');                                   
 					
-                    $.post("query_backend_gadi.php", {func: "showTables", blade: $("#blade").val(),
+                    $.post("query_backend.php", {func: "showTables", blade: $("#blade").val(),
                      year: $("#year").val(),week: $("#week").val()},
                     function(data){                        			
                          
@@ -105,7 +106,7 @@
              	error_counter = 0;
              	//$.preLoadImages("images/ajax-loader.gif");
 				$("#sendQuery").after('<img id="sendQueryStatus" class="validator" src="images/ajax-loader.gif"/>');
-             	$.post("query_backend_gadi.php", {func: "sendQuery", stage:1, blade: $("#blade").val() ,
+             	$.post("query_backend.php", {func: "sendQuery", stage:1, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
@@ -130,7 +131,7 @@
              
              
              function stageTwo(){
-             	$.post("query_backend_gadi.php", {func: "sendQuery", stage:2, blade: $("#blade").val() ,
+             	$.post("query_backend.php", {func: "sendQuery", stage:2, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
@@ -151,9 +152,9 @@
              
             /*
             function stageTwo(subStage){
-            	$.post("query_backend_gadi.php", {func: "sendQuery", stage:2, sub_stage: 1, blade: $("#blade").val() ,
+            	$.post("query_backend.php", {func: "sendQuery", stage:2, sub_stage: 1, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() });
-                $.post("query_backend_gadi.php", {func: "sendQuery", stage:2, sub_stage: 2, blade: $("#blade").val() ,
+                $.post("query_backend.php", {func: "sendQuery", stage:2, sub_stage: 2, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() });
             	stageThree();
             }
@@ -167,7 +168,7 @@
              		$("#sendQueryStatus").remove();
              		return;
              	}
-             	$.post("query_backend_gadi.php", {func: "sendQuery", stage:3, blade: $("#blade").val() ,
+             	$.post("query_backend.php", {func: "sendQuery", stage:3, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
@@ -185,6 +186,7 @@
                          			myNameSpace.processID.push(data.pid2);
 	                     			updateTable();
 	                     			$("#sendQueryStatus").remove();
+$('#queryTable').fadeOut('slow').load('test.php #queryTable').fadeIn("slow");
 	                         		// TODO: update table?
                          		}
                          	}                         	                        				                         	                         	                         
@@ -193,6 +195,22 @@
              }
              
              ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            function abort(queryID){             	
+             	//$('#queryTable').fadeOut('fast');
+             	$.preLoadImages("images/ajax-loader.gif");
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
+             	$.post("user_query_managment.php", {func: "abort", query: queryID, username: <?php echo '"'.$username.'"'?> },
+             	function(data){
+             		if(data.type=="GOOD"){
+             			$('#queryTable').load('test.php #queryTable').fadeIn("slow");
+             		}
+             		if (data.type =="ERROR")
+                     	{alert(data.result);}
+             	}
+             	,"json");
+                                                  	
+             }
                                   
             $(document).ready(function() {                   
                     $("#blade").change(function() {
@@ -228,8 +246,10 @@
                     $("#getAS").click(function() {
                     	$.preLoadImages("images/ajax-loader.gif");
   						$('#button-wrap').html('<p><img src="images/ajax-loader.gif"/></p>');                                                           
-                        $.post("query_backend_gadi.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
+                        $.post("query_backend.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){
+									                        	                        			
+							$("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>").insertAfter('#button-wrap');
 									                        	                        			
 	                         var allAS = data.result;
 							 var AS = allAS.split("*");	
@@ -238,7 +258,7 @@
 	                         	var tmp = AS[i].split(" ");								
 								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
 							 }
-							 
+							$('#searchable').multiselect2side({'search': 'Search: '});							 
 							 $('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
 	                         
                         }, "json");	           
@@ -266,20 +286,11 @@
                     });
             });
   
-     		       
-            // cancels the query
-            $(document).ready(function() {
-                    $("#abort").click(function() {                                                           
-                        $.post("user_query_managment.php", {func: "abort", query: $("#abort").val(), username: <?php echo '"'.$username.'"'?> },"json");
-                        // -->> delete row from table;                                      	
-                    });
-            });
-                        
             </script>                  
     </head>
 
     
-
+    <body>        
         
         <div id="container">
 
@@ -315,7 +326,6 @@
 	                    </select>
                    </div>
                    
-                    
                     <p class="selection-header">Select date</p>       
                     <div align="left" class="selection-text">Year  :                       
                         <select id="year" >
@@ -365,12 +375,12 @@
                		
                		<div id="button-wrap">
                     	<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
+                    	<p style="font-size: 10px; color: gray">After clicking the list will apear.</p>
                     </div>
-                    <br></br>
                     
-                    <div>
+                    <!--
                     	<select multiple='multiple' id='searchable' name="searchable[]"></select>                    		
-                    </div>
+                    -->
                     	                        
                 </form>
                 <input id="sendQuery" type="image" src="images/send-button.png" style="margin-left: 20px; margin-top: 10px"/>
@@ -382,7 +392,7 @@
                 <h3 style="size:4; color: rgb(112,97,68)">My queries</h3>                	
                 <br></br>                
 
-				<table class="imagetable" style="alignment-baseline: central">				
+				<table id="queryTable" class="imagetable" style="alignment-baseline: central">				
 				
 				<?php
 					echo "<tr>";
@@ -397,22 +407,18 @@
 							echo "<td>".$result[$i]->EdgeTbl."</td>" . "<td>".$result[$i]->PopTbl."</td>" . "<td>";
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo "running";
-								
-								//add code to check query status
-								
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
 								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
 							}else {
 								echo 'ambigues status';
 							}
-							echo "</td>" . '<td> <button type="button" id="abort" value="'.$result[$i]->queryID.'">X</button></td>';
-							// --->>>> change id to unique value ?
-							// if changing to "submit",  add: onsubmit="return false;" ?
+							echo "</td>" . '<td> <button type="button" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
+							// reload the page? if changing to "submit",  add: onsubmit="return false;" ?
 							echo "</tr>";
 						} 
 					}//else echo "you have no queries yet... ";
 				?>																
-				<!-- enable adding a new row when a query is sent-->
+				
 				</table>                
             </div>
             
