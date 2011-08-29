@@ -63,11 +63,12 @@
 		if($mysqli->error) throw new Exception('error message');
 		
 		//$mysqli->commit();
-		//$mysqli->close();
-		//exit();
+		$mysqli->close();
+		exit();
+		
 	} catch (Exception $e) {
         //var_dump($e->getMessage());
-        echo('Mysqli Error (' . $mysqli->errno . '): '. $mysqli->error);
+        exit('Mysqli Error (' . $mysqli->errno . '): '. $mysqli->error);
     }
 
 ?>
