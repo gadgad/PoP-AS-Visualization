@@ -99,3 +99,12 @@ table.imagetable td {
 	padding: 5px;
 	font-size:10px;
 }
+
+#adminActions{
+	font-family: verdana,arial,sans-serif;
+	padding-right:2%; 
+	padding-left:2%; 
+	margin-left:3%;
+	background-color: rgb(215,231,232);
+	font-size:16px;	
+}
