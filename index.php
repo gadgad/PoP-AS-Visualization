@@ -28,7 +28,7 @@
 	    </style>
           
           <script type="text/javascript">
-			 // Test connection to blade ---------------------------------------------------          
+			 // Test connection to blade 
              function testConnection() {
              	$.preLoadImages("images/ajax-loader.gif");
              	$.preLoadImages("images/icon_OK.png");
@@ -60,24 +60,24 @@
                      year: $("#year").val(),week: $("#week").val()},
                     function(data){                        			
                          
-                         var allEdges = data.edge;	                      
-                         if (allEdges!= false){
+                         if (data.edge!= ""){
+                         	var allEdges = data.edge;	                                               
                          	var edges = allEdges.split(" ");
                          	for(i = 0; i < edges.length; i++){								
 								$("#Edge").append("<option>" + edges[i] + "</option> "); 									
 							 }
-                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                        
+                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                                                 
                          
-                         var allPops = data.pop;
-                         if (allPops!=false){
+                         if (data.pop!=""){
+                         	var allPops = data.pop;
                          	var pops = allPops.split(" ");
                          	for(i = 0; i < pops.length; i++){								
 								$("#PoP").append("<option>" + pops[i] + "</option> ");
 							 }
                          }else {$("#PoP").append("<option>No tables available</option> ");}
-                         
-                         var allPops2 = data.popIP;
-                         if (allPops2!=false){
+                                                  
+                         if (data.popIP!=""){
+                         	var allPops2 = data.popIP;
                          	var pops2 = allPops2.split(" ");
                          	for(i = 0; i < pops2.length; i++){								
 								$("#popIP").append("<option>" + pops2[i] + "</option> ");
@@ -215,31 +215,38 @@ $('#queryTable').fadeOut('slow').load('test.php #queryTable').fadeIn("slow");
             $(document).ready(function() {                   
                     $("#blade").change(function() {
                     	if ($("#blade").val() != "Select blade"){
-                       		testConnection();
+                       		//testConnection();
                        	}
                     });
             });
                                                           
-            //get possible tables ----------------------------------------------------------------------
+            //get possible tables 
             $(document).ready(function() {              	 
                 $("#getTables").click(function() {
                 	getTables();                    
                 });              
             });
             
-            /*
+          
             $(document).ready(function() {              	 
-                $("#week").change(function() {
-                	getTables();                    
+                $("#year").change(function() {
+                	
+                	if ($("#year").val()!=""){
+                		$.post("query_backend.php", {func: "getWeeks", blade: $("#blade").val(),year: $("#year").val()},
+                        function(data){
+							var weeks = data.weeks;		            
+							if (weeks!=null){
+	                         	for(i = 1; i < weeks.length; i++){								
+									$("#week").append("<option>" + weeks[i] + "</option> "); 									
+								 }
+                         	}else {$("#week").append("<option>No weeks available</option> ");}		                        	                        			
+	                         
+                        }, "json");	
+                	}
+					                	            
                 });              
             });
             
-            $(document).ready(function() {              	 
-                $("#year").change(function() {
-                	getTables();                    
-                });              
-            });
-            */
             
             // get all relevant AS by parameters TODO: change click
             $(document).ready(function() {
@@ -331,22 +338,30 @@ $('#queryTable').fadeOut('slow').load('test.php #queryTable').fadeIn("slow");
                         <select id="year" >
                             <option value="">Select year</option>
                             <?php
+                            
+                            	$xml = simplexml_load_file("xml\weeks.xml");
+								$result = $xml->xpath('/DATA/YEAR/year');					
+								if($result!=FALSE)
+								{
+									var_dump($result);
+									foreach($result as $i=>$value){
+										echo "<option>".$value."</option>";
+									}					
+								}                            
+                            	/*
                             	$currentYear = date("Y");
-	                            for($i = 2004; $i <= $currentYear; $i++){
+	                            for($i = 2008; $i <= $currentYear; $i++){
 	                            	echo "<option>".$i."</option>";																 								 
 								 }	
+								 * */
+								 
                             ?>                            
                         </select>
                     </div>
 
                      <div align="left" class="selection-text">Week:
                         <select id="week">                               
-                            <option selected="selected" value="">Select week</option>
-                            <?php                            	
-	                            for($i = 1; $i <= 52; $i++){
-	                            	echo "<option>".$i."</option>";																 								 
-								 }	
-                            ?>                             
+                            <option selected="selected" value="">Select week</option>                                                  
                         </select>
                     </div>
                     <div id="button-wrap-t">
