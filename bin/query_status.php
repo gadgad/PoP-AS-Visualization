@@ -1,8 +1,27 @@
 <?php
-    
-    function getQueryStatus()
+	require_once("bin/load_config.php");
+    require_once("bin/idgen.php");
+	
+	$PID_MAP = array();
+	
+	// 0 - error , 1 - running , 2 - tables ready
+    function getQueryStatus($QID)
 	{
-		// 0 - error , 1 - running , 2 - tables ready
+		global $PID_MAP;
+		global $Blade_Map;
+		
+		$queryID = $QID;
+		$queries = simplexml_load_file("xml\query.xml");
+		$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/blade');
+		$selected_blade = (string)$res[0];
+		$blade = $Blade_Map[$selected_blade];
+		$host = (string)$blade["host"];
+		$port = (int)$blade["port"];
+		$user = (string)$blade["user"];
+		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+		$database = (string)$blade["db"];
+		$idg = new idGen($queryID);
+		
 		$edge_state = 0;
 		$pop_state = 0;
 		
@@ -20,6 +39,9 @@
 		    $row = $result->fetch_assoc();
 		    if($row['State']!=NULL && stristr($row['Info'],'create table')!=FALSE){
 		    	$tbl = strstr(strstr( $row['Info'] ,'DPV_'),'`',true);
+				if(strlen($tbl)>0){
+					$PID_MAP[$queryID][] = $row['Id'];  
+				}
 				if($idg->getPoPTblName()==$tbl){
 					$pop_state = 1;
 				} else if($idg->getEdgeTblName()==$tbl){
@@ -29,7 +51,7 @@
 		}
 		
 		if($pop_state==1 || $edge_state==1){
-			ret_res('queries are still running..','RUNNING');
+			return 1;
 		}
 		
 		if($pop_state==0){
@@ -69,11 +91,11 @@
 		$mysqli->close();
 		
 		if($pop_state==0 || $edge_state==0){
-			ret_res("query is not running and table doesnt exsist or is locked","ERROR");
-		} else if($pop_state==2 && $edge_state==2){
-			ret_res("ready to fetch data from db","RUNNING");
-		} else {
-			ret_res("assertion error - ambiguous status","ERROR");
+			return 0;
+		} 
+		if($pop_state==2 && $edge_state==2){
+			return 2;
 		}
+		return 0;
 	}
 ?>
