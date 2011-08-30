@@ -13,7 +13,11 @@
 		} else if(isset($_COOKIE[$param])){
 				define($param,$_COOKIE[$param]);
 		} else { // not submitted and no data in cookie
-			setcookie($param,($value)?1:0,time()+3600*24*30);	
+			if(is_bool($value)){
+				setcookie($param,($value)?1:0,time()+3600*24*30);
+			} else {
+				setcookie($param,$value,time()+3600*24*30);
+			}	
 			define($param,$value);
 		}
 	}
