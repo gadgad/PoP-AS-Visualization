@@ -90,7 +90,7 @@
 		else{
 			$mysqli = new mysqli($host,$user,$pass,$database,$port);
 			if ($mysqli->connect_error) {
-	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
 			}
 			
 			for($i=1;$i<53;$i++){
@@ -111,7 +111,7 @@
 			}			
 		}   
 		header('Content-type: application/json');
-    	echo json_encode(array("weeks"=>$weeks));      
+    	echo json_encode(array("weeks"=>$weeks,"type"=>"GOOD"));      
 		
 	}
 			
