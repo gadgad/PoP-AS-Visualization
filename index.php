@@ -450,7 +450,7 @@
 							// reload the page? if changing to "submit",  add: onsubmit="return false;" ?
 							echo "</tr>";
 						} 
-					}//else echo "you have no queries yet... ";
+					}
 				?>																
 				
 				</table>                
