@@ -23,6 +23,7 @@
 		//
 		$exe = "start /b ".$bat_filename;
 		if( pclose(popen($exe, 'r')) ) {
+			unlink($bat_filename);
 		    return true;
 		}
 		return false;

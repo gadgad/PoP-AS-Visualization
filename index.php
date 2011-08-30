@@ -206,6 +206,15 @@
              	,"json");
                                                   	
              }
+             
+            function blink(selector){
+				$(selector).fadeOut('slow', function(){
+					$(this).fadeIn('slow', function(){
+						blink(this);
+					});
+				});
+			}
+			
                                   
             $(document).ready(function() {                   
                     $("#blade").change(function() {
@@ -280,6 +289,29 @@
                     });
             });
             
+            // check status of running queries
+            $(document).ready(function() {
+            	$(".checkStatus").ready(function() {
+            		//$.preLoadImages("images/ajax-loader.gif");
+             		//$(".checkStatus").html('<p><img src="images/ajax-loader.gif"/></p>');
+             		$(".checkStatus").each(function(index) {
+         				var queryID = $(this).attr('id');
+         				$("#"+queryID).addClass("blinking");
+         				blink(".blinking");
+	            		$.post("user_query_managment.php", {func: "getRunningStatus", query: queryID, username: <?php echo '"'.$username.'"'?> },
+		             	function(data){
+		             		// COMPLETE , PROCESSING , RUNNING , READY , ERROR
+		             		if(data==null || data.type=="ERROR"){
+		             			$("#"+queryID).html('<p style="color:red">ERROR</p>');
+		             		} else  {
+		             			$("#"+queryID).html('<p title="'+data.result+'">'+data.type.toLowerCase()+'</p>');
+		             		}
+		             		$("#"+queryID).removeClass("blinking");
+		             	}
+		             	,"json");	
+             		});
+            	});
+            });
                                  
      		// Completed - open map page
      		$(document).ready(function() {
@@ -421,7 +453,7 @@
 							echo"<td>".$result[$i]->ASnum."</td>";
 							echo "<td>";
 							if ($result[$i]->lastKnownStatus=="running"){
-								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus"></div>';
+								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">checking status...</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
 								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
 							}else {
