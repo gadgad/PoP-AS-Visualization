@@ -14,6 +14,7 @@
         <link rel="stylesheet" href="css/jquery.multiselect2side.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
 		<script type="text/javascript" src="js/jquery.multiselect2side.js" ></script>
+		<script type="text/javascript" src="js/jquery-blink.js" ></script>
         <style>
 	      .formGrayOut{
 	          background: #ccc;
@@ -207,13 +208,6 @@
                                                   	
              }
              
-            function blink(selector){
-				$(selector).fadeOut('slow', function(){
-					$(this).fadeIn('slow', function(){
-						blink(this);
-					});
-				});
-			}
 			
                                   
             $(document).ready(function() {                   
@@ -296,17 +290,17 @@
              		//$(".checkStatus").html('<p><img src="images/ajax-loader.gif"/></p>');
              		$(".checkStatus").each(function(index) {
          				var queryID = $(this).attr('id');
-         				$("#"+queryID).addClass("blinking");
-         				blink(".blinking");
+         				$("#"+queryID).addClass("blink");
+         				$('.blink').blink();
 	            		$.post("user_query_managment.php", {func: "getRunningStatus", query: queryID, username: <?php echo '"'.$username.'"'?> },
 		             	function(data){
 		             		// COMPLETE , PROCESSING , RUNNING , READY , ERROR
 		             		if(data==null || data.type=="ERROR"){
-		             			$("#"+queryID).html('<p style="color:red">ERROR</p>');
+		             			$("#"+queryID).html('<p title="'+data.result+'" style="color:red">ERROR</p>');
 		             		} else  {
 		             			$("#"+queryID).html('<p title="'+data.result+'">'+data.type.toLowerCase()+'</p>');
 		             		}
-		             		$("#"+queryID).removeClass("blinking");
+		             		$("#"+queryID).removeClass("blink");
 		             	}
 		             	,"json");	
              		});
