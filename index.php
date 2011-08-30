@@ -283,14 +283,15 @@
                     });
             });
             
+            
+            /*
             // check status of running queries
             $(document).ready(function() {
             	$(".checkStatus").ready(function() {
-            		//$.preLoadImages("images/ajax-loader.gif");
-             		//$(".checkStatus").html('<p><img src="images/ajax-loader.gif"/></p>');
-             		$(".blink").blink();
              		$(".checkStatus").each(function(index) {
          				var queryID = $(this).attr('id');
+         				$("#"+queryID).html('<p class="blink">checking status...</p>');
+         				$("#"+queryID+" .blink").blink();
 	            		$.post("user_query_managment.php", {func: "getRunningStatus", query: queryID, username: <?php echo '"'.$username.'"'?> },
 		             	function(data){
 		             		// COMPLETE , PROCESSING , RUNNING , READY , ERROR
@@ -304,6 +305,7 @@
              		});
             	});
             });
+            */
                                  
      		// Completed - open map page
      		$(document).ready(function() {
@@ -445,7 +447,7 @@
 							echo"<td>".$result[$i]->ASnum."</td>";
 							echo "<td>";
 							if ($result[$i]->lastKnownStatus=="running"){
-								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus"><p class="blink">checking status...</p></div>';
+								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
 								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
 							}else {
