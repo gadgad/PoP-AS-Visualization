@@ -3,7 +3,7 @@ require_once("verify.php");
 require_once("bin/idgen.php");
 require_once("bin/kml_render_globals.php");
 
-$queryID = isset($_REQUEST["QID"])? $_REQUEST("QID") : '2df5efc4b99b9486e245a49f6400a90f';
+$queryID = isset($_REQUEST["QID"])? $_REQUEST["QID"] : '2df5efc4b99b9486e245a49f6400a90f';
 $idg = new idGen($queryID);
 $filename='queries/'.$idg->getDirName().'/result.kmz';
 $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/".$filename."?".rand(0,10000000000);
