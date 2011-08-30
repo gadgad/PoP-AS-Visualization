@@ -132,9 +132,7 @@
                         }
                          ,"json");     
              }
-             
-             
-             
+                 
              function stageTwo(){
              	$.post("query_backend.php", {func: "sendQuery", stage:2, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(),week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
@@ -215,8 +213,7 @@
                                                   	
              }
              
-			
-                                  
+			                      
             $(document).ready(function() {                   
                     $("#blade").change(function() {
                     	if ($("#blade").val() != "Select blade"){
@@ -234,23 +231,24 @@
             
           
             $(document).ready(function() {              	 
-                $("#year").change(function() {
-                	
+                $("#year").change(function() {                	
                 	if ($("#year").val()!=""){
                 		$.post("query_backend.php", {func: "getWeeks", blade: $("#blade").val(),year: $("#year").val()},
                         function(data){
-							var weeks = data.weeks;		            
-							if (weeks!=null){
-	                         	for(i = 1; i < weeks.length; i++){								
-									$("#week").append("<option>" + weeks[i] + "</option> "); 									
-								 }
-                         	}else {$("#week").append("<option>No weeks available</option> ");}		                        	                        			
+                        	if (data.type=="GOOD"){	
+								var weeks = data.weeks;		            
+								if (weeks!=null){
+		                         	for(i = 1; i < weeks.length; i++){								
+										$("#week").append("<option>" + weeks[i] + "</option> "); 									
+									 }
+	                         	}else {$("#week").append("<option>No weeks available</option> ");}
+                         	}else {$("#week").html("<option>Connection error</option> ");}		                        	                        			
 	                         
                         }, "json");	
-                	}
-					                	            
+                	}					                	            
                 });              
             });
+                     
                                     
             $(document).ready(function() {
                     $("#getAS").click(function() {
@@ -279,12 +277,10 @@
 									$('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
 								}
 								
-							}else 		                        	                        			
-														 
-							 $('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
-							 $('#button-wrap').append('<p style="font-size: 12px; color: red">Connection error - can not reach server.</p>');
-							}
-	                         
+							}else{ 		                        	                        																	 
+								 $('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+								 $('#button-wrap').append('<p style="font-size: 12px; color: red">Connection error - can not reach server.</p>');
+							}	                         
                         }, "json");	           
                     });                    
             });
@@ -335,8 +331,8 @@
 
             <div id="header">
             	<p>
-	                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?>                	
-	                	<a href="logout.php"> <u>Logout</u></a>	
+	                <h5 style="text-align: left; margin-left: 5px">Welcome <?php echo $username; ?>,                	
+	                	<a href="logout.php"> <u>Logout</u></a>	<?php if ($username=="admin"){echo 'or <a href="admin.php"> <u>Go to admin page</u></a>';}?> 
 	                </h5>
                 	<div class="main-title">
                 		<img src="images/logo.png">
@@ -344,7 +340,7 @@
                 </p>                
             </div>
 						                       
-            <div id="user-select">          
+            <div id="user-select" class="user-select">          
             <h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Make a new query</h3>
                                                                
                 <form id="AS" name="get AS list" style="font-size:14px;">                               
@@ -417,11 +413,7 @@
                     	<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
                     	<p style="font-size: 10px; color: gray">After clicking the list will apear.</p>
                     </div>
-                    
-                    <!--
-                    	<select multiple='multiple' id='searchable' name="searchable[]"></select>                    		
-                    -->
-                    	                        
+                                                           
                 </form>
                 <input id="sendQuery" type="image" src="images/send-button.png" style="margin-left: 20px; margin-top: 10px"/>
                  <br></br>
