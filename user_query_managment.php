@@ -83,6 +83,8 @@
 	
 	if($_REQUEST["func"]=="getRunningStatus")
 	{
+		// Turn off all error reporting
+		error_reporting(0);
 		
 		$queries = simplexml_load_file("xml\query.xml");									
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');		
@@ -109,7 +111,7 @@
 		}
 		
 		if(file_exists($edges_filename) || file_exists($pop_filename)){
-			ret_res('fetchnig data into xml files and/or rendering kml','PROCESSING');
+			ret_res('fetchnig data into xml files and/or rendering kml','FETCHING-DATA');
 		}
 	
 		// xml/kml files are not present...cheking status on mysql server
@@ -117,7 +119,7 @@
 		$query_status = getQueryStatus($queryID,$selected_blade);
 		
 		if($query_status==0){
-			ret_res("query is not running yet table doesnt exsist or is locked","ERROR");
+			ret_res("query is not running and table doesnt exsist or is locked","ERROR");
 		}
 		 
 		if($query_status==1){
