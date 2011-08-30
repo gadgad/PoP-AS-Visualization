@@ -2,7 +2,7 @@
 	include_once("bin/load_config.php");
 	include_once("bin/idgen.php");
 	include_once("writeToXML.php");
-	include_once("bin/win_backgrounder.php");
+	include_once("bin/backgrounder.php");
 				
 	// Turn off all error reporting
 	error_reporting(0);
