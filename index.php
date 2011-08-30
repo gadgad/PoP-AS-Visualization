@@ -307,16 +307,16 @@
             });
             */
                                  
-     		// Completed - open map page
+     		/* Completed - open map page
      		$(document).ready(function() {
                     $("#QstatusC").click(function() {                                                           
-                        $.post("visual_frontend.php", {func: "showMap", QID: $("#QstatusC").val()},"json");                                                                             
+                        $.post("visual_frontend.php", {func: "showMap", QID: $("#QstatusC").val()},"json");
+                        //header('Location: visual_frontend.php');                                                                             
                     });
             });
-  
+  */
             </script>                  
     </head>
-
     
     <body>        
         
@@ -368,14 +368,7 @@
 									foreach($result as $i=>$value){
 										echo "<option>".$value."</option>";
 									}					
-								}                            
-                            	/*
-                            	$currentYear = date("Y");
-	                            for($i = 2008; $i <= $currentYear; $i++){
-	                            	echo "<option>".$i."</option>";																 								 
-								 }	
-								 * */
-								 
+								}                                                   
                             ?>                            
                         </select>
                     </div>
@@ -449,11 +442,11 @@
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
-								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
+								echo '<form method="post" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Complete"/></form>';														
 							}else {
 								echo 'unknown status';
 							}
-							echo "</td>" . '<td> <button type="button" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
+							echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
 							// reload the page? if changing to "submit",  add: onsubmit="return false;" ?
 							echo "</tr>";
 						} 
