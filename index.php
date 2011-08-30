@@ -61,32 +61,39 @@
                      year: $("#year").val(),week: $("#week").val()},
                     function(data){                        			
                          
-                         if (data.edge!= ""){
-                         	var allEdges = data.edge;	                                               
-                         	var edges = allEdges.split(" ");
-                         	for(i = 0; i < edges.length; i++){								
-								$("#Edge").append("<option>" + edges[i] + "</option> "); 									
-							 }
-                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                                                 
+                         if (data.type=="GOOD"){                    	
                          
-                         if (data.pop!=""){
-                         	var allPops = data.pop;
-                         	var pops = allPops.split(" ");
-                         	for(i = 0; i < pops.length; i++){								
-								$("#PoP").append("<option>" + pops[i] + "</option> ");
-							 }
-                         }else {$("#PoP").append("<option>No tables available</option> ");}
-                                                  
-                         if (data.popIP!=""){
-                         	var allPops2 = data.popIP;
-                         	var pops2 = allPops2.split(" ");
-                         	for(i = 0; i < pops2.length; i++){								
-								$("#popIP").append("<option>" + pops2[i] + "</option> ");
-							 }
-                         }else {$("#popIP").append("<option>No tables available</option> ");}
-                         
-                         $('#button-wrap-t').html('<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>');
-                    }, "json");	
+	                         if (data.edge!= ""){
+	                         	var allEdges = data.edge;	                                               
+	                         	var edges = allEdges.split(" ");
+	                         	for(i = 0; i < edges.length; i++){								
+									$("#Edge").append("<option>" + edges[i] + "</option> "); 									
+								 }
+	                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                                                 
+	                         
+	                         if (data.pop!=""){
+	                         	var allPops = data.pop;
+	                         	var pops = allPops.split(" ");
+	                         	for(i = 0; i < pops.length; i++){								
+									$("#PoP").append("<option>" + pops[i] + "</option> ");
+								 }
+	                         }else {$("#PoP").append("<option>No tables available</option> ");}
+	                                                  
+	                         if (data.popIP!=""){
+	                         	var allPops2 = data.popIP;
+	                         	var pops2 = allPops2.split(" ");
+	                         	for(i = 0; i < pops2.length; i++){								
+									$("#popIP").append("<option>" + pops2[i] + "</option> ");
+								 }
+	                         }else {$("#popIP").append("<option>No tables available</option> ");}	                        
+	                    	
+	                    }else{
+	                    	$("#Edge").html("<option>Connection error</option> ");
+	                    	$("#PoP").html("<option>Connection error</option> ");
+	                    	$("#popIP").html("<option>Connection error</option> ");
+	                    }
+	                    $('#button-wrap-t').html('<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>');
+	                    }, "json");	
                 }
              } 
              
@@ -244,27 +251,39 @@
 					                	            
                 });              
             });
-            
-            
-            // get all relevant AS by parameters TODO: change click
+                                    
             $(document).ready(function() {
                     $("#getAS").click(function() {
                     	$.preLoadImages("images/ajax-loader.gif");
   						$('#button-wrap').html('<p><img src="images/ajax-loader.gif"/></p>');                                                           
                         $.post("query_backend.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){
-									                        	                        			
-							$("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>").insertAfter('#button-wrap');
-									                        	                        			
-	                         var allAS = data.result;
-							 var AS = allAS.split("*");	
-							 							 	                         	                         
-	                         for(i = 0; i < AS.length; i++){
-	                         	var tmp = AS[i].split(" ");								
-								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
-							 }
-							$('#searchable').multiselect2side({'search': 'Search: '});							 
+							
+							if (data.type=="GOOD"){
+								if (data.result==""){
+									$('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+							 		$('#button-wrap').append('<p style="font-size: 12px; color: black">No AS to show for your query.</p>');
+								}else{
+															
+									$("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>").insertAfter('#button-wrap');
+											                        	                        			
+			                        var allAS = data.result;
+									var AS = allAS.split("*");	
+									 							 	                         	                         
+			                        for(i = 0; i < AS.length; i++){
+			                         	var tmp = AS[i].split(" ");								
+										$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
+									}
+									
+									$('#searchable').multiselect2side({'search': 'Search: '});
+									$('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+								}
+								
+							}else 		                        	                        			
+														 
 							 $('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+							 $('#button-wrap').append('<p style="font-size: 12px; color: red">Connection error - can not reach server.</p>');
+							}
 	                         
                         }, "json");	           
                     });                    
@@ -307,14 +326,6 @@
             });
             */
                                  
-     		/* Completed - open map page
-     		$(document).ready(function() {
-                    $("#QstatusC").click(function() {                                                           
-                        $.post("visual_frontend.php", {func: "showMap", QID: $("#QstatusC").val()},"json");
-                        //header('Location: visual_frontend.php');                                                                             
-                    });
-            });
-  */
             </script>                  
     </head>
     
