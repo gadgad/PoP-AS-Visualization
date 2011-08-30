@@ -121,7 +121,7 @@
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		
 		if ($mysqli->connect_error) {
- 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
 		}	
 		
 		$year = $_POST["year"];
@@ -138,7 +138,7 @@
 		
 		$mysqli->close();
 		header('Content-type: application/json');
-        echo json_encode(array("edge"=>$edges,"pop"=>$pops,"popIP"=>$popsIP));                                    		
+        echo json_encode(array("edge"=>$edges,"pop"=>$pops,"popIP"=>$popsIP,"type"=>"GOOD"));                                    		
 	}
 	
 	
@@ -150,7 +150,7 @@
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		
 		if ($mysqli->connect_error) {
- 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
 		}
         
 		$edgeTbl = $_POST["edge"];
@@ -174,10 +174,10 @@
 				}
 		     }
 			 $result->close();
-    	}else $AS = "no result";       
+    	}       
 			   			   
 		header('Content-type: application/text');        
-        echo json_encode(array("result"=>$AS));                                    
+        echo json_encode(array("result"=>$AS,"type"=>"GOOD"));                                    
 		$mysqli->close();
 	}
 	
