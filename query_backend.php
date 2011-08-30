@@ -2,7 +2,7 @@
 	include_once("bin/load_config.php");
 	include_once("bin/idgen.php");
 	include_once("writeToXML.php");
-	include_once("bin/win_backgrounder.php");
+	include_once("bin/backgrounder.php");
 	require_once("bin/query_status.php");	
 				
 	// Turn off all error reporting
@@ -232,10 +232,10 @@
 		if($stage==2)
 		{
 			$cmd = "send_query.php --host=".$host." --user=".$user." --pass=".$pass." --database=".$database." --port=".$port." --PoPTblName=".$idg->getPoPTblName()." --pop=".$pop." --as=".$as." --EdgeTblName=".$idg->getEdgeTblName()." --edge=".$edge." --popIP=".$popIP." --query=";
-			win_backgrounder($cmd."1",'query1',$queryID);
-			//sleep(2);
-			win_backgrounder($cmd."2",'query2',$queryID);
-			//sleep(2);
+			$cmd1 = new Backgrounder($cmd."1",'query1',$queryID);
+			$cmd1->run();
+			$cmd2 = new Backgrounder($cmd."2",'query2',$queryID);
+			$cmd2->run();
 			ret_res("stage2 complete","STAGE2_COMPLETE");
 		}
 		
