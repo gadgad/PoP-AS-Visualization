@@ -44,7 +44,7 @@
 	            <div class="login-box">
 	            		
 					<h1 class="login-header">Login</h1>
-					<form method="post" action="">
+					<form method="post" action="" id="myform" name="myform">
 						<p style="margin-left: 10px">Username <input type="text" name="username" size="18"/></p>
 						<p style="margin-left: 10px">Password <input type="password" name="password" size="18"/></p>
 						<?php
@@ -55,7 +55,11 @@
 						
 					<!--	<input type="image" value="Login" src="images/Login.png" name="login" alt="Submit" style="margin-left: 50px"/>-->
 						
-						<input type="submit" value="Login" name="login" style="margin-left: 50px"/>
+					<!-- 	<a href="javascript:document.myform.submit()" name="login" value="Login"> 						 						
+							<img src="images/Login.png" alt="Submit"  style="margin-left: 50px" name="login" value="Login"/> 					
+							</a> -->
+						
+						<input type="submit" value="Login" name="login" style="margin-left: 50px"/> 
 					</form>
 					<p style="margin-left: 10px; font-size: 12px">not a user? <a href="register.php">Register</a> now! </p>
 					<br></br>					
