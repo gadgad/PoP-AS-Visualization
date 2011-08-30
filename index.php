@@ -61,32 +61,39 @@
                      year: $("#year").val(),week: $("#week").val()},
                     function(data){                        			
                          
-                         if (data.edge!= ""){
-                         	var allEdges = data.edge;	                                               
-                         	var edges = allEdges.split(" ");
-                         	for(i = 0; i < edges.length; i++){								
-								$("#Edge").append("<option>" + edges[i] + "</option> "); 									
-							 }
-                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                                                 
+                         if (data.type=="GOOD"){                    	
                          
-                         if (data.pop!=""){
-                         	var allPops = data.pop;
-                         	var pops = allPops.split(" ");
-                         	for(i = 0; i < pops.length; i++){								
-								$("#PoP").append("<option>" + pops[i] + "</option> ");
-							 }
-                         }else {$("#PoP").append("<option>No tables available</option> ");}
-                                                  
-                         if (data.popIP!=""){
-                         	var allPops2 = data.popIP;
-                         	var pops2 = allPops2.split(" ");
-                         	for(i = 0; i < pops2.length; i++){								
-								$("#popIP").append("<option>" + pops2[i] + "</option> ");
-							 }
-                         }else {$("#popIP").append("<option>No tables available</option> ");}
-                         
-                         $('#button-wrap-t').html('<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>');
-                    }, "json");	
+	                         if (data.edge!= ""){
+	                         	var allEdges = data.edge;	                                               
+	                         	var edges = allEdges.split(" ");
+	                         	for(i = 0; i < edges.length; i++){								
+									$("#Edge").append("<option>" + edges[i] + "</option> "); 									
+								 }
+	                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                                                 
+	                         
+	                         if (data.pop!=""){
+	                         	var allPops = data.pop;
+	                         	var pops = allPops.split(" ");
+	                         	for(i = 0; i < pops.length; i++){								
+									$("#PoP").append("<option>" + pops[i] + "</option> ");
+								 }
+	                         }else {$("#PoP").append("<option>No tables available</option> ");}
+	                                                  
+	                         if (data.popIP!=""){
+	                         	var allPops2 = data.popIP;
+	                         	var pops2 = allPops2.split(" ");
+	                         	for(i = 0; i < pops2.length; i++){								
+									$("#popIP").append("<option>" + pops2[i] + "</option> ");
+								 }
+	                         }else {$("#popIP").append("<option>No tables available</option> ");}	                        
+	                    	
+	                    }else{
+	                    	$("#Edge").html("<option>Connection error</option> ");
+	                    	$("#PoP").html("<option>Connection error</option> ");
+	                    	$("#popIP").html("<option>Connection error</option> ");
+	                    }
+	                    $('#button-wrap-t').html('<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>');
+	                    }, "json");	
                 }
              } 
              
@@ -125,9 +132,7 @@
                         }
                          ,"json");     
              }
-             
-             
-             
+                 
              function stageTwo(){
              	$.post("query_backend.php", {func: "sendQuery", stage:2, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(),week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
@@ -208,8 +213,7 @@
                                                   	
              }
              
-			
-                                  
+			                      
             $(document).ready(function() {                   
                     $("#blade").change(function() {
                     	if ($("#blade").val() != "Select blade"){
@@ -227,45 +231,56 @@
             
           
             $(document).ready(function() {              	 
-                $("#year").change(function() {
-                	
+                $("#year").change(function() {                	
                 	if ($("#year").val()!=""){
                 		$.post("query_backend.php", {func: "getWeeks", blade: $("#blade").val(),year: $("#year").val()},
                         function(data){
-							var weeks = data.weeks;		            
-							if (weeks!=null){
-	                         	for(i = 1; i < weeks.length; i++){								
-									$("#week").append("<option>" + weeks[i] + "</option> "); 									
-								 }
-                         	}else {$("#week").append("<option>No weeks available</option> ");}		                        	                        			
+                        	if (data.type=="GOOD"){	
+								var weeks = data.weeks;		            
+								if (weeks!=null){
+		                         	for(i = 1; i < weeks.length; i++){								
+										$("#week").append("<option>" + weeks[i] + "</option> "); 									
+									 }
+	                         	}else {$("#week").append("<option>No weeks available</option> ");}
+                         	}else {$("#week").html("<option>Connection error</option> ");}		                        	                        			
 	                         
                         }, "json");	
-                	}
-					                	            
+                	}					                	            
                 });              
             });
-            
-            
-            // get all relevant AS by parameters TODO: change click
+                     
+                                    
             $(document).ready(function() {
                     $("#getAS").click(function() {
                     	$.preLoadImages("images/ajax-loader.gif");
   						$('#button-wrap').html('<p><img src="images/ajax-loader.gif"/></p>');                                                           
                         $.post("query_backend.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){
-									                        	                        			
-							$("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>").insertAfter('#button-wrap');
-									                        	                        			
-	                         var allAS = data.result;
-							 var AS = allAS.split("*");	
-							 							 	                         	                         
-	                         for(i = 0; i < AS.length; i++){
-	                         	var tmp = AS[i].split(" ");								
-								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
-							 }
-							$('#searchable').multiselect2side({'search': 'Search: '});							 
-							 $('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
-	                         
+							
+							if (data.type=="GOOD"){
+								if (data.result==""){
+									$('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+							 		$('#button-wrap').append('<p style="font-size: 12px; color: black">No AS to show for your query.</p>');
+								}else{
+															
+									$("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>").insertAfter('#button-wrap');
+											                        	                        			
+			                        var allAS = data.result;
+									var AS = allAS.split("*");	
+									 							 	                         	                         
+			                        for(i = 0; i < AS.length; i++){
+			                         	var tmp = AS[i].split(" ");								
+										$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
+									}
+									
+									$('#searchable').multiselect2side({'search': 'Search: '});
+									$('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+								}
+								
+							}else{ 		                        	                        																	 
+								 $('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+								 $('#button-wrap').append('<p style="font-size: 12px; color: red">Connection error - can not reach server.</p>');
+							}	                         
                         }, "json");	           
                     });                    
             });
@@ -307,16 +322,8 @@
             });
             */
                                  
-     		// Completed - open map page
-     		$(document).ready(function() {
-                    $("#QstatusC").click(function() {                                                           
-                        $.post("visual_frontend.php", {func: "showMap", QID: $("#QstatusC").val()},"json");                                                                             
-                    });
-            });
-  
             </script>                  
     </head>
-
     
     <body>        
         
@@ -324,8 +331,8 @@
 
             <div id="header">
             	<p>
-	                <h5 style="text-align: left; margin-left: 5px">Welcome, <?php echo $username; ?>                	
-	                	<a href="logout.php"> <u>Logout</u></a>	
+	                <h5 style="text-align: left; margin-left: 5px">Welcome <?php echo $username; ?>,                	
+	                	<a href="logout.php"> <u>Logout</u></a>	<?php if ($username=="admin"){echo 'or <a href="admin.php"> <u>Go to admin page</u></a>';}?> 
 	                </h5>
                 	<div class="main-title">
                 		<img src="images/logo.png">
@@ -333,7 +340,7 @@
                 </p>                
             </div>
 						                       
-            <div id="user-select">          
+            <div id="user-select" class="user-select">          
             <h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Make a new query</h3>
                                                                
                 <form id="AS" name="get AS list" style="font-size:14px;">                               
@@ -368,14 +375,7 @@
 									foreach($result as $i=>$value){
 										echo "<option>".$value."</option>";
 									}					
-								}                            
-                            	/*
-                            	$currentYear = date("Y");
-	                            for($i = 2008; $i <= $currentYear; $i++){
-	                            	echo "<option>".$i."</option>";																 								 
-								 }	
-								 * */
-								 
+								}                                                   
                             ?>                            
                         </select>
                     </div>
@@ -413,11 +413,7 @@
                     	<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
                     	<p style="font-size: 10px; color: gray">After clicking the list will apear.</p>
                     </div>
-                    
-                    <!--
-                    	<select multiple='multiple' id='searchable' name="searchable[]"></select>                    		
-                    -->
-                    	                        
+                                                           
                 </form>
                 <input id="sendQuery" type="image" src="images/send-button.png" style="margin-left: 20px; margin-top: 10px"/>
                  <br></br>
@@ -449,15 +445,15 @@
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
-								echo '<button type="button" id=QstatusC value="'.$result[$i]->queryID.'">completed</button>';	
+								echo '<form method="post" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Complete"/></form>';														
 							}else {
 								echo 'unknown status';
 							}
-							echo "</td>" . '<td> <button type="button" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
+							echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
 							// reload the page? if changing to "submit",  add: onsubmit="return false;" ?
 							echo "</tr>";
 						} 
-					}//else echo "you have no queries yet... ";
+					}
 				?>																
 				
 				</table>                
