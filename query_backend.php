@@ -23,6 +23,7 @@
 	$user = (string)$blade["user"];
 	$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
 	$database = (string)$blade["db"];
+	$write_db = (string)$blade["write-db"];
 		
 	function ret_res($message, $type)
 	{
@@ -203,12 +204,6 @@
 		$year = $_POST["year"];
 		$week = $_POST["week"];
 		
-		// pop query
-		$query1 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getPoPTblName().'` (select * from `'.$database.'`.`'.$pop.'` where ASN in('.$as.')) order by ASN';
-			
-		// edge query			
-		$query2 = 'create table `DIMES_POPS_VISUAL`.`'.$idg->getEdgeTblName().'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID FROM '.$edge.' edges left join '.$popIP.' src on(edges.SourceIP = src.IP) left join '.$popIP.' dest on(edges.DestIP = dest.IP) where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.'))';
-		
 		chdir( dirname ( __FILE__ ) );
 		$thisdir = str_replace('\\','/',getcwd());
 	
@@ -231,7 +226,7 @@
 		// execute query on mysql server
 		if($stage==2)
 		{
-			$cmd = "send_query.php --host=".$host." --user=".$user." --pass=".$pass." --database=".$database." --port=".$port." --PoPTblName=".$idg->getPoPTblName()." --pop=".$pop." --as=".$as." --EdgeTblName=".$idg->getEdgeTblName()." --edge=".$edge." --popIP=".$popIP." --query=";
+			$cmd = "send_query.php --host=".$host." --user=".$user." --pass=".$pass." --database=".$database."  --writedb=".$write_db." --port=".$port." --PoPTblName=".$idg->getPoPTblName()." --pop=".$pop." --as=".$as." --EdgeTblName=".$idg->getEdgeTblName()." --edge=".$edge." --popIP=".$popIP." --query=";
 			$cmd1 = new Backgrounder($cmd."1",'query1',$queryID);
 			$cmd1->run();
 			$cmd2 = new Backgrounder($cmd."2",'query2',$queryID);
@@ -242,8 +237,8 @@
 		// check if present in 'SHOW PROCESSLIST' and/or table exist, if so add to query.xml 
 		if($stage==3)
 		{
-			
-			$query_status = getQueryStatus($queryID,$selected_blade);
+			$qm = new QueryManager($selected_blade);
+			$query_status = $qm->getQueryStatus($queryID);
 			
 			if($query_status == 0){
 				//ret_res("sql query failed to execute properly...</BR>try running the following queries directly:</BR>".(($pop_state==0)?$query1:"")."</BR>".(($edge_state==0)?$query2:""),"ERROR");
