@@ -12,7 +12,8 @@
 				session_start();
 				$_SESSION['username'] = $username;
 				setcookie('username',$username,time()+3600*24*31*12);
-				header('Location: index.php');
+				$url = isset($_SESSION['request_url'])? $_SESSION['request_url'] : 'index.php'; 
+				header('Location: '.$url);
 				die();
 			}
 		}
