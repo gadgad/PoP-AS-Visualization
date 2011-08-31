@@ -116,7 +116,8 @@
 	
 		// xml/kml files are not present...cheking status on mysql server
 		// 0 - error , 1 - running , 2 - tables ready
-		$query_status = getQueryStatus($queryID,$selected_blade);
+		$qm = new QueryManager($selected_blade);
+		$query_status = $qm->getQueryStatus($queryID);
 		
 		if($query_status==0){
 			ret_res("query is not running and table doesnt exsist or is locked","ERROR");
@@ -140,57 +141,59 @@
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');		
 		
 		if($result!=FALSE) // the query is found in the queries file - good.
-		{
-					
+		{	
 			if ($result[0]->lastKnownStatus=="running"){
-				
-					
 				$allUsers = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users/user');
 				if (count($allUsers)>1){					
 					deleteUser($username,$queryID);					
-				}else if(getQueryStatus($queryID,$selected_blade)==1){
+				} else {
 					
-					// Kill the process
-					$mysqli = new mysqli($host,$user,$pass,$database,$port);
-					while($mysqli->connect_error) {
-						sleep(3);
+					$qm = new QueryManager($selected_blade);
+					$query_status = $qm->getQueryStatus($queryID);
+					
+					if($query_status==1){
+						// Kill the process
 						$mysqli = new mysqli($host,$user,$pass,$database,$port);
-					}
-					
-					foreach($GLOBALS["PID_MAP"][$queryID] as $pid){
-						$sql = 'kill '.$pid;
-						$res = $mysqli->query($sql);
-					}
-					
-					//$PID = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/processID');
-					//$sql = 'kill '.$PID[0];						
-					//$res = $mysqli->query($sql);
-					$mysqli->select_db($write_db);
-					
-					$sql = 'drop table if exists DPV_EDGE_'.$queryID;						
-					$res = $mysqli->query($sql);
-					$sql = 'drop table if exists DPV_POP_'.$queryID;						
-					$res = $mysqli->query($sql);
-					$mysqli->close();
-					
-					// Erase the process from query.XML 
-					deleteQuery($queryID);
-					
-					// Remove the query folder
-					$dir = getcwd()."/queries/".$queryID; 
-					if (is_dir($dir)){
-						rrmdir($dir);	
-					}						
+						while($mysqli->connect_error) {
+							sleep(3);
+							$mysqli = new mysqli($host,$user,$pass,$database,$port);
+						}
 						
+						foreach($qm->getPIDS($queryID) as $pid){
+							$sql = 'kill '.$pid;
+							$res = $mysqli->query($sql);
+						}
+						
+						//$PID = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/processID');
+						//$sql = 'kill '.$PID[0];						
+						//$res = $mysqli->query($sql);
+						$mysqli->select_db($write_db);
+						
+						$sql = 'drop table if exists DPV_EDGE_'.$queryID;						
+						$res = $mysqli->query($sql);
+						$sql = 'drop table if exists DPV_POP_'.$queryID;						
+						$res = $mysqli->query($sql);
+						$mysqli->close();
+						
+						// Erase the process from query.XML 
+						deleteQuery($queryID);
+						
+						// Remove the query folder
+						$dir = getcwd()."/queries/".$queryID; 
+						if (is_dir($dir)){
+							rrmdir($dir);	
+						}						
+							
+					}
 				}
 												
-			}else {												
+			} else {												
 				deleteUser($username,$queryID);
 			}
 			
 		ret_res("","GOOD");
 			
-		}else { ret_res("The query doesnt exists","ERROR");} //this line should never be reached		 
+		} else { ret_res("The query doesnt exists","ERROR");} //this line should never be reached		 
 	}
 
 ?>
