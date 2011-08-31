@@ -8,6 +8,8 @@ $idg = new idGen($queryID);
 $filename='queries/'.$idg->getDirName().'/result.kmz';
 $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/".$filename."?".rand(0,10000000000);
 
+$key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A": 
+								 "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT8m87T_heG5MPAsfTIBlWdaTx20xTeGeqv3LruUshUL4J6wufrjMVp7Q";
 ?>
 <html>
 <head>
@@ -26,7 +28,7 @@ $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/"
     <!--<link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2/resources/css/ext-all.css" />-->
     <!--<script type="text/javascript" src="http://extjs.cachefly.net/builds/ext-cdn-611.js"></script>-->
     <link rel="stylesheet" type="text/css" href="css/Ext.ux.GEarthPanel-1.1.css" />
-    <script type="text/javascript" src="http://www.google.com/jsapi?key=ABQIAAAAvQLslBJZByOlS8Y3iPXgexSV5romlzgkIRRVpZz7TQ7Jsa0ZQxRh2GVXWb7jYX7ajChOO9olKH0Sgg"></script>
+    <script type="text/javascript" src="http://www.google.com/jsapi?key=<?php echo $key ?>"></script>
   	<script type="text/javascript" src="js/Ext.ux.GEarthPanel-1.1.js"></script>
     <script type="text/javascript">
     	

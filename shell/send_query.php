@@ -17,6 +17,7 @@
 	$user = $args['user'];
 	$pass = $args['pass'];
 	$database = $args['database'];
+	$write_db = $args["writedb"];
 	$port = $args['port'];
 	
 	$query = $args['query'];
@@ -32,10 +33,10 @@
 
 	
 	// pop query
-	$query1 = 'create table `DIMES_POPS_VISUAL`.`'.$PoPTblName.'` (select * from `'.$database.'`.`'.$pop.'` where ASN in('.$as.')) order by ASN';
+	$query1 = 'create table `'.$write_db.'`.`'.$PoPTblName.'` (select * from `'.$database.'`.`'.$pop.'` where ASN in('.$as.')) order by ASN';
 			
 	// edge query			
-	$query2 = 'create table `DIMES_POPS_VISUAL`.`'.$EdgeTblName.'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID FROM '.$edge.' edges inner join '.$popIP.' src on(edges.SourceIP = src.IP) inner join '.$popIP.' dest on(edges.DestIP = dest.IP) where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.'))';
+	$query2 = 'create table `'.$write_db.'`.`'.$EdgeTblName.'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID FROM '.$edge.' edges inner join '.$popIP.' src on(edges.SourceIP = src.IP) inner join '.$popIP.' dest on(edges.DestIP = dest.IP) where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.'))';
 	
 	$selected_query	= ($query==1)?$query1:$query2;	
 		

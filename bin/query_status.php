@@ -2,102 +2,96 @@
 	require_once("bin/load_config.php");
     require_once("bin/idgen.php");
 	
-	$PID_MAP = array();
-	
-	// 0 - error , 1 - running , 2 - tables ready
-    function getQueryStatus($QID,$blade)
+	class QueryManager
 	{
-		global $PID_MAP;
-		global $Blade_Map;
+		private $PID_MAP;
+		private $TABLES_MAP;
 		
-		$queryID = $QID;
-		
-		//$queries = simplexml_load_file("xml\query.xml");
-		//$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/blade');
-		//$selected_blade = $res[0];
-		
-		$selected_blade = $blade;
-		$blade = $Blade_Map[$selected_blade];
-		$host = (string)$blade["host"];
-		$port = (int)$blade["port"];
-		$user = (string)$blade["user"];
-		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
-		$database = (string)$blade["db"];
-		$idg = new idGen($queryID);
-		
-		$edge_state = 0;
-		$pop_state = 0;
-		
-		$mysqli = new mysqli($host,$user,$pass,$database,$port);
+		public function __construct($blade)
+		{
+			global $Blade_Map;
+			$this->PID_MAP = array();
+			$this->TABLES_MAP = array();
+			
+			$blade = $Blade_Map[$blade];
+			$host = (string)$blade["host"];
+			$port = (int)$blade["port"];
+			$user = (string)$blade["user"];
+			$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+			$database = (string)$blade["db"];
+			$write_db = $blade["write-db"];
+			
+			$mysqli = new mysqli($host,$user,$pass,$database,$port);
 				
-		while($mysqli->connect_error) {
-				sleep(3);
-				$mysqli = new mysqli($host,$user,$pass,$database,$port);
- 		    	//ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
-		}
-		
-		$result = $mysqli->query('SHOW FULL PROCESSLIST;');
-		$num = $result->num_rows;
-		for($x = 0 ; $x < $num ; $x++){
-		    $row = $result->fetch_assoc();
-		    if($row['State']!=NULL && stristr($row['Info'],'create table')!=FALSE){
-		    	$tbl = strstr(strstr( $row['Info'] ,'DPV_'),'`',true);
-				if($idg->getPoPTblName()==$tbl){
-					$PID_MAP[$queryID][] = $row['Id'];
-					$pop_state = 1;
-				} else if($idg->getEdgeTblName()==$tbl){
-					$PID_MAP[$queryID][] = $row['Id'];
-					$edge_state = 1;
-				}
-		    }
-		}
-		
-		if($pop_state==1 || $edge_state==1){
-			return 1;
-		}
-		
-		if($pop_state==0){
-			$result = $mysqli->query("show tables from DIMES_POPS_VISUAL like '".$idg->getPoPTblName()."'");
+			while($mysqli->connect_error) {
+					sleep(3);
+					$mysqli = new mysqli($host,$user,$pass,$database,$port);
+			}
+			
+			$result = $mysqli->query('SHOW FULL PROCESSLIST;');
 			$num = $result->num_rows;
-			if($num>0){
-				$result = $mysqli->query("show open tables from DIMES_POPS_VISUAL like '".$idg->getPoPTblName()."'");
-				$num = $result->num_rows;
-				if($num>0){
-					$row = $result->fetch_assoc();
-					if(intval($row['In_use'])==0){
-						$pop_state = 2;
-					}	
-				} else { // table is not open / locked
-					$pop_state = 2;
+			for($x = 0 ; $x < $num ; $x++){
+			    $row = $result->fetch_assoc();
+			    if($row['State']!=NULL && stristr($row['Info'],'create table')!=FALSE){
+			    	$tbl = strstr(strstr( $row['Info'] ,'DPV_'),'`',true);
+					if($tbl){
+						$queryID = substr($tbl, -32);
+						$type = (strstr($tbl, "_POP_",true)=="DPV")? "POP" : "EDGE";
+						$this->PID_MAP[$queryID][$type] = $row['Id'];
+					}
 				}
-			} 	
-		}
-		
-		if($edge_state==0){
-			$result = $mysqli->query("show tables from DIMES_POPS_VISUAL like '".$idg->getEdgeTblName()."'");
+			}
+			
+			$result = $mysqli->query("show tables from ".$write_db." like 'DPV_%'");
 			$num = $result->num_rows;
-			if($num>0){
-				$result = $mysqli->query("show open tables from DIMES_POPS_VISUAL like '".$idg->getEdgeTblName()."'");
-				$num = $result->num_rows;
-				if($num>0){
-					$row = $result->fetch_assoc();
-					if(intval($row['In_use'])==0){
-						$edge_state = 2;
-					}	
-				} else { // table is not open / locked
-					$edge_state = 2;
-				}
-			} 	
+			for($x = 0 ; $x < $num ; $x++){
+			    $row = $result->fetch_row();
+				$tbl = $row[0];
+				$queryID = substr($tbl, -32);
+				$type = (strstr($tbl, "_POP_",true)=="DPV")? "POP" : "EDGE";
+				$this->TABLES_MAP[$queryID][$type] = true;
+			}
+			
+			$result = $mysqli->query("show open tables from ".$write_db." like 'DPV_%'");
+			$num = $result->num_rows;
+			for($x = 0 ; $x < $num ; $x++){
+			    $row = $result->fetch_assoc();
+				$tbl = $row["Table"];
+				$locks = intval($row["In_use"]);
+				$queryID = substr($tbl, -32);
+				$type = (strstr($tbl, "_POP_",true)=="DPV")? "POP" : "EDGE";
+				if($locks > 0) $this->TABLES_MAP[$queryID][$type] = false;
+			}
+			
+			$mysqli->close();
+				
 		}
-		
-		$mysqli->close();
-		
-		if($pop_state==0 || $edge_state==0){
+	
+		// 0 - error , 1 - running , 2 - tables ready
+		public function getQueryStatus($QID)
+		{
+			if(isset($this->PID_MAP[$QID]["POP"]) || isset($this->PID_MAP[$QID]["EDGE"]))
+				return 1;
+			
+			if(isset($this->TABLES_MAP[$QID]["POP"]) && 
+			$this->TABLES_MAP[$QID]["POP"] == true &&
+			isset($this->TABLES_MAP[$QID]["EDGE"]) && 
+			$this->TABLES_MAP[$QID]["EDGE"] == true)
+				return 2;
+				
 			return 0;
-		} 
-		if($pop_state==2 && $edge_state==2){
-			return 2;
 		}
-		return 0;
+		
+		public function getPIDS($QID)
+		{
+			$tmp = array();
+			if(isset($this->PID_MAP[$QID]["POP"]))
+				$tmp[] = $this->PID_MAP[$QID]["POP"];
+			if(isset($this->PID_MAP[$QID]["EDGE"]))
+				$tmp[] = $this->PID_MAP[$QID]["EDGE"];
+			return $tmp;
+		}
+		
 	}
+	
 ?>
