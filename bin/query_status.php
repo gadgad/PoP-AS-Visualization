@@ -24,8 +24,13 @@
 			$mysqli = new mysqli($host,$user,$pass,$database,$port);
 				
 			while($mysqli->connect_error) {
+				if($mysqli->connect_errno == 2006){
+					$mysqli->close();
 					sleep(3);
 					$mysqli = new mysqli($host,$user,$pass,$database,$port);
+				} else {
+					exit('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+				}
 			}
 			
 			$result = $mysqli->query('SHOW FULL PROCESSLIST;');
@@ -67,9 +72,27 @@
 				
 		}
 	
-		// 0 - error , 1 - running , 2 - tables ready
+		// 0 - error , 1 - running , 2 - db-ready, 3 - some-xml-ready,  4 - all-xml-ready, 5 - kml-ready
 		public function getQueryStatus($QID)
 		{
+			$idg = new idGen($QID);
+			$kml_dst_dir = 'queries/'.$idg->getDirName();
+			$kml_filename = $kml_dst_dir.'/result.kmz';
+			$edges_filename = $kml_dst_dir.'/edges.xml';
+			$pop_filename = $kml_dst_dir.'/pop.xml';
+		
+			if(file_exists($kml_filename)){
+				return 5;
+			}
+			
+			if(file_exists($edges_filename) && file_exists($pop_filename)){
+				return 4;
+			}
+			
+			if(file_exists($edges_filename) || file_exists($pop_filename)){
+				return 3;
+			}
+	
 			if(isset($this->PID_MAP[$QID]["POP"]) || isset($this->PID_MAP[$QID]["EDGE"]))
 				return 1;
 			

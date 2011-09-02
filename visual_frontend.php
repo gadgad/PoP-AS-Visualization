@@ -30,6 +30,7 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
     <link rel="stylesheet" type="text/css" href="css/Ext.ux.GEarthPanel-1.1.css" />
     <script type="text/javascript" src="http://www.google.com/jsapi?key=<?php echo $key ?>"></script>
   	<script type="text/javascript" src="js/Ext.ux.GEarthPanel-1.1.js"></script>
+  	<script type="text/javascript" src="js/loadData.js"></script>
     <script type="text/javascript">
     	
     	var ge;
