@@ -1,6 +1,5 @@
 <?php
-	include_once("bin/load_config.php");
-	include_once("bin/xml_writer.php");
+	//include_once("bin/load_config.php");
 	
 	$error = false;
 	if(isset($_POST['login'])){
@@ -27,7 +26,7 @@
         <title>Welcome-Login</title>        
         <script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
         <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
-        <script type="text/javascript" src="js/loadData.js"></script>            
+        <!-- <script type="text/javascript" src="js/loadData.js"></script> -->            
     </head>
 
     <body>        
