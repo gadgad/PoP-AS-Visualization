@@ -1,7 +1,8 @@
 <?php
 	require_once("bin/load_config.php");
 	require_once("bin/idgen.php");
-	require_once("bin/query_status.php");	
+	require_once("bin/query_status.php");
+	require_once("bin/backgrounder.php");	
 	
 	if(!isset($_REQUEST["query"]) || !isset($_REQUEST["func"]))
 		ret_res('missing parameters!','ERROR');
@@ -79,7 +80,6 @@
 	     rmdir($dir); 
 	   } 
 	 }
-	  
 	
 	if($_REQUEST["func"]=="getRunningStatus")
 	{
@@ -99,23 +99,8 @@
 		}
 		 * 
 		 */
-
-		$idg = new idGen($queryID);
-		$kml_dst_dir = 'queries/'.$idg->getDirName();
-		$kml_filename = $kml_dst_dir.'/result.kmz';
-		$edges_filename = $kml_dst_dir.'/edges.xml';
-		$pop_filename = $kml_dst_dir.'/pop.xml';
-		
-		if(file_exists($kml_filename)){
-			ret_res('kml file is ready','COMPLETE');
-		}
-		
-		if(file_exists($edges_filename) || file_exists($pop_filename)){
-			ret_res('fetchnig data into xml files and/or rendering kml','FETCHING-DATA');
-		}
 	
-		// xml/kml files are not present...cheking status on mysql server
-		// 0 - error , 1 - running , 2 - tables ready
+		// 0 - error , 1 - running , 2 - db-ready, 3 - some-xml-ready,  4 - all-xml-ready, 5 - kml-ready
 		$qm = new QueryManager($selected_blade);
 		$query_status = $qm->getQueryStatus($queryID);
 		
@@ -128,7 +113,15 @@
 		}
 		
 		if($query_status==2){
-			ret_res("ready to fetch data from db","READY");
+			ret_res("ready to fetch data from db","TABLES-READY");
+		}
+		
+		if($query_status==3 || $query_status == 4){
+			ret_res("preparing xml files..","PROCESSING-XML");
+		}
+		
+		if($query_status==5){
+			ret_res('kml file is ready','COMPLETE');
 		}
 		 
 		ret_res("assertion error - ambiguous status","ERROR");
@@ -155,8 +148,13 @@
 						// Kill the process
 						$mysqli = new mysqli($host,$user,$pass,$database,$port);
 						while($mysqli->connect_error) {
-							sleep(3);
-							$mysqli = new mysqli($host,$user,$pass,$database,$port);
+							if($mysqli->connect_errno == 2006){
+								$mysqli->close();
+								sleep(3);
+								$mysqli = new mysqli($host,$user,$pass,$database,$port);
+							} else {
+								ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+							}
 						}
 						
 						foreach($qm->getPIDS($queryID) as $pid){

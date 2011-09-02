@@ -45,11 +45,15 @@
 	try {		 
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 				
-		while($mysqli->connect_error && $retries<$limit) {
-			$retries++;
-			sleep(2);
-			$mysqli = new mysqli($host,$user,$pass,$database,$port);
-			//exit('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+		while($mysqli->connect_error) {
+			if($mysqli->connect_errno == 2006 && $retries<$limit){
+				$mysqli->close();
+				$retries++;
+				sleep(3);
+				$mysqli = new mysqli($host,$user,$pass,$database,$port);
+			} else {
+				exit('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
+			}
 		}
 		
 		$processID = $mysqli->thread_id;

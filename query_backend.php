@@ -181,6 +181,38 @@
         echo json_encode(array("result"=>$AS,"type"=>"GOOD"));                                    
 		$mysqli->close();
 	}
+
+	if($_REQUEST["func"]=="pq-check")
+	{
+		$queries = simplexml_load_file("xml\query.xml");
+		$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');
+		if(empty($result)){
+			ret_res("no running queries","EMPTY");
+		}
+		ret_res("there is something to do!","NOT-EMPTY");
+	}
+
+	if($_REQUEST["func"]=="processQueries")
+	{
+		// TODO: move this param to config file!
+		$time_interval = 4; // hours
+		
+	 	$cmd_str = "process_queries.php --foo=bar";
+		$cmd = new Backgrounder($cmd_str,'process_queries');
+		$lrt = $cmd->getLastRunTime();
+		$ok_sig = file_exists('shell/process_queries.ok'); 
+		if(!$ok_sig || $lrt == -1 || ($lrt/3600) >= $time_interval)
+		{
+			$cmd->run();
+			if(!$cmd->isRunning()) {
+				ret_res("failed to launch background processing job!","ERROR");
+			}
+			header('Content-type: application/text');        
+        	echo json_encode(array("result"=>"background processing job is now running","pid"=>$cmd->getPID(),"type"=>"GOOD"));
+			die(); 
+		}
+		ret_res("last invokation is still valid, time interval is set to ".$time_interval." hours","GOOD");
+	}
 	
 	
 	if($_POST["func"]=="sendQuery")
@@ -204,8 +236,8 @@
 		$year = $_POST["year"];
 		$week = $_POST["week"];
 		
-		chdir( dirname ( __FILE__ ) );
-		$thisdir = str_replace('\\','/',getcwd());
+		//chdir( dirname ( __FILE__ ) );
+		//$thisdir = str_replace('\\','/',getcwd());
 	
 		if($stage==1)
 		{
@@ -246,6 +278,7 @@
 			} else {
 				AddQuery($queryID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
 				
+				/*
 				// making a new dir to hold query results 
 				$querydir = $thisdir."/queries"."/".$queryID;
 				if(!file_exists($querydir)){			 		
@@ -253,6 +286,8 @@
 					   ret_res("Failed to create directory: ".$querydir,"ERROR"); 
 					}
 				}
+				 * 
+				 */
 				header('Content-type: application/json');
 				echo json_encode(array("result"=>"query is now running..." ,"type"=>"GOOD","queryID"=>$queryID));
 			}

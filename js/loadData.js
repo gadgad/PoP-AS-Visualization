@@ -34,6 +34,10 @@ $().ready(function(){
 		}
 	});
 });
+
+$(document).ready(function() {
+	processQueries();    
+});
 /////////////////////////////////////////////////////////////////////
 function testConnection(targetID) {
 	$.preLoadImages("images/ajax-loader.gif");
@@ -46,6 +50,26 @@ function testConnection(targetID) {
 		}
 		if(data.result) {
 			$(targetID).html("<P>"+data.result+"</P>");
+			return;
+		}
+	}, "json");	
+}
+
+function run_pq_script() {
+	$.post("query_backend.php", { func: "processQueries", blade: globalData.blade },
+	function(data,textStatus){
+		if(data!=null && data.type == "ERROR") {
+			alert(data.result);
+			return;
+		}
+	}, "json");	
+}
+
+function processQueries() {
+	$.post("query_backend.php", { func: "pq-check", blade: globalData.blade },
+	function(data,textStatus){
+		if(data!=null && data.type == "NOT-EMPTY") {
+			run_pq_script();
 			return;
 		}
 	}, "json");	
