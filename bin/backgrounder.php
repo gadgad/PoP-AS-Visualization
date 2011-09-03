@@ -14,7 +14,6 @@ class Backgrounder
 	
 	private $pid_filename;
 	private $pid;
-	private $prev_pid;
 	private $lastRunTime;
 	
 	private $exe;
@@ -39,19 +38,16 @@ class Backgrounder
 		$this->cmd = "php ".$this->shelldir."/".$cmd;
 		
 		$this->pid = -10;
-		$this->prev_pid = -10;
 		$this->lastRunTime = -1;
 		
 		if(file_exists($this->pid_filename)){
 			$this->extract_pid();
-			$this->prev_pid = $this->pid;
-			$this->pid = -10;
 		}
 	}
 	
 	public function run(){
 	
-		if($this->isRunning($this->prev_pid)){
+		if($this->isRunning()){
 			return -1;
 		} else {
 			unlink($this->pid_filename);
