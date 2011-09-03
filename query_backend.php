@@ -182,6 +182,21 @@
 		$mysqli->close();
 	}
 
+	if($_REQUEST["func"]=="pq-status")
+	{
+		$cmd_str = "process_queries.php";
+		$cmd = new Backgrounder($cmd_str,'process_queries');
+		//$lrt = $cmd->getLastRunTime();
+		$ok_sig = file_exists('shell/process_queries.ok');
+		if($cmd->isRunning()) {
+			ret_res("pq script still running","RUNNING");
+		}
+		if($ok_sig) {
+			ret_res("pq script finished","FINISHED");
+		}
+		ret_res("update-status procedure ended unexpectedly","ERROR");
+	}
+
 	if($_REQUEST["func"]=="pq-check")
 	{
 		$queries = simplexml_load_file("xml\query.xml");
@@ -197,7 +212,7 @@
 		// TODO: move this param to config file!
 		$time_interval = 4; // hours
 		
-	 	$cmd_str = "process_queries.php --foo=bar";
+	 	$cmd_str = "process_queries.php";
 		$cmd = new Backgrounder($cmd_str,'process_queries');
 		$lrt = $cmd->getLastRunTime();
 		$ok_sig = file_exists('shell/process_queries.ok'); 

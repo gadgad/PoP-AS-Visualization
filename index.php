@@ -103,7 +103,7 @@
              var queryID;    
              function updateTable(){
              	//$("#My_queries").append("<p text-align:center>Query " + queryID + " is now running with pid: "+myNameSpace.processID+"</p>");
-             	$('#queryTable').load('index.php #queryTable').fadeIn("slow");            		
+             	$('#queryTable').fadeOut('slow').load('index.php #queryTable').fadeIn("slow");           		
              }
              
              var error_counter;
@@ -185,10 +185,8 @@
                          			$("#sendQueryStatus").remove();
                          		} else {
                          			queryID=data.queryID;
-	                     			updateTable();
 	                     			$("#sendQueryStatus").remove();
-									$('#queryTable').fadeOut('slow').load('index.php #queryTable').fadeIn("slow");
-	                         		// TODO: update table?
+	                     			updateTable();
                          		}
                          	}                         	                        				                         	                         	                         
                         }
@@ -204,7 +202,7 @@
              	$.post("user_query_managment.php", {func: "abort", query: queryID, username: <?php echo '"'.$username.'"'?> },
              	function(data){
              		if(data.type=="GOOD"){
-             			$('#queryTable').load('index.php #queryTable').fadeIn("slow");
+             			updateTable();
              		}
              		if (data.type =="ERROR")
                      	{alert(data.result);}
@@ -212,7 +210,43 @@
              	,"json");
                                                   	
              }
-             
+            
+            function pool_pq_status(pid){
+            	if(globalData.pq_running==true){
+            		$.post("query_backend.php", { func: "pq-status", blade: globalData.blade },
+					function(data,textStatus){
+						if(data!=null) {
+							if(data.type == "ERROR"){
+								globalData.pq_running==false;
+								clearInterval(globalData.interval);
+								//alert(data.result);
+								$("#My_queries").append('<p style="color:red">ERROR - '+data.result+'</p>');
+								$(".checkStatus").each(function(index) {
+			         				var queryID = $(this).attr('id');
+			         				$("#"+queryID).html('error');
+			         			});
+								return;
+							}
+							if(data.type == "FINISED"){
+								globalData.pq_running==false;
+								clearInterval(globalData.interval);
+								updateTable();
+								return;
+							}
+						}
+					}, "json");						
+            	} 	
+            }
+            
+            $(document).ready(function() {
+            	$("#My_queries").bind('update', function(e, data) {
+             		$(".checkStatus").each(function(index) {
+         				var queryID = $(this).attr('id');
+         				$("#"+queryID).html('<p class="blink">checking...</p>');
+         			});
+            		globalData.interval = setInterval( "pool_pq_status("+data.pid+")" , 5000 );  // pool with 5-sec intervals
+            	});        
+			});
 			                      
             $(document).ready(function() {                   
                     $("#blade").change(function() {

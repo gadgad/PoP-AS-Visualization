@@ -14,6 +14,7 @@
 ///////////-Global-Data-////////////////////////////////////////////////
 globalData = {};
 globalData.blade = "";
+globalData.pq_running = false;
 ///////////-JQuery-ajaxSetup-//////////////////////////////////////////
 $().ready(function(){
 	$.ajaxSetup({
@@ -58,9 +59,13 @@ function testConnection(targetID) {
 function run_pq_script() {
 	$.post("query_backend.php", { func: "processQueries", blade: globalData.blade },
 	function(data,textStatus){
-		if(data!=null && data.type == "ERROR") {
-			alert(data.result);
-			return;
+		if(data!=null) {
+			if(data.type == "ERROR"){
+				alert(data.result);
+				return;
+			}
+			globalData.pq_running = true;
+			$("#My_queries").trigger('update', data);
 		}
 	}, "json");	
 }
