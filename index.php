@@ -103,7 +103,7 @@
              var queryID;    
              function updateTable(){
              	//$("#My_queries").append("<p text-align:center>Query " + queryID + " is now running with pid: "+myNameSpace.processID+"</p>");
-             	$('#queryTable').fadeOut('slow').load('index.php #queryTable').fadeIn("slow");           		
+             	$('#queryTable').load('index.php #queryTable').fadeIn("slow");           		
              }
              
              var error_counter;
@@ -152,17 +152,6 @@
                         }
                          ,"json");
              }
-             
-            /*
-            function stageTwo(subStage){
-            	$.post("query_backend.php", {func: "sendQuery", stage:2, sub_stage: 1, blade: $("#blade").val() ,
-                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() });
-                $.post("query_backend.php", {func: "sendQuery", stage:2, sub_stage: 2, blade: $("#blade").val() ,
-                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() });
-            	stageThree();
-            }
-            */
-             
              
              function stageThree()
              {
@@ -227,7 +216,7 @@
 			         			});
 								return;
 							}
-							if(data.type == "FINISED"){
+							if(data.type == "FINISHED"){
 								globalData.pq_running==false;
 								clearInterval(globalData.interval);
 								updateTable();
@@ -362,7 +351,9 @@
     <body>        
         
         <div id="container">
-
+			
+			<?php include("header.php") ?>
+			<!--
             <div id="header">
             	<p>
 	                <h5 style="text-align: left; margin-left: 5px">Welcome <?php echo $username; ?>,                	
@@ -373,6 +364,7 @@
                 	</div>
                 </p>                
             </div>
+           -->
 						                       
             <div id="user-select" class="user-select">          
             <h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Make a new query</h3>

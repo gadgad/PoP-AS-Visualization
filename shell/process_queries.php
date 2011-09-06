@@ -18,6 +18,7 @@
 	
 	function xml_change_status($qid,$new_status)
 	{
+		$queryID = $qid;
 		$filename = "xml\query.xml";
 		$queries = simplexml_load_file($filename);
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
@@ -32,20 +33,21 @@
 	
 	function create_ok_sig()
 	{
-		$ourFileName = "process_queries.ok";
+		$ourFileName = "shell\process_queries.ok";
 		$ourFileHandle = fopen($ourFileName, 'w') or die("can't open file");
 		fclose($ourFileHandle);
 	}
 	
 	function remove_ok_sig()
 	{
-		$filename = "process_queries.ok";
+		$filename = "shell\process_queries.ok";
 		if(file_exists($filename))
 			unlink($filename);
 	}
 	
 	//$args = parseArgs($argv);
 	//$foo = $args['foo'];
+	echo getcwd() . "\n";
 	
 	remove_ok_sig();
 	$queries = simplexml_load_file("xml\query.xml");
@@ -60,13 +62,15 @@
 	foreach($result as $rq)
 	{
 		$blade = (string)$rq->blade;
-		$running_blade_map[$blade][] = $rq->queryID;	
+		$running_blade_map[$blade][] = (string)$rq->queryID;	
 	}
 	
+	$all_ok = true;
 	foreach($running_blade_map as $blade => $rq_lst) {
 		$qm = new QueryManager($blade);
 		foreach($rq_lst as $queryID) {
 			$qs = $qm->getQueryStatus($queryID);
+			echo "$queryID status: ".$qm->getStatusMsg($qs)."\n";
 			// 0 - error , 1 - running , 2 - db-ready, 3 - some-xml-ready,  4 - all-xml-ready, 5 - kml-ready
 			if($qs >= 2 && $qs != 5) // db-tables are ready, but no kml file..
 			{
@@ -75,6 +79,7 @@
 			    	echo "$queryID generate-xml: success!\n";
 			    }
 				else {
+					$all_ok = false;
 					echo "$queryID generate-xml: failure :(\n";
 				}
 				
@@ -83,14 +88,20 @@
 				if($kmlWriter->writeKMZ())
 				{
 					$filename=$kmlWriter->getFileName();
-					xml_change_status($queryID,"complete");
-					create_ok_sig();
+					xml_change_status($queryID,"completed");
 					echo "$queryID generate-kml: success! $filename generated successfully! :)\n";
 				} else {
+					$all_ok = false;
 					echo "$queryID generate-kml: failure :(\n";
 				}
+			} else if($qs==5) {
+				xml_change_status($queryID,"completed");
 			}	
 		}
 	}
+
+	if($all_ok)
+		create_ok_sig();
+
 
 ?>
