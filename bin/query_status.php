@@ -6,12 +6,14 @@
 	{
 		private $PID_MAP;
 		private $TABLES_MAP;
+		private $Status_MAP;
 		
 		public function __construct($blade)
 		{
 			global $Blade_Map;
 			$this->PID_MAP = array();
 			$this->TABLES_MAP = array();
+			$this->Status_MAP = array(0=>"error",1=>"running",2=>"db-ready",3 =>"some-xml-ready",4 =>"all-xml-ready",5 =>"kml-ready");
 			
 			$blade = $Blade_Map[$blade];
 			$host = (string)$blade["host"];
@@ -103,6 +105,12 @@
 				return 2;
 				
 			return 0;
+		}
+		
+		public function getStatusMsg($status_code){
+			if (!isset($this->Status_MAP[$status_code]))
+				return "unknown status";
+			return $this->Status_MAP[$status_code];
 		}
 		
 		public function getPIDS($QID)

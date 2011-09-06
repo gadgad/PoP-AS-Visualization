@@ -146,7 +146,8 @@
 		{
 			if($this->createDir()){
 				if($this->write_pop_XML() && $this->write_edge_XML()){
-					$this->drop_tables();
+					// TODO: uncommnet this when debuging is finished!
+					//$this->drop_tables();
 					$this->mysqli->close();
 					return true;
 				}

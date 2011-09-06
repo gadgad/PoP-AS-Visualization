@@ -37,7 +37,7 @@ $().ready(function(){
 });
 
 $(document).ready(function() {
-	processQueries();    
+		processQueries();
 });
 /////////////////////////////////////////////////////////////////////
 function testConnection(targetID) {
@@ -61,7 +61,7 @@ function run_pq_script() {
 	function(data,textStatus){
 		if(data!=null) {
 			if(data.type == "ERROR"){
-				alert(data.result);
+				//alert(data.result);
 				return;
 			}
 			globalData.pq_running = true;
