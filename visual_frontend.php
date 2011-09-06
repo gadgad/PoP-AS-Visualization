@@ -28,9 +28,9 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
     <!--<link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2/resources/css/ext-all.css" />-->
     <!--<script type="text/javascript" src="http://extjs.cachefly.net/builds/ext-cdn-611.js"></script>-->
     <link rel="stylesheet" type="text/css" href="css/Ext.ux.GEarthPanel-1.1.css" />
+    <link rel="stylesheet" type="text/css" href="css/visual.css" />
     <script type="text/javascript" src="http://www.google.com/jsapi?key=<?php echo $key ?>"></script>
   	<script type="text/javascript" src="js/Ext.ux.GEarthPanel-1.1.js"></script>
-  	<script type="text/javascript" src="js/loadData.js"></script>
     <script type="text/javascript">
     	
     	var ge;
@@ -73,6 +73,7 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
                 }
             });
             
+            /*
 	    	 var userPanel = new Ext.Panel({
 	            title: 'User Admin',
 		        border: false,
@@ -87,11 +88,24 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
                 	}
 		        }]
 	        });
+	        */
 
             var downloadPanel = new Ext.Panel({
 				contentEl: 'downloadPanel',
 				border: false,
 				defaultType: 'panel'	
+			});
+			
+			var northPanel = new Ext.Panel({
+				region: 'north',
+				contentEl: 'northPanel',
+				autoHeight: true,
+		        //autoWidth: true,
+				border: false,
+				bodyBorder: false,
+				//defaultType: 'panel',
+				collapsible: false,
+				split: false
 			});
 			
 			/*
@@ -211,7 +225,7 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
 				    split: true,
 				    //bodyStyle: 'padding:15px'
 				},
-                items: [ controlPanel, earthPanel ]
+                items: [ northPanel, controlPanel, earthPanel ]
             });
 
             // Build control panel
@@ -223,7 +237,7 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
                 // Add panels
                 controlPanel.add(earthPanel.getKmlPanel());
                 controlPanel.add(getGlobalsPanel());
-                controlPanel.add(userPanel);
+                //controlPanel.add(userPanel);
                 controlPanel.add(earthPanel.getLocationPanel());
                 controlPanel.add(earthPanel.getLayersPanel());
                 controlPanel.add(earthPanel.getOptionsPanel());
@@ -268,6 +282,7 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
     </script>
 </head>
 <body>
+	<div id="northPanel"><?php include("header.php") ?></div>
     <div id="westPanel"></div>
     <div id="eastPanel"></div>
     <div id="downloadPanel">
