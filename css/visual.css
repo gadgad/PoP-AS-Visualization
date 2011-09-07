@@ -12,17 +12,16 @@
 }
 .enter{
 	margin-left:3%;
-	background-color:gray;
 	width:27%;
 	height:85%; 
 	float:left;
     clear: none;
 }
 .login-box{
-	background-image: url('../images/table-images/cell-blue-big.jpg');
 	background-position: 0% 0%;
 	background-repeat: repeat-x;
-	margin:10px
+	padding-top: 2px;
+	padding-left: 5px;
 }
 .login-header{
 	margin-top: 20px;
@@ -85,10 +84,10 @@ table.imagetable td {
 .about{
 	margin-right: 3%;
 	border:1px solid #999999; 	
-	background-color:#EEEFEE;
-	width:64%;
+	background-color:#EEEEFF;
+	width:65%;
 	height:85%;
-	float:right; 
+	float:right;
 	clear:right; 
 	text-align:center;
 }
