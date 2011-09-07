@@ -79,9 +79,41 @@ class kmlWriter
 	
 	private function parseXML()
 	{
+
+		foreach($this->edges_xml->children() as $edge)
+		{
+			$srcPOP = (string)$edge->Source_PoPID;
+			$dstPOP = (string)$edge->Dest_PoPID;
+			if($srcPOP!="NULL" && $dstPOP!="NULL" && $srcPOP!=$dstPOP)
+			{
+				if((INTRA_CON && (intval($edge->SourceAS)==intval($edge->DestAS))) || (INTER_CON && (intval($edge->SourceAS)!=intval($edge->DestAS))))
+				{
+				    $edge_str = $edge->Source_PoPID.$edge->Dest_PoPID;
+					$this->PLACEMARKS[(string)($edge->Source_PoPID)]["connected"]=true;
+					$this->PLACEMARKS[(string)($edge->Dest_PoPID)]["connected"]=true;
+				    if(!array_key_exists($edge_str, $this->EDGES)){
+				     	$this->EDGES[$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
+				     							  "DestAS"=>intval($edge->DestAS),
+				     							  "SourcePoP"=>$srcPOP,
+				     							  "DestPoP"=>$dstPOP,
+				     							  "numOfEdges"=>1,
+				     							  "median_lst"=>array(floatval($edge->Median)),
+				     							  "edgeID_lst"=>array($edge->edgeid),
+				     							  "src_ip_lst"=>array($edge->SourceIP),
+				     							  "dest_ip_lst"=>array($edge->DestIP));
+				    } else {
+				    	$this->EDGES[$edge_str]["numOfEdges"]++;
+						$this->EDGES[$edge_str]["median_lst"][] = floatval($edge->Median);
+				    	$this->EDGES[$edge_str]["edgeID_lst"][] = $edge->edgeid;
+				    	$this->EDGES[$edge_str]["src_ip_lst"][] = $edge->SourceIP;
+				    	$this->EDGES[$edge_str]["dest_ip_lst"][] = $edge->DestIP;
+			    	}
+				}
+			}
+		}
 		
 		foreach($this->pop_xml->children() as $pop)
-		{
+		  {
 		  	// generate map of PoP coordinates
 		    if(!array_key_exists((string)$pop->PoPID, $this->PLACEMARKS) 
 		    	|| !isset($this->PLACEMARKS[(string)$pop->PoPID]["lat"])
@@ -90,60 +122,7 @@ class kmlWriter
 		    	$this->PLACEMARKS[(string)$pop->PoPID]["lat"] = floatval($pop->LAT2);
 				$this->PLACEMARKS[(string)$pop->PoPID]["lng"] = floatval($pop->LNG2);
 			}
-		}
-
-		foreach($this->edges_xml->children() as $edge)
-		{
-			$srcPOP = (string)$edge->Source_PoPID;
-			$dstPOP = (string)$edge->Dest_PoPID;
 			
-			if($srcPOP!="NULL" && $dstPOP!="NULL" && $srcPOP!=$dstPOP)
-			{
-				if((INTRA_CON && (intval($edge->SourceAS)==intval($edge->DestAS))) || (INTER_CON && (intval($edge->SourceAS)!=intval($edge->DestAS))))
-				{
-					if(isset($this->PLACEMARKS[$srcPOP]["lat"]) &&
-					   isset($this->PLACEMARKS[$srcPOP]["lng"]) &&
-					   isset($this->PLACEMARKS[$dstPOP]["lat"]) &&
-					   isset($this->PLACEMARKS[$dstPOP]["lng"])) {
-							$src_lat = $this->PLACEMARKS[$srcPOP]["lat"];
-							$src_lng = $this->PLACEMARKS[$srcPOP]["lng"];
-							$dst_lat = $this->PLACEMARKS[$dstPOP]["lat"];
-							$dst_lng = $this->PLACEMARKS[$dstPOP]["lng"];
-					} else {
-						continue;
-					}
-					
-					if(($src_lat!=$dst_lat) || ($src_lng!=$dst_lng)){
-					    $edge_str = $edge->Source_PoPID.$edge->Dest_PoPID;
-						$this->PLACEMARKS[(string)($edge->Source_PoPID)]["connected"]=true;
-						$this->PLACEMARKS[(string)($edge->Dest_PoPID)]["connected"]=true;
-						
-					    if(!array_key_exists($edge_str, $this->EDGES)){
-					     	$this->EDGES[$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
-					     							  "DestAS"=>intval($edge->DestAS),
-					     							  "SourcePoP"=>$srcPOP,
-					     							  "DestPoP"=>$dstPOP,
-					     							  "numOfEdges"=>1,
-					     							  "median_lst"=>array(floatval($edge->Median)),
-					     							  "edgeID_lst"=>array($edge->edgeid),
-					     							  "src_ip_lst"=>array($edge->SourceIP),
-					     							  "dest_ip_lst"=>array($edge->DestIP));
-					    } else {
-					    	$this->EDGES[$edge_str]["numOfEdges"]++;
-							$this->EDGES[$edge_str]["median_lst"][] = floatval($edge->Median);
-					    	$this->EDGES[$edge_str]["edgeID_lst"][] = $edge->edgeid;
-					    	$this->EDGES[$edge_str]["src_ip_lst"][] = $edge->SourceIP;
-					    	$this->EDGES[$edge_str]["dest_ip_lst"][] = $edge->DestIP;
-				    	}
-				    }
-				}
-			}
-		}
-		
-
-		
-		foreach($this->pop_xml->children() as $pop)
-		  {
 			$placemark =  $this->PLACEMARKS[(string)$pop->PoPID];
 		  	$pop_connected = (isset($placemark["connected"])) ? true : false;
 		  	if(!CONNECTED_POPS_ONLY || $pop_connected)
