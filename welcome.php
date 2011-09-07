@@ -41,7 +41,7 @@
 						                       
             <div id="login" class="enter">
             
-	            <div class="login-box">
+	            <div class="login-box" style="width:320px; background-image: url('images/table-images/cell-blue-login.jpg');">
 	            		
 					<h1 class="login-header">Login</h1>
 					<form method="post" action="" id="myform" name="myform">
@@ -65,11 +65,14 @@
 					<br></br>					
 					                          
 	            </div>
+	            
+	            <div style="text-align:center; padding-top:20px;">
+	            	<img src="images/DIMES.gif">	
+	            </div>
+	            
             </div>
             
-            <div class="about">
-                <h3>About the project</h3>                	            
-            </div>
+            <?php include("info.php") ?>
             
             <div class="footer">
                 Copyright © 2011 <a href="http://www.netdimes.org/new/">DIMES</a>
