@@ -2,7 +2,8 @@
 	require_once("bin/load_config.php");
 	require_once("bin/idgen.php");
 	require_once("bin/query_status.php");
-	require_once("bin/backgrounder.php");	
+	require_once("bin/backgrounder.php");
+	include_once("verify.php");	
 	
 	if(!isset($_REQUEST["query"]) || !isset($_REQUEST["func"]))
 		ret_res('missing parameters!','ERROR');

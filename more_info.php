@@ -3,6 +3,7 @@
 // http://localhost/PoPVisualizer/more_info.php?src_pop=000209.1066447842&dst_pop=000209.1066564486&threshold=2
 require_once("bin/load_config.php");
 require_once("bin/idgen.php");
+include_once("verify.php");
 
 if(!isset($_REQUEST["src_pop"]) || 
 	!isset($_REQUEST["dst_pop"]) ||

@@ -1,7 +1,7 @@
 <?php
 	include_once("bin/load_config.php");
 	include_once("bin/idgen.php");
-	include_once("writeToXML.php");
+	include_once("bin/writeToXML.php");
 	include_once("bin/backgrounder.php");
 	include("verify.php");
 				
