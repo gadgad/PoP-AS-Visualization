@@ -1,6 +1,6 @@
 <?php
-	include("bin/load_config.php");
-	include("verify.php");	
+	include_once("bin/load_config.php");
+	include_once("verify.php");	
 ?>
 
 
@@ -240,7 +240,7 @@
             $(document).ready(function() {                   
                     $("#blade").change(function() {
                     	if ($("#blade").val() != "Select blade"){
-                       		//testConnection();
+                       		testConnection();
                        	}
                     });
             });
