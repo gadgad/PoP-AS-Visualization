@@ -23,12 +23,13 @@
 		$queries = simplexml_load_file($filename);
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 		$result[0]->lastKnownStatus=$new_status;
-		
+		$queries->asXML($filename);
+		/*
 		$xml = $queries->asXML();
-		
 		$filewrite = fopen($filename, "w");
 		fwrite($filewrite, $xml);
 		fclose($filewrite);
+		 */
 	}
 	
 	function create_ok_sig()
