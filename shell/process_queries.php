@@ -48,7 +48,7 @@
 	
 	//$args = parseArgs($argv);
 	//$foo = $args['foo'];
-	echo getcwd() . "\n";
+	//echo getcwd() . "\n";
 	
 	remove_ok_sig();
 	$queries = simplexml_load_file("xml\query.xml");
