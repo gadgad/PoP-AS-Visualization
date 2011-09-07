@@ -34,14 +34,14 @@
 	
 	function create_ok_sig()
 	{
-		$ourFileName = "shell\process_queries.ok";
+		$ourFileName = "shell/process_queries.ok";
 		$ourFileHandle = fopen($ourFileName, 'w') or die("can't open file");
 		fclose($ourFileHandle);
 	}
 	
 	function remove_ok_sig()
 	{
-		$filename = "shell\process_queries.ok";
+		$filename = "shell/process_queries.ok";
 		if(file_exists($filename))
 			unlink($filename);
 	}
