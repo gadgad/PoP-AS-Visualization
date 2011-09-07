@@ -22,9 +22,18 @@
 	       .validator {
 			    display: inline;
 			    height: 16px;
+			    width: 16px;
 			    margin-left: 6px;
 			    margin-top: -2px;
-			    width: 16px;
+			}
+			.sendQuery {
+				margin-left: 20px; 
+				margin-top: 10px
+			}
+			.sendQueryValidator {
+				display: block;
+				margin-left: 25px; 
+				margin-top: 10px
 			}
 	    </style>
           
@@ -110,6 +119,11 @@
              function stageOne(){
              	error_counter = 0;
              	//$.preLoadImages("images/ajax-loader.gif");
+             	$("#sendQueryStatus").remove();
+             	if(!$("#searchable").val()){
+             		$("#sendQuery").after('<p id="sendQueryStatus" class="sendQueryValidator" style="color:red">complete the form first!</p>');
+             		return;
+             	}
 				$("#sendQuery").after('<img id="sendQueryStatus" class="validator" src="images/ajax-loader.gif"/>');
              	$.post("query_backend.php", {func: "sendQuery", stage:1, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(), week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
@@ -240,7 +254,7 @@
             $(document).ready(function() {                   
                     $("#blade").change(function() {
                     	if ($("#blade").val() != "Select blade"){
-                       		testConnection();
+                       		//testConnection();
                        	}
                     });
             });
@@ -441,7 +455,7 @@
                     </div>
                                                            
                 </form>
-                <input id="sendQuery" type="image" src="images/send-button.png" style="margin-left: 20px; margin-top: 10px"/>
+                <input id="sendQuery" class="sendQuery" type="image" src="images/send-button.png"/>
                  <br></br>
               
             </div>
