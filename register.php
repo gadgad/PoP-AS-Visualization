@@ -23,7 +23,7 @@ if(isset($_POST['login'])){
 	}
 	if(count($errors) == 0){
 		$xml = new SimpleXMLElement('<user></user>');
-		$xml->addChild('password', md5($password));
+		$xml->addChild('password', hash("sha256",$password));
 		$xml->addChild('email', $email);
 		$xml->asXML('users/' . $username . '.xml');
 		header('Location: welcome.php');
