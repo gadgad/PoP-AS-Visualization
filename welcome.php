@@ -4,14 +4,14 @@
 	$error = false;
 	if(isset($_POST['login'])){
 		$username = preg_replace('/[^A-Za-z]/', '', $_POST['username']);
-		$password = md5($_POST['password']);
+		$password = hash("sha256",$_POST['password']);
 		if(file_exists('users/' . $username . '.xml')){
 			$xml = new SimpleXMLElement('users/' . $username . '.xml', 0, true);
 			if($password == $xml->password){
 				session_start();
 				$_SESSION['username'] = $username;
 				setcookie('username',$username,time()+3600*24*31*12);
-				$url = isset($_SESSION['request_url'])? $_SESSION['request_url'] : 'index.php'; 
+				$url = isset($_SESSION['request_url'])? $_SESSION['request_url'] : ($username == 'admin')? 'admin.php':'index.php'; 
 				header('Location: '.$url);
 				die();
 			}

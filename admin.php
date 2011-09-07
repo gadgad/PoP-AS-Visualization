@@ -53,13 +53,7 @@
         
         <div id="container">
 
-            <div id="header">
-                <div class="main-title">
-                	<img src="images/logo.png">
-                	<br></br>                	
-                	<h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Admin page</h3>
-                </div>
-            </div>
+            <?php include("header.php") ?>
             
             <div class="user-select">
             	<h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Admin actions</h3>
