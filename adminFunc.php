@@ -3,7 +3,15 @@
 	include_once("bin/idgen.php");
 	include_once("writeToXML.php");
 	include_once("bin/backgrounder.php");
+	include("verify.php");
 				
+	function ret_res($message, $type)
+	{
+		header('Content-type: application/json');
+		echo json_encode(array("result"=>$message ,"type"=>$type));
+		die();	
+	}
+	
 	// Turn off all error reporting
 	error_reporting(0);
 	if(($_POST["user"])!="admin")
@@ -15,15 +23,17 @@
 	 
 	 if($_POST["func"]=="updateWeeks")
 	{
-		unlink("xml\weeks.xml");
-		$ourFileHandle = fopen("xml\weeks.xml", 'rw') or die("can't create weeks.xml");
-		fclose($ourFileHandle);		
-		
+				
+		ret_res('bla bla',"ERROR");		
 		$mysqli = new mysqli($host,$user,$pass,$database,$port);
 		if ($mysqli->connect_error) {
- 		   //ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
  		   die();
 		}
+		
+		unlink("xml\weeks.xml");
+		$ourFileHandle = fopen("xml\weeks.xml", 'rw') or die("can't create weeks.xml");
+		fclose($ourFileHandle);
 		
 		$nameXML = "xml/weeks.xml";	 
 		$xml = simplexml_load_file($nameXML);
@@ -59,11 +69,13 @@
 			unset($weeks);
 		}
 		$xml->asXML($nameXML);
+		ret_res('done',"ERROR");
 	}
 	
 	if($_POST["func"]=="updateAS")
 	{
-		// TODO: update AS_info.xml		
+		$table = $_POST["table"];
+		//update file by the table name
 	}
 	
 	if($_POST["func"]=="showQueries")
