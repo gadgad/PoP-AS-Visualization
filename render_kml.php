@@ -1,4 +1,6 @@
 <?php
+	include_once("verify.php");
+	
 	function ret_res($message, $bol)
 	{
 		header('Content-type: application/json');

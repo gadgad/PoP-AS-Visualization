@@ -11,7 +11,8 @@
 				session_start();
 				$_SESSION['username'] = $username;
 				setcookie('username',$username,time()+3600*24*31*12);
-				$url = isset($_SESSION['request_url'])? $_SESSION['request_url'] : ($username == 'admin')? 'admin.php':'index.php'; 
+				$url = (isset($_SESSION['request_url']))? $_SESSION['request_url'] : (($username == 'admin')? 'admin.php':'index.php');
+				//session_write_close(); 
 				header('Location: '.$url);
 				die();
 			}
