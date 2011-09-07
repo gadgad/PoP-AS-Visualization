@@ -1,9 +1,10 @@
 <?php
 	include_once("bin/load_config.php");
 	include_once("bin/idgen.php");
-	include_once("writeToXML.php");
+	include_once("bin/writeToXML.php");
 	include_once("bin/backgrounder.php");
 	require_once("bin/query_status.php");	
+	include_once("verify.php");
 				
 	// Turn off all error reporting
 	error_reporting(0);
