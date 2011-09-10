@@ -3,6 +3,7 @@
 	include_once("bin/idgen.php");
 	include_once("bin/writeToXML.php");
 	include_once("bin/backgrounder.php");
+	require_once("bin/DBConnection.php");
 	include("verify.php");
 				
 	function ret_res($message, $type)
@@ -25,7 +26,7 @@
 	{
 				
 		ret_res('bla bla',"ERROR");		
-		$mysqli = new mysqli($host,$user,$pass,$database,$port);
+		$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
  		   die();
@@ -69,6 +70,7 @@
 			unset($weeks);
 		}
 		$xml->asXML($nameXML);
+		$mysqli->close();
 		ret_res('done',"ERROR");
 	}
 	

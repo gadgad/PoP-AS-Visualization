@@ -3,6 +3,7 @@
 	require_once("bin/idgen.php");
 	require_once("bin/query_status.php");
 	require_once("bin/backgrounder.php");
+	require_once("bin/DBConnection.php");
 	include_once("verify.php");	
 	
 	if(!isset($_REQUEST["query"]) || !isset($_REQUEST["func"]))
@@ -147,15 +148,9 @@
 					
 					if($query_status==1){
 						// Kill the process
-						$mysqli = new mysqli($host,$user,$pass,$database,$port);
-						while($mysqli->connect_error) {
-							if($mysqli->connect_errno == 2006){
-								$mysqli->close();
-								sleep(3);
-								$mysqli = new mysqli($host,$user,$pass,$database,$port);
-							} else {
-								ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
-							}
+						$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
+						if($mysqli->connect_error) {
+							ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
 						}
 						
 						foreach($qm->getPIDS($queryID) as $pid){
@@ -182,14 +177,12 @@
 						if (is_dir($dir)){
 							rrmdir($dir);	
 						}						
-							
 					}
 				}
 												
 			} else {												
 				deleteUser($username,$queryID);
-			}
-			
+			}	
 		ret_res("","GOOD");
 			
 		} else { ret_res("The query doesnt exists","ERROR");} //this line should never be reached		 

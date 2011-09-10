@@ -1,6 +1,7 @@
 <?php
 	require_once("bin/load_config.php");
     require_once("bin/idgen.php");
+	require_once("bin/DBConnection.php");
 	
 	class QueryManager
 	{
@@ -23,17 +24,7 @@
 			$database = (string)$blade["db"];
 			$write_db = $blade["write-db"];
 			
-			$mysqli = new mysqli($host,$user,$pass,$database,$port);
-				
-			while($mysqli->connect_error) {
-				if($mysqli->connect_errno == 2006){
-					$mysqli->close();
-					sleep(3);
-					$mysqli = new mysqli($host,$user,$pass,$database,$port);
-				} else {
-					exit('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
-				}
-			}
+			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 			
 			$result = $mysqli->query('SHOW FULL PROCESSLIST;');
 			$num = $result->num_rows;

@@ -17,7 +17,7 @@
     			$this->asList = func_get_arg(2);
 				$this->popIPTbl = func_get_arg(3);
 				$this->blade = func_get_arg(4);
-    			$this->queryID = md5($this->blade."_".$this->edgeTbl."_".$this->popTbl."_".$this->popIPTbl.join('_',$this->asList));
+    			$this->queryID = md5($this->blade."_".$this->edgeTbl."_".$this->popTbl."_".$this->popIPTbl.implode('_',$this->asList));
 			} else if(func_num_args()==1) {
 				$this->queryID = func_get_arg(0);
 			}
