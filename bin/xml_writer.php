@@ -1,6 +1,7 @@
 <?php
     require_once("bin/load_config.php");
     require_once("bin/idgen.php");
+	require_once("bin/DBConnection.php");
 	
 	class xml_Writer
 	{
@@ -44,19 +45,7 @@
 			$database = (string)$blade["db"];
 			
 			
-			$mysqli = new mysqli($host,$user,$pass,$database,$port);
-				
-			while($mysqli->connect_error) {
-				if($mysqli->connect_errno == 2006 && $this->retries < $this->limit){
-					$mysqli->close();
-					$this->retries++;
-					sleep(3);
-					$mysqli = new mysqli($host,$user,$pass,$database,$port);
-				} else {
-					//die('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
-					return NULL;
-				}
-			}
+			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 			return $mysqli;
 		}
 		

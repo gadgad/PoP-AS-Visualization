@@ -9,7 +9,7 @@ $filename='queries/'.$idg->getDirName().'/result.kmz';
 $full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/".$filename."?".rand(0,10000000000);
 
 $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A": 
-								 "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT8m87T_heG5MPAsfTIBlWdaTx20xTeGeqv3LruUshUL4J6wufrjMVp7Q";
+								 "ABQIAAAAMYziiEA_p76rk0jQj-KuSxS9xmgvb7l5q_xOSCi2ySYKrO4w4RQ3kwRCrSDgo72ydEml2SNVnGd8DQ";
 ?>
 <html>
 <head>
@@ -242,12 +242,16 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
                 controlPanel.add(earthPanel.getLayersPanel());
                 controlPanel.add(earthPanel.getOptionsPanel());
                 controlPanel.items.items[0].add(downloadPanel);
-                
                 controlPanel.doLayout();
-                
+
                 ge = earthPanel.earth;
+                first_time = true;
 				google.earth.addEventListener(ge.getView(), 'viewchangeend', function() {
-					ge.getFeatures().removeChild(earthPanel.networkLink);
+					if(first_time){
+						ge.getFeatures().removeChild(earthPanel.networkLink);
+						//earthPanel.kmlTreePanel.getRootNode().item(0).expand();
+						first_time = false; 
+					}
 				});
                 
 	            //set a click listener that affects all placemarks
