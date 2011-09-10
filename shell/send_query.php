@@ -1,4 +1,6 @@
 <?php
+	require_once("bin/DBConnection.php");
+	
 	function myFlush (){
 	    echo(str_repeat(' ',256));
 	    // check that buffer is actually set before flushing
@@ -36,25 +38,16 @@
 	$query1 = 'create table `'.$write_db.'`.`'.$PoPTblName.'` (select * from `'.$database.'`.`'.$pop.'` where ASN in('.$as.')) order by ASN';
 			
 	// edge query			
-	$query2 = 'create table `'.$write_db.'`.`'.$EdgeTblName.'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID FROM '.$edge.' edges inner join '.$popIP.' src on(edges.SourceIP = src.IP) inner join '.$popIP.' dest on(edges.DestIP = dest.IP) where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.'))';
+	$query2 = 'create table `'.$write_db.'`.`'.$EdgeTblName.'` (select edges.*, src.PoPID Source_PoPID, dest.PoPID Dest_PoPID FROM '.$edge.' edges left join '.$popIP.' src on(edges.SourceIP = src.IP) left join '.$popIP.' dest on(edges.DestIP = dest.IP) where edges.SourceAS in ('.$as.') AND edges.DestAS in ('.$as.'))';
 	
 	$selected_query	= ($query==1)?$query1:$query2;	
-		
+	
+	echo "$selected_query \n";
 	echo "host:$host\n user:$user\n pass:$pass\n db:$database\n port:$port\n";
 	
 	try {		 
-		$mysqli = new mysqli($host,$user,$pass,$database,$port);
-				
-		while($mysqli->connect_error) {
-			if($mysqli->connect_errno == 2006 && $retries<$limit){
-				$mysqli->close();
-				$retries++;
-				sleep(3);
-				$mysqli = new mysqli($host,$user,$pass,$database,$port);
-			} else {
-				exit('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);
-			}
-		}
+		$mysqli = new DBConnection($host,$user,$pass,$database,$port,5)
+		 or exit('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error);;
 		
 		$processID = $mysqli->thread_id;
 		echo "processID:".$processID."\n";

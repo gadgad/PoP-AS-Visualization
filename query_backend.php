@@ -3,7 +3,8 @@
 	include_once("bin/idgen.php");
 	include_once("bin/writeToXML.php");
 	include_once("bin/backgrounder.php");
-	require_once("bin/query_status.php");	
+	require_once("bin/query_status.php");
+	require_once("bin/DBConnection.php");	
 	include_once("verify.php");
 				
 	// Turn off all error reporting
@@ -90,7 +91,7 @@
 			}								
 		}
 		else{
-			$mysqli = new mysqli($host,$user,$pass,$database,$port);
+			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 			if ($mysqli->connect_error) {
 	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
 			}
@@ -110,17 +111,18 @@
 						}
 					}
 				}				
-			}			
+			}
+			$mysqli->close(); 			
 		}   
 		header('Content-type: application/json');
-    	echo json_encode(array("weeks"=>$weeks,"type"=>"GOOD"));      
+    	echo json_encode(array("weeks"=>$weeks,"type"=>"GOOD"));     
 		
 	}
 			
 	if($_POST["func"]=="showTables")
 	{
 		$blade = $_POST["blade"];		 
-		$mysqli = new mysqli($host,$user,$pass,$database,$port);
+		$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 		
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
@@ -149,7 +151,7 @@
 			
 			
 		$blade = $_POST["blade"];
-		$mysqli = new mysqli($host,$user,$pass,$database,$port);
+		$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 		
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
@@ -244,9 +246,10 @@
 		$idg = new idGen($edge,$pop,$as,$popIP,$blade);
 		$queryID = $idg->getqueryID();
 		
-		$asp = $_POST["as"];			
+		$asp = $_POST["as"];
+		if(!is_numeric(end($asp))) array_pop($asp);			
 		$as = "'";
-		$as .= join("','", $asp);						
+		$as .= implode("','", $asp);						
 		$as .= "'";
 		
 		$year = $_POST["year"];
