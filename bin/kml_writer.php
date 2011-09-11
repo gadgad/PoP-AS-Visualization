@@ -70,6 +70,20 @@ class kmlWriter
 		$this->parseXML();
 	}
 	
+	private function sort_edges($t1,$t2){
+		if(intval($t1->SourceAS) > intval($t2->SourceAS)){
+			return 1;
+		} else if(intval($t1->SourceAS) < intval($t2->SourceAS)){
+			return -1;
+		} else {
+			return 0;
+		}
+	}
+	
+	private function sort_edges_xml(){
+		$edges = $this->edges_xml->children();
+	}
+	
 	private function dispatchAltitude(){
 	    static  $altitude = INITIAL_ALTITUDE;
 		$alt = $altitude; 
