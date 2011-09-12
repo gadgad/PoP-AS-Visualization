@@ -32,5 +32,6 @@
 	setGlobal('INTRA_CON',true);
 	setGlobal('CONNECTED_POPS_ONLY',true);
 	setGlobal('USE_COLOR_PICKER',false);
+	setGlobal('BLACK_BACKGROUND',false);
 	
 ?>

@@ -6,7 +6,8 @@ require_once("bin/kml_render_globals.php");
 $queryID = isset($_REQUEST["QID"])? $_REQUEST["QID"] : '2df5efc4b99b9486e245a49f6400a90f';
 $idg = new idGen($queryID);
 $filename='queries/'.$idg->getDirName().'/result.kmz';
-$full_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/".$filename."?".rand(0,10000000000);
+$base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/";
+$full_url = $base_url.$filename."?".rand(0,10000000000);
 
 $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A": 
 								 "ABQIAAAAMYziiEA_p76rk0jQj-KuSxS9xmgvb7l5q_xOSCi2ySYKrO4w4RQ3kwRCrSDgo72ydEml2SNVnGd8DQ";
@@ -127,7 +128,8 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
 					INTER_CON: 			 { value: <?php echo INTER_CON; ?>,	type: 'checkbox',	name: 'Inter-Connectivity'},
 					INTRA_CON: 			 { value: <?php echo INTRA_CON; ?>,	type: 'checkbox',	name: 'Intra-Connectivity'},
 					CONNECTED_POPS_ONLY: { value: <?php echo CONNECTED_POPS_ONLY; ?>,	type: 'checkbox',	name: 'Connected PoPs only'},
-					USE_COLOR_PICKER: 	 { value: <?php echo USE_COLOR_PICKER; ?>,	type: 'checkbox',	name: 'Web-Safe Color-Picking'}
+					//BLACK_BACKGROUND: 	 { value: <?php echo BLACK_BACKGROUND; ?>,	type: 'checkbox',	name: 'Black Background'},
+					USE_COLOR_PICKER: 	 { value: <?php echo USE_COLOR_PICKER; ?>,	type: 'hidden',	name: 'Web-Safe Color-Picking'}
 			   };
 			
 			
