@@ -70,20 +70,6 @@ class kmlWriter
 		$this->parseXML();
 	}
 	
-	private function sort_edges($t1,$t2){
-		if(intval($t1->SourceAS) > intval($t2->SourceAS)){
-			return 1;
-		} else if(intval($t1->SourceAS) < intval($t2->SourceAS)){
-			return -1;
-		} else {
-			return 0;
-		}
-	}
-	
-	private function sort_edges_xml(){
-		$edges = $this->edges_xml->children();
-	}
-	
 	private function dispatchAltitude(){
 	    static  $altitude = INITIAL_ALTITUDE;
 		$alt = $altitude; 
@@ -105,8 +91,9 @@ class kmlWriter
 				$this->PLACEMARKS[(string)$pop->PoPID]["lng"] = floatval($pop->LNG2);
 			}
 		}
-
-		foreach($this->edges_xml->children() as $edge)
+		 
+		$edges = $this->edges_xml->children();	
+		foreach($edges as $edge)
 		{
 			$srcPOP = (string)$edge->Source_PoPID;
 			$dstPOP = (string)$edge->Dest_PoPID;
@@ -132,8 +119,12 @@ class kmlWriter
 						$this->PLACEMARKS[(string)($edge->Source_PoPID)]["connected"]=true;
 						$this->PLACEMARKS[(string)($edge->Dest_PoPID)]["connected"]=true;
 						
+						$srcAS = intval($edge->SourceAS);
+						$dstAS = intval($edge->DestAS);
+						$conType = ($srcAS == $dstAS)? 'intra':'inter';
+						
 					    if(!array_key_exists($edge_str, $this->EDGES)){
-					     	$this->EDGES[$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
+					     	$this->EDGES[$srcAS][$conType][$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
 					     							  "DestAS"=>intval($edge->DestAS),
 					     							  "SourcePoP"=>$srcPOP,
 					     							  "DestPoP"=>$dstPOP,
@@ -143,18 +134,22 @@ class kmlWriter
 					     							  "src_ip_lst"=>array($edge->SourceIP),
 					     							  "dest_ip_lst"=>array($edge->DestIP));
 					    } else {
-					    	$this->EDGES[$edge_str]["numOfEdges"]++;
-							$this->EDGES[$edge_str]["median_lst"][] = floatval($edge->Median);
-					    	$this->EDGES[$edge_str]["edgeID_lst"][] = $edge->edgeid;
-					    	$this->EDGES[$edge_str]["src_ip_lst"][] = $edge->SourceIP;
-					    	$this->EDGES[$edge_str]["dest_ip_lst"][] = $edge->DestIP;
+					    	$this->EDGES[$srcAS][$conType][$edge_str]["numOfEdges"]++;
+							$this->EDGES[$srcAS][$conType][$edge_str]["median_lst"][] = floatval($edge->Median);
+					    	$this->EDGES[$srcAS][$conType][$edge_str]["edgeID_lst"][] = $edge->edgeid;
+					    	$this->EDGES[$srcAS][$conType][$edge_str]["src_ip_lst"][] = $edge->SourceIP;
+					    	$this->EDGES[$srcAS][$conType][$edge_str]["dest_ip_lst"][] = $edge->DestIP;
 				    	}
 				    }
 				}
 			}
 		}
 		
-
+		//sort the multi-dimensional EDGES array
+		$rs = ksort($this->EDGES);
+		foreach($this->EDGES as $as=>$con){
+			$rs = ksort($this->EDGES[$as]);
+		}
 		
 		foreach($this->pop_xml->children() as $pop)
 		  {
@@ -348,7 +343,7 @@ class kmlWriter
 			$dstAS = $link["DestAS"];
 			$srcPOP = $link["SourcePoP"];
 			$dstPOP = $link["DestPoP"];
-			
+				
 			/*
 			$numOfEdges = $link["numOfEdges"];
 			$edge_lst_str = "<P>#Edges: ".$numOfEdges."</BR>";
@@ -401,9 +396,17 @@ class kmlWriter
 		
 		$kml_body.="<Folder><name>PoP Edges</name>";
 		
-		foreach($this->EDGES as $link)
-		{
-			$kml_body.=$this->kmlLink($link);
+		
+		foreach($this->EDGES as $as=>$arr1){
+			$kml_body.="<Folder>\n<name>ASN: ".$as."</name>\n";
+			foreach($arr1 as $type=>$arr2){
+				$kml_body.="<Folder>\n<name>".$type."-connectivity</name>\n";
+				foreach($arr2 as $link){
+					$kml_body.=$this->kmlLink($link);
+				}
+				$kml_body.="</Folder>";	
+			}
+			$kml_body.="</Folder>";
 		}
 		$kml_body.="</Folder>\n\n";
 		
@@ -424,12 +427,6 @@ class kmlWriter
 		$this->generateKML();
 		
 		//write generated KML file to disk
-		// use a random 5-digit number appended to the date for the name of the kml file
-		
-		//$day = date("m-d-y-");
-		//srand( microtime() * 1000000);
-		//$randomnum = rand(10000,99999);
-		//$file_prefix = $day.$randomnum;
 		$filename = ($this->kml_dst_dir.'/result.kml');
 		
 		// define initial write and appends
@@ -442,7 +439,6 @@ class kmlWriter
 		
 		// generate the .kmz file
 		$zip = new ZipArchive();
-		//$zip_file_ext = $file_prefix.'.kmz';
 		$zip_filename = ($this->kml_dst_dir.'/result.kmz');
 		$this->filename = $zip_filename;
 		
