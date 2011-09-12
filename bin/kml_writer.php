@@ -123,7 +123,7 @@ class kmlWriter
 						$dstAS = intval($edge->DestAS);
 						$conType = ($srcAS == $dstAS)? 'intra':'inter';
 						
-					    if(!array_key_exists($edge_str, $this->EDGES)){
+					    if(!array_key_exists($edge_str, $this->EDGES[$srcAS][$conType])){
 					     	$this->EDGES[$srcAS][$conType][$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
 					     							  "DestAS"=>intval($edge->DestAS),
 					     							  "SourcePoP"=>$srcPOP,
@@ -153,23 +153,24 @@ class kmlWriter
 		
 		foreach($this->pop_xml->children() as $pop)
 		  {
+		  	$asn = intval($pop->ASN);
 			$placemark =  $this->PLACEMARKS[(string)$pop->PoPID];
 		  	$pop_connected = (isset($placemark["connected"])) ? true : false;
 		  	if(!CONNECTED_POPS_ONLY || $pop_connected)
 			{
 			  	$pop_str = $pop->ASN.$pop->LAT2.$pop->LNG2;
-				if(!array_key_exists($pop_str, $this->LOC_2_POP_MAP)){
-			  		$this->LOC_2_POP_MAP[$pop_str] = array("numOfPoPS"=>1,"asn"=>intval($pop->ASN),"lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"pop_id_lst"=>array($pop->PoPID));
+				if(!array_key_exists($pop_str, $this->LOC_2_POP_MAP[$asn])){
+			  		$this->LOC_2_POP_MAP[$asn][$pop_str] = array("numOfPoPS"=>1,"asn"=>intval($pop->ASN),"lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"pop_id_lst"=>array($pop->PoPID));
 				} else {
-					$this->LOC_2_POP_MAP[$pop_str]["numOfPoPS"]++;
-					$this->LOC_2_POP_MAP[$pop_str]["pop_id_lst"][] = $pop->PoPID;
+					$this->LOC_2_POP_MAP[$asn][$pop_str]["numOfPoPS"]++;
+					$this->LOC_2_POP_MAP[$asn][$pop_str]["pop_id_lst"][] = $pop->PoPID;
 				}
 			}
+			$rs = ksort($this->LOC_2_POP_MAP);
 			
 			if(USE_COLOR_PICKER)
 				$cp = new ColorPicker($this->num_of_asns);
 			
-			$asn = intval($pop->ASN);
 			if(!array_key_exists($asn,$this->ASN_LIST)){
 			  $new_color = (USE_COLOR_PICKER)? $cp->getColor() : new Color();
 			  $this->ASN_LIST[$asn]= array("color"=>$new_color, "altitude"=>$this->dispatchAltitude());
@@ -184,8 +185,9 @@ class kmlWriter
 			if(DRAW_CIRCLES && (!CONNECTED_POPS_ONLY || $pop_connected)){
 		    	//we only need LAT2,LNG2,Accuracy2
 		    	//radius = Accuracy2*110000 [in meters]
-		    	$this->CIRCLES[] = array("lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"radius"=>floatval($pop->Accuracy2)*110000,"asn"=>intval($pop->ASN),"popID"=>$pop->PoPID);
+		    	$this->CIRCLES[$asn][] = array("lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"radius"=>floatval($pop->Accuracy2)*110000,"asn"=>intval($pop->ASN),"popID"=>$pop->PoPID);
 			}
+			$rs = ksort($this->CIRCLES);
 			
 		  }
 	}
@@ -193,9 +195,7 @@ class kmlWriter
 	private function kmlPlaceMark($placeMark)
 	{
 		$kmlString = '';
-	  	static $firstTime = true;
 		static $counter=1;
-		static $ASN_TMP_MAP = array();
 		$kmlString = '';
 		
 		$asn = $placeMark["asn"];
@@ -203,15 +203,7 @@ class kmlWriter
 		$lat = $placeMark["lat"];
 		$numOfPoPS = $placeMark["numOfPoPS"];
 		
-		if(!array_key_exists($asn,$ASN_TMP_MAP)){
-		  if(!$firstTime){
-		      $kmlString.="</Folder>";
-		  }
-		  $kmlString.="<Folder>\n<name>ASN: ".$asn."</name>\n";
-		  $ASN_TMP_MAP[$asn]=true;
-	  	}
-		
-		$pop_lst_str="<P>#PoPS:".$numOfPoPS."</BR>";
+		$pop_lst_str="<P>Num Of PoPS:".$numOfPoPS."</BR>";
 		for($i=0;$i<$numOfPoPS; $i++)
 		{
 			$pop_lst_str.="PoP ID: ".$placeMark["pop_id_lst"][$i]."</BR>\n";
@@ -219,7 +211,6 @@ class kmlWriter
 		$pop_lst_str.="</P>";
 		$kmlString .= "<Placemark>\n<name>PlaceMark#".$counter++."</name>\n<description><![CDATA[<P>ASN#: ".$asn."</BR>ISP Name: ".$this->ASN_LIST[$asn]["ISPName"]."</BR>Country: ".$this->ASN_LIST[$asn]["Country"]."</P>".$pop_lst_str."]]></description><visibility>1</visibility>\n<Style>\n<LabelStyle>\n<scale>0</scale>\n</LabelStyle>\n<IconStyle>\n<Icon>\n<href><![CDATA[http://www.google.com/chart?chst=d_map_xpin_letter&chld=pin||".$this->ASN_LIST[$asn]["color"]->web_format()."]]></href>\n</Icon>\n</IconStyle>\n<LineStyle>\n<width>2</width>\n<color>".$this->ASN_LIST[$asn]["color"]->gm_format()."</color>\n</LineStyle>\n</Style>\n<Point>\n<extrude>1</extrude>\n<altitudeMode>relativeToGround</altitudeMode>\n<coordinates>\n".$lng.",".$lat.",".$this->ASN_LIST[$asn]["altitude"]."\n</coordinates>\n</Point>\n</Placemark>\n";
 		
-		$firstTime = false;
 	 	return $kmlString;
 	}
 	
@@ -234,36 +225,23 @@ class kmlWriter
 	  $centerlong_form = $lng;
 	  $d= $radius;
 	  $kmlString = '';
-	  
-	  static $ASN_TMP_MAP = array();
-	  static $firstTime = true;
-	  
-	  if(!array_key_exists($asn,$ASN_TMP_MAP)){
-		  if(!$firstTime){
-		      $kmlString.="</Folder>";
-		  }
-		  $kmlString.="<Folder>\n<name>ASN: ".$asn."</name>\n";
-		  $ASN_TMP_MAP[$asn]=true;
-	  }
 	
 	 // convert coordinates to radians
 	 $lat1 = deg2rad($centerlat_form);
 	 $long1 = deg2rad($centerlong_form);
 	 $d_rad = $d/6378137;
-	
-	 //generate kml string
-	$kmlString .= "<Placemark>\n<name>pop id:".$popID."</name>\n<description><![CDATA[<P>ASN Number: ".$asn."</P><P>ISP Name: ".$this->ASN_LIST[$asn]["ISPName"]."</P><P>Country: ".$this->ASN_LIST[$asn]["Country"]."</P>]]></description>\n<visibility>1</visibility>\n<Style>\n<LineStyle>\n<color>".($this->ASN_LIST[$asn]["color"]->gm_format())."</color>\n<width>".MIN_LINE_WIDTH."</width>\n</LineStyle>\n<PolyStyle>\n<color>".($this->ASN_LIST[$asn]["color"]->gm_format())."</color>\n<fill>0</fill>\n</PolyStyle>\n</Style>\n<Polygon>\n<extrude>0</extrude>\n<tessellate>0</tessellate>\n<altitudeMode>relativeToGround</altitudeMode>\n<outerBoundaryIs>\n<LinearRing>\n<coordinates>\n";
-	// loop through the array and write path linestrings
-	for($i=0; $i<=360; $i++) {
-	  $radial = deg2rad($i);
-	  $lat_rad = asin(sin($lat1)*cos($d_rad) + cos($lat1)*sin($d_rad)*cos($radial));
-	  $dlon_rad = atan2(sin($radial)*sin($d_rad)*cos($lat1),cos($d_rad)-sin($lat1)*sin($lat_rad));
-	  $lon_rad = fmod(($long1+$dlon_rad + M_PI), 2*M_PI) - M_PI;
-	  $kmlString.=rad2deg($lon_rad).",".rad2deg($lat_rad).",".$this->ASN_LIST[$asn]["altitude"]."\n";
-	}
-	$kmlString.="</coordinates>\n</LinearRing>\n</outerBoundaryIs>\n</Polygon>\n</Placemark>\n";
 	 
-	 $firstTime = false;
+	 //generate kml string
+	 $kmlString .= "<Placemark>\n<name>pop id:".$popID."</name>\n<description><![CDATA[<P>ASN Number: ".$asn."</P><P>ISP Name: ".$this->ASN_LIST[$asn]["ISPName"]."</P><P>Country: ".$this->ASN_LIST[$asn]["Country"]."</P>]]></description>\n<visibility>1</visibility>\n<Style>\n<LineStyle>\n<color>".($this->ASN_LIST[$asn]["color"]->gm_format())."</color>\n<width>".MIN_LINE_WIDTH."</width>\n</LineStyle>\n<PolyStyle>\n<color>".($this->ASN_LIST[$asn]["color"]->gm_format())."</color>\n<fill>0</fill>\n</PolyStyle>\n</Style>\n<Polygon>\n<extrude>0</extrude>\n<tessellate>0</tessellate>\n<altitudeMode>relativeToGround</altitudeMode>\n<outerBoundaryIs>\n<LinearRing>\n<coordinates>\n";
+	 // loop through the array and write path linestrings
+	 for($i=0; $i<=360; $i++) {
+	 	$radial = deg2rad($i);
+	 	$lat_rad = asin(sin($lat1)*cos($d_rad) + cos($lat1)*sin($d_rad)*cos($radial));
+	  	$dlon_rad = atan2(sin($radial)*sin($d_rad)*cos($lat1),cos($d_rad)-sin($lat1)*sin($lat_rad));
+	  	$lon_rad = fmod(($long1+$dlon_rad + M_PI), 2*M_PI) - M_PI;
+	  	$kmlString.=rad2deg($lon_rad).",".rad2deg($lat_rad).",".$this->ASN_LIST[$asn]["altitude"]."\n";
+	 }
+	 $kmlString.="</coordinates>\n</LinearRing>\n</outerBoundaryIs>\n</Polygon>\n</Placemark>\n";
 	 return $kmlString;
 	}
 	
@@ -381,22 +359,24 @@ class kmlWriter
 
 	private function generateKML()
 	{
-		$kml_header = '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>PoP Map</name>\n';
+		$kml_header = '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>PoP Map</name>'."\n";
 		$kml_footer = '</Document></kml>';
 		$kml_body = '';
 	  	if(DRAW_CIRCLES)
 	  	{
 	  		$kml_body.="<Folder><name>PoP Location Convergence Radiuses</name>";
-			foreach($this->CIRCLES as $circle)
+			foreach($this->CIRCLES as $as=>$arr)
 			{
-				$kml_body.=$this->kmlCircle($circle);
+				$kml_body.="<Folder>\n<name>ASN: ".$as."</name>\n";
+				foreach($arr as $circle){
+					$kml_body.=$this->kmlCircle($circle);
+				}
+				$kml_body.="</Folder>\n";	
 			}
-			$kml_body.="</Folder></Folder>\n\n";
+			$kml_body.="</Folder>\n\n";
 	  	}
 		
 		$kml_body.="<Folder><name>PoP Edges</name>";
-		
-		
 		foreach($this->EDGES as $as=>$arr1){
 			$kml_body.="<Folder>\n<name>ASN: ".$as."</name>\n";
 			foreach($arr1 as $type=>$arr2){
@@ -404,19 +384,22 @@ class kmlWriter
 				foreach($arr2 as $link){
 					$kml_body.=$this->kmlLink($link);
 				}
-				$kml_body.="</Folder>";	
+				$kml_body.="</Folder>\n";	
 			}
-			$kml_body.="</Folder>";
+			$kml_body.="</Folder>\n";
 		}
 		$kml_body.="</Folder>\n\n";
 		
 		$kml_body.="<Folder><name>PoP Location PlaceMarks</name>";
-		foreach($this->LOC_2_POP_MAP as $placeMark)
+		foreach($this->LOC_2_POP_MAP as $as=>$arr)
 		{
-			$kml_body.=$this->kmlPlaceMark($placeMark);
+			$kml_body.="<Folder>\n<name>ASN: ".$as."</name>\n";
+			foreach($arr as $placeMark){
+				$kml_body.=$this->kmlPlaceMark($placeMark);
+			}
+			$kml_body.="</Folder>\n";	
 		}
-		$kml_body.="</Folder></Folder>\n\n";
-		
+		$kml_body.="</Folder>\n\n";
 		
 		$this->kmlString = $kml_header.$kml_body.$kml_footer;
 	}
