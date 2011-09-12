@@ -249,7 +249,7 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
 				google.earth.addEventListener(ge.getView(), 'viewchangeend', function() {
 					if(first_time){
 						ge.getFeatures().removeChild(earthPanel.networkLink);
-						//earthPanel.kmlTreePanel.getRootNode().item(0).expand();
+						earthPanel.kmlTreePanel.getRootNode().item(0).expand();
 						first_time = false; 
 					}
 				});
