@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+<Document>
+<name>Black Background</name>
+	<Folder>
+	<name>Black Earth</name>
+	<GroundOverlay>
+		<name>Blank Earth</name>
+		<Icon>
+			<href>files/untitled.bmp</href>
+			<viewBoundScale>0.75</viewBoundScale>
+		</Icon>
+		<LatLonBox>
+			<north>90</north>
+			<south>-90</south>
+			<east>180</east>
+			<west>-180</west>
+		</LatLonBox>
+	</GroundOverlay>
+	</Folder>
+</Document>
+</kml>

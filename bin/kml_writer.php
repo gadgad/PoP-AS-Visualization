@@ -401,6 +401,8 @@ class kmlWriter
 		}
 		$kml_body.="</Folder>\n\n";
 		
+		//$kml_body.=(!BLACK_BACKGROUND)? '':"<Folder><name>Black Background</name>\n<GroundOverlay>\n<name>Blank Earth</name>\n<Icon>\n<href>files\untitled.bmp</href>\n<viewBoundScale>0.75</viewBoundScale>\n</Icon>\n<LatLonBox>\n<north>90</north>\n<south>-90</south>\n<east>180</east>\n<west>-180</west>\n</LatLonBox>\n</GroundOverlay>\n</Folder>\n";
+	
 		$this->kmlString = $kml_header.$kml_body.$kml_footer;
 	}
 	
@@ -429,6 +431,7 @@ class kmlWriter
 		   exit("cannot open <$zip_filename>\n");
 		}
 		$zip->addFile($filename,"doc.kml");
+		//if(BLACK_BACKGROUND) $zip->addFile('images/black.bmp','files/untitled.bmp');
 		//echo "numfiles: " . $zip->numFiles . "\n";
 		$zip->close();
 		// finally, delete the original .kml file
