@@ -11,6 +11,7 @@
 		private $idg;
 		private $blade;
 		private $schema;
+		private $asList;
 		
 		private $retries;
 		private $limit;
@@ -26,6 +27,10 @@
 			
 			$this->retries = 0;
 			$this->limit = 10;
+			
+			$sx = simplexml_load_file("xml\query.xml");
+			$res = $sx->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
+			$this->asList = $res[0]->allAS;
 			
 			$this->mysqli = NULL;
 		}
@@ -49,9 +54,8 @@
 			return $mysqli;
 		}
 		
-		
-		private function getPoPQuery(){return "select * from `".$this->schema."`.`".$this->idg->getPoPTblName()."`;";}
-		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where Source_PoPID is not null and Dest_PoPID is not null;";}
+		private function getPoPQuery(){return "select * from `".$this->schema."`.`".$this->idg->getPoPTblName()."` where ASN in(".$this->asList.");";}
+		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.") AND Source_PoPID is not null AND Dest_PoPID is not null;";}
 		
 		private function sql2xml($sql)
 		{	
@@ -135,7 +139,7 @@
 		{
 			if($this->createDir()){
 				if($this->write_pop_XML() && $this->write_edge_XML()){
-					$this->drop_tables();
+					//$this->drop_tables();
 					$this->mysqli->close();
 					return true;
 				}
