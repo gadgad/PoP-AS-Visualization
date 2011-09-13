@@ -6,13 +6,6 @@
 	require_once("bin/DBConnection.php");
 	include("verify.php");
 				
-	function ret_res($message, $type)
-	{
-		header('Content-type: application/json');
-		echo json_encode(array("result"=>$message ,"type"=>$type));
-		die();	
-	}
-	
 	// Turn off all error reporting
 	error_reporting(0);
 	if(($_POST["user"])!="admin")
@@ -21,47 +14,90 @@
 		die();
 	}
 	
+	function ret_res($message, $type)
+	{
+		header('Content-type: application/json');
+		echo json_encode(array("result"=>$message ,"type"=>$type));
+		die();	
+	}
+	
+	// TODO: fix this!!!!! the result returns with all properties null. 
+	function parse($mysqli,$query){
+		$res = "";
+		$strres = "";			
+		if ($result = $mysqli->query($query)){
+			if ($result->num_rows >0){
+				return "1";
+			}		
+			$strres .= " in the if-result: ".var_dump($result);
+			// $result->num_rows.
+        	 
+        }else {$strres.= " broblem with query results ";}
+		$result->close();
+		ret_res($strres,"GOOD");
+		return $res;
+	}
+	
+	function getTblFromDB($mysqli,$table,$year,$week){
+								
+		$query1 = "'".$table."\_".$year."\_week_".$week."'";		
+		$query2 = "'".$table."\_".$year."\_week_".$week."\_%'";		
+		$query3 = "'".$table."\_".$year."\_".$week."'";		
+		$query4 = "'".$table."\_".$year."\_".$week."\_%'";					
+		
+		$query = "select TABLE_NAME from INFORMATION_SCHEMA.TABLES WHERE table_schema='DIMES_DISTANCES' and (table_name like ".$query1." or table_name like ".$query2." or table_name like ".$query3." or table_name like ".$query4.")";
+		$res = parse($mysqli,$query);	
+		return $res;        
+	}
 	 
 	 if($_POST["func"]=="updateWeeks")
 	{
-				
-		ret_res('bla bla',"ERROR");		
+						
 		$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
  		   die();
 		}
 		
-		unlink("xml\weeks.xml");
-		$ourFileHandle = fopen("xml\weeks.xml", 'rw') or die("can't create weeks.xml");
-		fclose($ourFileHandle);
+		$nameXML = "xml/weeks.xml";
 		
-		$nameXML = "xml/weeks.xml";	 
+		if (file_exists($nameXML)){
+			unlink($nameXML);	
+		}		
+		$ourFileHandle = fopen("xml/weeks.xml", "w+") or die("can't create weeks.xml");
+		fwrite($ourFileHandle,"<DATA></DATA>"); 
+		fclose($ourFileHandle);
+			 
 		$xml = simplexml_load_file($nameXML);
-		$data = $xml->addChild('DATA');
+
+		//$data = $xml->addChild('DATA');
 		
 		$weeks[] = array();
-		unset($weeks);
+		//unset($weeks);
+		//ret_res($weeks,"GOOD");
 		$maxYear = date('Y');	
-		for($year=2004;$year<=$maxYear;$year++){ 	
+
+		for($year=2008;$year<=$maxYear;$year++){ 	
 			for($week=1;$week<53;$week++){
-				
+					
 				$table = $DataTables["ip-edges"]["prefix"];        
-				$edges = getTblFromDB($mysqli,$table,$year,$week);
-				if ($edges!=""){
+				$edges = getTblFromDB($mysqli,$table,$year,$week); ret_res("edges: ".$edges,"GOOD"); 
+				if ($edges!=""){					
 					$table = $DataTables["pop-locations"]["prefix"];
 					$pops = getTblFromDB($mysqli,$table,$year,$week);
 					if ($pops!=""){
 						$table = $DataTables["popip"]["prefix"];
 						$popsIP = getTblFromDB($mysqli,$table,$year,$week);
-						if ($popsIP!=""){
+						if ($popsIP!=""){							
 							$weeks[] = $week;
 						}
 					}
 				}
 			}
-			if (!$weeks){// not empty
-				$newyear = $data->addChild('YEAR');
+			
+			if ($weeks!=null){// not empty , !weeks
+				ret_res($weeks,"GOOD");	
+				$newyear = $xml->addChild('YEAR');
 				$newyear->addChild('year',$year);
 				foreach ($weeks as $w){
 					$newyear->addChild('WEEK',$w);	
@@ -71,7 +107,7 @@
 		}
 		$xml->asXML($nameXML);
 		$mysqli->close();
-		ret_res('done',"ERROR");
+		ret_res('done',"GOOD");
 	}
 	
 	if($_POST["func"]=="updateAS")
