@@ -62,8 +62,12 @@
 
 /* INPUT FOR SEARCH */
 .ms2side__header input {
+	/*
 	width: 80px;
 	height: 12px;
+	*/
+	width: 120px;
+	height: 17px;
 }
 
 .ms2side__header input.wait {
