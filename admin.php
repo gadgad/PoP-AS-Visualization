@@ -1,6 +1,5 @@
 <?php
 	include_once("bin/load_config.php");
-	include_once("bin/xml_writer.php");
 
 	session_start();
 	$username = isset($_COOKIE['username'])? $_COOKIE['username'] : $_SESSION['username'];

@@ -50,7 +50,8 @@ class Backgrounder
 		if($this->isRunning()){
 			return -1;
 		} else {
-			unlink($this->pid_filename);
+			if(file_exists($this->pid_filename))
+				unlink($this->pid_filename);
 		}
 		
 		if ($this->isWin) { 
@@ -68,9 +69,9 @@ class Backgrounder
 		static $counter = 0;
 		while(!file_exists($this->pid_filename) && $counter < 3){
 			$counter++;
-			sleep(1);
+			sleep(2);
 		}
-		$file_handle = fopen($this->pid_filename, "r");
+		$file_handle = fopen($this->pid_filename, "r") or die("can't open ".$this->pid_filename."\n");
 		$str = fgets($file_handle);
 		list($pid, $time) = explode(' ',$str,2);
 		$this->pid = intval($pid);
