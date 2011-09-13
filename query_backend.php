@@ -160,7 +160,7 @@
 		$edgeTbl = $_POST["edge"];
 		$popTbl = $_POST["pop"];
 		
-		$query ="SELECT distinct ASN FROM `".$database."`.`".$popTbl."` order by ASN limit 20" ;		
+		$query ="SELECT distinct ASN FROM `".$database."`.`".$popTbl."` order by ASN" ;		
 		
 		$AS = "";
 		$ASinfo = simplexml_load_file("xml\ASN_info.xml");
@@ -245,6 +245,7 @@
 		$as = $_POST["as"];
 		$idg = new idGen($edge,$pop,$as,$popIP,$blade);
 		$queryID = $idg->getqueryID();
+		$tableID = $idg->getTableID();
 		
 		$asp = $_POST["as"];
 		if(!is_numeric(end($asp))) array_pop($asp);			
@@ -289,13 +290,13 @@
 		if($stage==3)
 		{
 			$qm = new QueryManager($selected_blade);
-			$query_status = $qm->getQueryStatus($queryID);
+			$query_status = $qm->getQueryStatus($queryID,$tableID);
 			
 			if($query_status == 0){
 				//ret_res("sql query failed to execute properly...</BR>try running the following queries directly:</BR>".(($pop_state==0)?$query1:"")."</BR>".(($edge_state==0)?$query2:""),"ERROR");
 				ret_res("sql query failed to execute properly...</BR>","ERROR");
 			} else {
-				AddQuery($queryID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
+				AddQuery($queryID,$tableID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
 				
 				/*
 				// making a new dir to hold query results 
