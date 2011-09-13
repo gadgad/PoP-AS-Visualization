@@ -33,9 +33,9 @@
 			    if($row['State']!=NULL && stristr($row['Info'],'create table')!=FALSE){
 			    	$tbl = strstr(strstr( $row['Info'] ,'DPV_'),'`',true);
 					if($tbl){
-						$queryID = substr($tbl, -32);
+						$tableID = substr($tbl, -32);
 						$type = (strstr($tbl, "_POP_",true)=="DPV")? "POP" : "EDGE";
-						$this->PID_MAP[$queryID][$type] = $row['Id'];
+						$this->PID_MAP[$tableID][$type] = $row['Id'];
 					}
 				}
 			}
@@ -45,9 +45,9 @@
 			for($x = 0 ; $x < $num ; $x++){
 			    $row = $result->fetch_row();
 				$tbl = $row[0];
-				$queryID = substr($tbl, -32);
+				$tableID = substr($tbl, -32);
 				$type = (strstr($tbl, "_POP_",true)=="DPV")? "POP" : "EDGE";
-				$this->TABLES_MAP[$queryID][$type] = true;
+				$this->TABLES_MAP[$tableID][$type] = true;
 			}
 			
 			$result = $mysqli->query("show open tables from ".$write_db." like 'DPV_%'");
@@ -56,9 +56,9 @@
 			    $row = $result->fetch_assoc();
 				$tbl = $row["Table"];
 				$locks = intval($row["In_use"]);
-				$queryID = substr($tbl, -32);
+				$tableID = substr($tbl, -32);
 				$type = (strstr($tbl, "_POP_",true)=="DPV")? "POP" : "EDGE";
-				if($locks > 0) $this->TABLES_MAP[$queryID][$type] = false;
+				if($locks > 0) $this->TABLES_MAP[$tableID][$type] = false;
 			}
 			
 			$mysqli->close();
@@ -66,9 +66,14 @@
 		}
 	
 		// 0 - error , 1 - running , 2 - db-ready, 3 - some-xml-ready,  4 - all-xml-ready, 5 - kml-ready
-		public function getQueryStatus($QID)
+		public function getQueryStatus($QID,$TID)
 		{
-			$idg = new idGen($QID);
+			if(isset($TID)){
+				$idg = new idGen($QID,$TID);
+			} else {
+				$idg = new idGen($QID);	
+			}
+			$tableID = $idg->getTableID();
 			$kml_dst_dir = 'queries/'.$idg->getDirName();
 			$kml_filename = $kml_dst_dir.'/result.kmz';
 			$edges_filename = $kml_dst_dir.'/edges.xml';
@@ -86,13 +91,13 @@
 				return 3;
 			}
 	
-			if(isset($this->PID_MAP[$QID]["POP"]) || isset($this->PID_MAP[$QID]["EDGE"]))
+			if(isset($this->PID_MAP[$tableID]["POP"]) || isset($this->PID_MAP[$tableID]["EDGE"]))
 				return 1;
 			
-			if(isset($this->TABLES_MAP[$QID]["POP"]) && 
-			$this->TABLES_MAP[$QID]["POP"] == true &&
-			isset($this->TABLES_MAP[$QID]["EDGE"]) && 
-			$this->TABLES_MAP[$QID]["EDGE"] == true)
+			if(isset($this->TABLES_MAP[$tableID]["POP"]) && 
+			$this->TABLES_MAP[$tableID]["POP"] == true &&
+			isset($this->TABLES_MAP[$tableID]["EDGE"]) && 
+			$this->TABLES_MAP[$tableID]["EDGE"] == true)
 				return 2;
 				
 			return 0;
@@ -106,11 +111,13 @@
 		
 		public function getPIDS($QID)
 		{
+			$idg = new idGen($QID);
+			$tableID = $idg->getTableID();
 			$tmp = array();
-			if(isset($this->PID_MAP[$QID]["POP"]))
-				$tmp[] = $this->PID_MAP[$QID]["POP"];
-			if(isset($this->PID_MAP[$QID]["EDGE"]))
-				$tmp[] = $this->PID_MAP[$QID]["EDGE"];
+			if(isset($this->PID_MAP[$tableID]["POP"]))
+				$tmp[] = $this->PID_MAP[$tableID]["POP"];
+			if(isset($this->PID_MAP[$tableID]["EDGE"]))
+				$tmp[] = $this->PID_MAP[$tableID]["EDGE"];
 			return $tmp;
 		}
 		
