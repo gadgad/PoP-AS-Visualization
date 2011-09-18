@@ -2,13 +2,10 @@
 require_once("bin/load_config.php");
 require_once("bin/color.php");
 require_once("bin/idgen.php");
+require_once('bin/userData.php');
 
-
-// important global constants defined here
-require_once("bin/kml_render_globals.php");
-
-// some more global constants
-define('MAX_EDGES_RESULTS',10);
+// global constants
+//define('MAX_EDGES_RESULTS',10);
 define("PRECISION",4); //precision of floating point calculations
 define("EARTH_RADIUS",6371); // earth raius in km
 
@@ -34,7 +31,8 @@ class kmlWriter
 	private $pop_xml;
 	private $edges_xml;
 	private $asn_info_xml;
-		
+	
+	private $COLOR_LIST;	
 	private $ASN_LIST;
 	private $EDGES;
 	private $PLACEMARKS;
@@ -49,6 +47,9 @@ class kmlWriter
 	
 	public function __construct($queryID)
 	{
+		
+		include_once('bin/kml_render_globals.php');
+		
 		$this->queryID = $queryID;
 		$this->idg = new idGen($queryID);
 		$this->xml_src_dir = $this->kml_dst_dir = $xml_src_dir = 'queries/'.$this->idg->getDirName();
@@ -58,7 +59,7 @@ class kmlWriter
 		$this->edges_xml = simplexml_load_file($this->xml_src_dir."\edges.xml");
 		
 		$as_info_path = $GLOBALS["FileLocations"]["as-info"];
-		$this->num_of_asns = 10; //TODO: fetch value from query.xml!!!
+		$this->num_of_asns = 0;
 		$this->asn_info_xml = simplexml_load_file($as_info_path);
 		
 		$this->ASN_LIST=array();
@@ -67,7 +68,28 @@ class kmlWriter
 		$this->LOC_2_POP_MAP=array();
 		$this->CIRCLES=array();
 		
+		$this->load_color_list();
 		$this->parseXML();
+		$this->save_color_list();
+	}
+	
+	private function load_color_list(){
+		$filename = 'xml/ASN_color.data';
+		if(file_exists($filename)){
+			$file_handle = fopen($filename,"r") or die("can't open ".$filename."\n");
+			$str = fgets($file_handle);
+			$this->COLOR_LIST =  unserialize($str);
+			fclose($file_handle);
+		} else {
+			$this->COLOR_LIST = array();
+		}
+	}
+	
+	private function save_color_list(){
+		$filename = 'xml/ASN_color.data';
+		$file_handle = fopen($filename, "w") or die("can't open ".$filename."\n");;
+		fwrite($file_handle,  serialize($this->COLOR_LIST));
+		fclose($file_handle);
 	}
 	
 	private function dispatchAltitude(){
@@ -90,17 +112,22 @@ class kmlWriter
 		    	$this->PLACEMARKS[(string)$pop->PoPID]["lat"] = floatval($pop->LAT2);
 				$this->PLACEMARKS[(string)$pop->PoPID]["lng"] = floatval($pop->LNG2);
 			}
+			$asn = intval($pop->ASN);
+			if(!array_key_exists($asn, $this->ASN_LIST)) $this->ASN_LIST[$asn] = array(); 
 		}
+		
 		 
 		$edges = $this->edges_xml->children();	
 		foreach($edges as $edge)
 		{
 			$srcPOP = (string)$edge->Source_PoPID;
 			$dstPOP = (string)$edge->Dest_PoPID;
+			$srcAS = intval($edge->SourceAS);
+			$dstAS = intval($edge->DestAS);
 			
 			if($srcPOP!="NULL" && $dstPOP!="NULL" && $srcPOP!=$dstPOP)
 			{
-				if((INTRA_CON && (intval($edge->SourceAS)==intval($edge->DestAS))) || (INTER_CON && (intval($edge->SourceAS)!=intval($edge->DestAS))))
+				if((INTRA_CON && ($srcAS==$dstAS)) || (INTER_CON && ($srcAS!=$dstAS)))
 				{
 					if(isset($this->PLACEMARKS[$srcPOP]["lat"]) &&
 					   isset($this->PLACEMARKS[$srcPOP]["lng"]) &&
@@ -118,11 +145,10 @@ class kmlWriter
 					    $edge_str = $edge->Source_PoPID.$edge->Dest_PoPID;
 						$this->PLACEMARKS[(string)($edge->Source_PoPID)]["connected"]=true;
 						$this->PLACEMARKS[(string)($edge->Dest_PoPID)]["connected"]=true;
+						$this->ASN_LIST[$srcAS]["connected"]=true;
+						$this->ASN_LIST[$dstAS]["connected"]=true;
 						
-						$srcAS = intval($edge->SourceAS);
-						$dstAS = intval($edge->DestAS);
 						$conType = ($srcAS == $dstAS)? 'intra':'inter';
-						
 					    if(!array_key_exists($edge_str, $this->EDGES[$srcAS][$conType])){
 					     	$this->EDGES[$srcAS][$conType][$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
 					     							  "DestAS"=>intval($edge->DestAS),
@@ -146,10 +172,24 @@ class kmlWriter
 		}
 		
 		//sort the multi-dimensional EDGES array
-		$rs = ksort($this->EDGES);
+		ksort($this->EDGES);
 		foreach($this->EDGES as $as=>$con){
-			$rs = ksort($this->EDGES[$as]);
+			ksort($this->EDGES[$as]);
 		}
+		
+		if(!CONNECTED_POPS_ONLY){
+			$this->num_of_asns = count($this->ASN_LIST);
+		} else {
+			foreach($this->ASN_LIST as $asn=>$arr){
+				if(isset($arr["connected"]))
+					$this->num_of_asns++;
+			}
+		}
+		unset($this->ASN_LIST);
+		$this->ASN_LIST = array();
+		
+		if(USE_COLOR_PICKER)
+					$cp = new ColorPicker($this->num_of_asns);
 		
 		foreach($this->pop_xml->children() as $pop)
 		  {
@@ -165,31 +205,42 @@ class kmlWriter
 					$this->LOC_2_POP_MAP[$asn][$pop_str]["numOfPoPS"]++;
 					$this->LOC_2_POP_MAP[$asn][$pop_str]["pop_id_lst"][] = $pop->PoPID;
 				}
-			}
-			$rs = ksort($this->LOC_2_POP_MAP);
-			
-			if(USE_COLOR_PICKER)
-				$cp = new ColorPicker($this->num_of_asns);
-			
-			if(!array_key_exists($asn,$this->ASN_LIST)){
-			  $new_color = (USE_COLOR_PICKER)? $cp->getColor() : new Color();
-			  $this->ASN_LIST[$asn]= array("color"=>$new_color, "altitude"=>$this->dispatchAltitude());
-			  $asn_info = $this->asn_info_xml->xpath("/DATA/ROW[ASNumber=".$asn."]");
-			  if(!empty($asn_info))
-			  {
-			  	$this->ASN_LIST[$asn]["Country"] = $asn_info[0]->Country;
-				$this->ASN_LIST[$asn]["ISPName"] = $asn_info[0]->ISPName;
-			  }
+				
+				if(!array_key_exists($asn,$this->ASN_LIST)){
+				  if(isset($this->COLOR_LIST['asn'][$asn])){
+				  	$asn_color = $this->COLOR_LIST['asn'][$asn];
+				  } else {
+				  	do {
+				  		$asn_color = (USE_COLOR_PICKER)? $cp->getColor() : new Color();
+					} while(isset($this->COLOR_LIST['color'][$asn_color->web_format()]));
+					$asn_color->setTrans(TRANSPARENCY);
+					// TODO: add implementation of k-d-tree & k-nearest alg', making sure euclidean dist' of curr color from it's nearest neighbour is bigger than treshold...
+					// this will be an efficient method to enforce color diversity. 
+					$this->COLOR_LIST['color'][$asn_color->web_format()] = $asn;
+					$this->COLOR_LIST['asn'][$asn] = $asn_color;
+				  }
+				  $this->COLOR_LIST['asn'][$asn]->setTrans(TRANSPARENCY);
+				  
+				  
+				  $this->ASN_LIST[$asn]= array("color"=>$asn_color, "altitude"=>$this->dispatchAltitude());
+				  $asn_info = $this->asn_info_xml->xpath("/DATA/ROW[ASNumber=".$asn."]");
+				  if(!empty($asn_info))
+				  {
+				  	$this->ASN_LIST[$asn]["Country"] = $asn_info[0]->Country;
+					$this->ASN_LIST[$asn]["ISPName"] = $asn_info[0]->ISPName;
+				  }
+			  	}
 		  	}
 			
 			if(DRAW_CIRCLES && (!CONNECTED_POPS_ONLY || $pop_connected)){
 		    	//we only need LAT2,LNG2,Accuracy2
 		    	//radius = Accuracy2*110000 [in meters]
 		    	$this->CIRCLES[$asn][] = array("lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"radius"=>floatval($pop->Accuracy2)*110000,"asn"=>intval($pop->ASN),"popID"=>$pop->PoPID);
-			}
-			$rs = ksort($this->CIRCLES);
-			
+			}	
 		  }
+
+		  ksort($this->LOC_2_POP_MAP);
+		  ksort($this->CIRCLES);  
 	}
 	
 	private function kmlPlaceMark($placeMark)

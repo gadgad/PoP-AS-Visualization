@@ -134,7 +134,11 @@
                          		if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
                          	}else if(data.type=="ALL_COMPLETE"){
                          		$("#My_queries").append("<p text-align:center>"+data.result+"</p> ");
-                         		$("#sendQueryStatus").remove();	
+                         		$("#sendQueryStatus").remove();
+                         	}else if(data.type=="GOOD"){
+                         		queryID=data.queryID;
+	                     		$("#sendQueryStatus").remove();
+	                     		updateTable();
                          	} else {
                          		if(data.type!="STAGE1_COMPLETE"){
                          			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
@@ -485,7 +489,7 @@
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
-								echo '<form method="post" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Complete"/></form>';														
+								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Complete"/></form>';														
 							}else {
 								echo 'unknown status';
 							}

@@ -123,7 +123,6 @@
 	{
 		$blade = $_POST["blade"];		 
 		$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
-		
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
 		}	
@@ -152,7 +151,6 @@
 			
 		$blade = $_POST["blade"];
 		$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
-		
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
 		}
@@ -261,16 +259,27 @@
 	
 		if($stage==1)
 		{
-			$queries = simplexml_load_file("xml\query.xml");							
+			$queries = simplexml_load_file('xml\query.xml');							
 			$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users');		
 			if($result!=FALSE) // this query already exists
 			{
 				if($result[0]->user!=$username){
-					$result->addChild('user', $username);
-					ret_res("query already assigned to a different user,adding current user to record","ALL_COMPLETE");
+					$result[0]->addChild('user', $username);
+					$queries->asXML('xml\query.xml');
+					ret_res("query already assigned to a different user,adding current user to record","GOOD");
 				} else {
 					ret_res("query already exists!","ALL_COMPLETE");
 				}
+			}
+			$result = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
+			if(!empty($result)){
+				/*
+				AddQuery($queryID,$tableID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
+				header('Content-type: application/json');
+				echo json_encode(array("result"=>"requested table already exsists..." ,"type"=>"GOOD","queryID"=>$queryID));
+				die();
+				 */
+				ret_res("requested table should be present on DB...","STAGE1_COMPLETE");
 			}
 			ret_res("stage1 complete","STAGE1_COMPLETE");
 		}
