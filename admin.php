@@ -110,7 +110,91 @@
              	,"json");
                                                   	
              }
-            
+             
+             function viewUsers(){             	
+             	$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
+					echo "<tr>";
+					echo "<th>Username</th><th>email</th><th>Status</th>";
+					echo "</tr>";					
+					$files = scandir(getcwd().'\users');
+					if ($files!=FALSE){
+						foreach ($files as $file){							
+							if (substr($file, 0,1)!="."){						
+								$userfile = simplexml_load_file("users/".$file);
+								$result = $userfile->xpath('/user');					
+								if($result!=FALSE)
+								{
+									echo "<tr>";
+									echo "<td>".$file."</td>";																					
+									echo"<td>".(string)$result[0]->email."</td>";													
+									echo"<td>".(string)$result[0]->status."</td>";							
+									echo "</tr>";																	
+								}	
+							}												
+						}
+					}else { echo "<tr><td>ERROR</td></tr>";}		
+				?></table>');        		
+        	 }        	             	        
+             
+             function handleRequests(){
+             	$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
+					echo "<tr>";
+					echo "<th>Username</th><th>email</th><th>Accept</th><th>Deny</th>";
+					echo "</tr>";					
+					$files = scandir(getcwd().'\users');
+					if ($files!=FALSE){
+						foreach ($files as $file){							
+							if (substr($file, 0,1)!="."){						
+								$userfile = simplexml_load_file("users/".$file);
+								$result = $userfile->xpath('/user');					
+								if($result!=FALSE)
+								{
+									if("pending" == $result[0]->status){
+										echo "<tr>";
+										echo "<td>".$file."</td>";												
+										echo"<td>".(string)$result[0]->email."</td>";													
+										echo '<td> <button type="submit" onclick="accept(this.value)" value="'.$file.'">X</button></td>';							
+										echo '<td> <button type="submit" onclick="deny(this.value)" value="'.$file.'">X</button></td>';
+										echo "</tr>";	
+									}																										
+								}	
+							}
+												
+						}
+					}else { echo "<tr><td>blaaa</td></tr>";}		
+				?></table>');
+             	
+             }
+             
+             function accept(userFile){             	             	
+             	$.preLoadImages("images/ajax-loader.gif");
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
+             	$.post("adminFunc.php", {func: "accept",user: <?php echo '"'.$username.'"'?>, userfile: userFile},
+             	function(data){
+             		if(data.type=="GOOD"){
+             			//updateUsers();
+             		}
+             		if (data.type =="ERROR")
+                     	{alert(data.result);}
+             	}
+             	,"json");                                                  	
+             }
+             
+             function deny(userFile){             	             	
+             	$.preLoadImages("images/ajax-loader.gif");
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
+             	$.post("adminFunc.php", {func: "deny", userfile: userFile},
+             	function(data){
+             		if(data.type=="GOOD"){
+             			//updateUsers();
+             		}
+             		if (data.type =="ERROR")
+                     	{alert(data.result);}
+             	}
+             	,"json");                                                  	
+             }
+             
+                         
             function pool_pq_status(pid){
             	if(globalData.pq_running==true){
             		$.post("query_backend.php", { func: "pq-status", blade: globalData.blade },
@@ -163,6 +247,8 @@
 	            	<p onclick="updateWeeks()"><u>Update weeks.xml</u></p>
 	            	<p onclick="updateAS()"><u>Update AS_info.xml</u></p>
 	            	<p onclick="showQueries()"><u>View running queries</u></p>
+	            	<p onclick="viewUsers()"><u>View system users</u></p>
+	            	<p onclick="handleRequests()"><u>Accept/Deny pending user requests</u></p>
 	            </div>
             </div>
             
