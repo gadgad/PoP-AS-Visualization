@@ -28,8 +28,11 @@
 	$user = (string)$blade["user"];
 	$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
 	$database = (string)$blade["db"];
-	$write_db = $blade["write-db"];
+	$write_db = (string)$blade["write-db"];
 	
+	$idg = new idGen($QID);
+	$popTbl = $idg->getPoPTblName();
+	$edgeTbl = $idg->getEdgeTblName();
 	
 	function ret_res($message, $type)
 	{
@@ -163,9 +166,9 @@
 						//$res = $mysqli->query($sql);
 						$mysqli->select_db($write_db);
 						
-						$sql = 'drop table if exists DPV_EDGE_'.$queryID;						
+						$sql = 'drop table if exists '.$popTbl;						
 						$res = $mysqli->query($sql);
-						$sql = 'drop table if exists DPV_POP_'.$queryID;						
+						$sql = 'drop table if exists '.$edgeTbl;						
 						$res = $mysqli->query($sql);
 						$mysqli->close();
 						

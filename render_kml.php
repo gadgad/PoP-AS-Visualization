@@ -19,11 +19,10 @@
 		ret_res('missing parameters!',false);
 	}
 	
-	require_once("bin/kml_render_globals.php");	
 	require_once("bin/kml_writer.php");
 	
 	// Turn off all error reporting
-	error_reporting(0);
+	error_reporting(E_ERROR);
     
     $queryID = $_POST['queryID'];
     $kmlWriter = new kmlWriter($queryID);
