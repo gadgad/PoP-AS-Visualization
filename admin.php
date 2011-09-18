@@ -30,7 +30,6 @@
               }
         	
         	function updateWeeks(){
-        		// add info about the action
         		option = 1;
         		$('#My_queries').html('<h3><b>Update weeks.xml</b></h3><p>The weeks.xml file holds the information of the possible years&weeks to display when generating a new query.</p><p>A week will only apear if all the three tables: edge,pop location and pop-IP exists for that week.</p><p>If any changes where made to the DB(e.g. new tables where added) click the UPDATE button to generate a new and updated file.</p><br></br><input type="submit" onclick="updateWeeksB()" value="Update"/>').fadeIn("slow");        		
         	}
@@ -38,10 +37,12 @@
         	function updateWeeksB(){
         		$.post("adminFunc.php", {func: "updateWeeks", user: <?php echo '"'.$username.'"'?>},
         		function(data){
-                 	if (data.type=="ERROR"){
-                 		alert("Error while generating weeks.XML: " + data.result);
-                 	}
-                 }
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert("Error while generating weeks.XML: " + data.result);
+                 		}
+        			}else alert("data is null");
+                }
         		,"json");
         		$('#My_queries').append('<p style="color:navy">The file is now being updated.</p>')
         	}
@@ -60,11 +61,10 @@
         	
         	function showQueries(){
         		option = 3;
-        		//$.post("adminFunc.php", {func: "showQueries", user: <?php echo '"'.$username.'"'?>},"json");
         		
         		$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
 					echo "<tr>";
-					echo "<th>QID</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Cancel</th>";
+					echo "<th>QID</th><th>User</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Cancel</th>";
 					echo "</tr>";
 					$queries = simplexml_load_file("xml\query.xml");
 					$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');					
@@ -73,20 +73,26 @@
 						foreach ($result as $i => $value) {												
 							echo "<tr>";							
 							echo "<td>".substr($result[$i]->queryID,-4)."</td>";
+							$Qusers = "";
+							$res = $queries->xpath('/DATA/QUERY[queryID="'.$result[$i]->queryID.'"]/users');
+							if($res!=FALSE){
+								$arr = $res[0];								
+								foreach($arr as $j){
+									$Qusers .= (string)$j." ";					
+								}									
+							}
+							echo"<td>".$Qusers."</td>";
 							echo"<td>".$result[$i]->year."</td>";
 							echo"<td>".$result[$i]->week."</td>";
 							echo"<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
 							echo"<td>".$result[$i]->ASnum."</td>";
 							echo "<td>";
-							echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
-							//implode
+							echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';							
 							echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
-							// reload the page? if changing to "submit",  add: onsubmit="return false;" ?
-							echo "</tr>";
+							echo "</tr>";		
 						} 
 					}
-				?></table>');
-        		
+				?></table>');        		
         	}        	
         	
         	 function abort(queryID){             	
