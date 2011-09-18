@@ -1,9 +1,12 @@
 <?php
 require_once("verify.php");	
 require_once("bin/idgen.php");
-require_once("bin/kml_render_globals.php");
+require_once('bin/userData.php');
 
 $queryID = isset($_REQUEST["QID"])? $_REQUEST["QID"] : '2df5efc4b99b9486e245a49f6400a90f';
+
+include_once("bin/kml_render_globals.php");
+
 $idg = new idGen($queryID);
 $filename='queries/'.$idg->getDirName().'/result.kmz';
 $base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/";
@@ -121,6 +124,7 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
 				var globalParams = {
 					MIN_LINE_WIDTH: 	 { value: <?php echo MIN_LINE_WIDTH; ?>, 	type: 'number',		name: 'Min Edge Line Width'},
 					MAX_LINE_WIDTH: 	 { value: <?php echo MAX_LINE_WIDTH; ?>,	type: 'number',		name: 'Max Edge Line Width'},
+					TRANSPARENCY: 	 	 { value: <?php echo TRANSPARENCY; ?>,	type: 'number',		name: 'Line Transparency'},
 					INITIAL_ALTITUDE:	 { value: <?php echo INITIAL_ALTITUDE; ?>,	type: 'number',		name: 'Initial ASN Altitude'},
 					ALTITUDE_DELTA:		 { value: <?php echo ALTITUDE_DELTA; ?>,	type: 'number',		name: 'ASN Altitude Delta'},
 					STDEV_THRESHOLD: 	 { value: <?php echo STDEV_THRESHOLD; ?>,	type: 'number',		name: 'Standard Deviation Threshold'},

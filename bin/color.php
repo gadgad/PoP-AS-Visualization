@@ -9,18 +9,19 @@ class Color
 	public $red_hex;
 	public $green_hex;
 	public $blue_hex;
+	public $trans_hex;
 	
 	public function __construct()
 	{
 		$this->randColor();
-		if(func_num_args()==3)
+		if(func_num_args()==3 || func_num_args()==4)
 		{
 			$r = func_get_arg(0);
 			$g = func_get_arg(1);
 			$b = func_get_arg(2);
 			$this->setColor($r, $g, $b);
+			if(func_num_args()==4) $this->setTrans(func_get_arg(3)); 
 		}
-		$this->Dec2Hex();
 	}
 	
 	function randColor()
@@ -31,11 +32,18 @@ class Color
 		$this->trans = 150;
 	}
 	
-	function setColor($r,$g,$b)
+	public function setColor($r,$g,$b)
 	{
 		$this->red = $r;
 		$this->green = $g;
 		$this->blue = $b;
+		$this->Dec2Hex();
+	}
+	
+	public function setTrans($t)
+	{
+		$this->trans = $t;
+		$this->Dec2Hex();
 	}
 	
 	function Dec2Hex()
@@ -43,11 +51,12 @@ class Color
 		$this->red_hex = ($this->red<16)? '0'.dechex($this->red):dechex($this->red);
 		$this->green_hex = ($this->green<16)? '0'.dechex($this->green):dechex($this->green);
 		$this->blue_hex = ($this->blue<16)? '0'.dechex($this->blue):dechex($this->blue);
+		$this->trans_hex = ($this->trans<16)? '0'.dechex($this->trans):dechex($this->trans);
 	}
 	
 	public function gm_format()
 	{
-		return dechex($this->trans).($this->blue_hex).($this->green_hex).($this->red_hex);
+		return ($this->trans_hex).($this->blue_hex).($this->green_hex).($this->red_hex);
 	}
 	
 	public function web_format()

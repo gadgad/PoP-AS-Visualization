@@ -51,6 +51,7 @@
 			
 			
 			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
+			if($mysqli->connect_error) return NULL;
 			return $mysqli;
 		}
 		
