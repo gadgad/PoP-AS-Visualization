@@ -15,27 +15,6 @@
         <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
 		<script type="text/javascript" src="js/jquery.multiselect2side.js" ></script>
 		<script type="text/javascript" src="js/jquery-blink.js" ></script>
-        <style>
-	      .formGrayOut{
-	          background: #ccc;
-	       }
-	       .validator {
-			    display: inline;
-			    height: 16px;
-			    width: 16px;
-			    margin-left: 6px;
-			    margin-top: -2px;
-			}
-			.sendQuery {
-				margin-left: 20px; 
-				margin-top: 10px
-			}
-			.sendQueryValidator {
-				display: block;
-				margin-left: 25px; 
-				margin-top: 10px
-			}
-	    </style>
           
           <script type="text/javascript">
 			 // Test connection to blade 
