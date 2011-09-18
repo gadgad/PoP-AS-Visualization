@@ -49,6 +49,10 @@
 		$res = parse($mysqli,$query);	
 		return $res;        
 	}
+	
+	function generateASinfo($table,$schema,$blade){
+		// TODO: complete.. 
+	}
 	 
 	 if($_POST["func"]=="updateWeeks")
 	{
@@ -113,11 +117,62 @@
 	if($_POST["func"]=="updateAS")
 	{
 		$table = $_POST["table"];
-		//update file by the table name
+		$schema = "DIMES_DISTANCES";
+		$blade = "B4";
+		generateASinfo($table, $schema,$blade );
 	}
 	
-	if($_POST["func"]=="showQueries")
+	if($_POST["func"]=="updateASfree")
 	{
-		// ? 		
+		$table = $_POST["table"];
+		$schema = $_POST["schema"];
+		$blade = $_POST["blade"];
+		generateASinfo($table, $schema,$blade );
 	}
+	
+	if($_POST["func"]=="accept")
+	{
+		$path =  "users/".$_POST["userfile"]; 
+		$userData = simplexml_load_file($path);
+		
+		$res = $userData->xpath('/user/status');		
+		foreach ($res as $key => $state){
+			if ($state == "pending"){			  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    echo 'Error while converting SimpleXMLelement to DOM';
+				}		
+				$oNode->parentNode->removeChild($oNode); 				
+			}
+		}
+		
+		$userData->addChild('status',"authorized");		
+		$userData->asXML($path);			
+		ret_res('done',"GOOD");
+	}
+	
+	if($_POST["func"]=="deny")
+	{
+		$path =  "users/".$_POST["userfile"]; 
+		$userData = simplexml_load_file($path);
+		
+		$res = $userData->xpath('/user/status');		
+		foreach ($res as $key => $state){
+			if ($state == "pending"){			  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR"); ;
+				}		
+				$oNode->parentNode->removeChild($oNode); 				
+			}
+		}
+		
+		$userData->addChild('status',"denied");		
+		$userData->asXML($path);			
+		ret_res('done',"GOOD");
+	}
+	
+	
 ?>
