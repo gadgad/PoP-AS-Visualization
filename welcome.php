@@ -8,13 +8,21 @@
 		if(file_exists('users/' . $username . '.xml')){
 			$xml = new SimpleXMLElement('users/' . $username . '.xml', 0, true);
 			if($password == $xml->password){
-				session_start();
-				$_SESSION['username'] = $username;
-				setcookie('username',$username,time()+3600*24*31*12);
-				$url = (isset($_SESSION['request_url']))? $_SESSION['request_url'] : (($username == 'admin')? 'admin.php':'index.php');
-				//session_write_close(); 
-				header('Location: '.$url);
-				die();
+				if ("authorized" == $xml->status){
+					session_start();
+					$_SESSION['username'] = $username;
+					setcookie('username',$username,time()+3600*24*31*12);
+					$url = (isset($_SESSION['request_url']))? $_SESSION['request_url'] : (($username == 'admin')? 'admin.php':'index.php');
+					//session_write_close(); 
+					header('Location: '.$url);
+					die();	
+				}elseif ("pending" == $xml->status) {										 
+					header('Location: pending.php');
+					die();
+				}else {
+					header('Location: denied.php');
+					die();
+				}				
 			}
 		}
 		$error = true;

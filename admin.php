@@ -50,11 +50,16 @@
         	
         	function updateAS(){
         		option = 2;
-        		$('#My_queries').html('<h3><b>Update AS_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</p><p>If new ASs were added, select a table to update from and click the update button to update the file.</p><br></br><select id="tbl"><option value="1">ASinfo tbl</option><option value="2">ASinfo tbl 2009</option><option value="3">ASinfo tbl 2009 march</option></select>  <input type="button" onclick="updateASB()" value="Update"/>');
+        		$('#My_queries').html('<h3><b>Update AS_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</p><p>If new ASs were added, select a table to update from and click the update button to update the file.</p><br></br><select id="tbl"><option>ASinfo tbl</option><option>ASinfo tbl 2009</option><option>ASinfo tbl 2009 march</option></select>  <input type="button" onclick="updateASB()" value="Update"/><br></br><p>Or enter your own table:</p><br></br><p>Blade <input type="text" name="blade" id="blade" size="18"/> Schema <input type="text" name="schema" id="schema" size="18"/> table <input type="text" name="freetable" id="freetable" size="18"/></p> <input type="button" onclick="updateASBfree()" value="Update"/>');
         	}
         	
         	function updateASB(){
-        		$.post("adminFunc.php", {func: "updateAS", user: <?php echo '"'.$username.'"'?>,table:tbl.val()},"json");
+        		$.post("adminFunc.php", {func: "updateAS", user: <?php echo '"'.$username.'"'?>,table:$("#tbl").val()},"json");
+        		$('#My_queries').append('<p style="color:navy">The file is now being updated.</p>')
+        	}
+        	
+        	function updateASBfree(){
+        		$.post("adminFunc.php", {func: "updateASfree", user: <?php echo '"'.$username.'"'?>,table:$("#freetable").val(),schema:$("#schema").val(),blade:$("#blade").val()},"json");
         		$('#My_queries').append('<p style="color:navy">The file is now being updated.</p>')
         	}
         	
@@ -110,7 +115,91 @@
              	,"json");
                                                   	
              }
-            
+             
+             function viewUsers(){             	
+             	$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
+					echo "<tr>";
+					echo "<th>Username</th><th>email</th><th>Status</th>";
+					echo "</tr>";					
+					$files = scandir(getcwd().'\users');
+					if ($files!=FALSE){
+						foreach ($files as $file){							
+							if (substr($file, 0,1)!="."){						
+								$userfile = simplexml_load_file("users/".$file);
+								$result = $userfile->xpath('/user');					
+								if($result!=FALSE)
+								{
+									echo "<tr>";
+									echo "<td>".$file."</td>";																					
+									echo"<td>".(string)$result[0]->email."</td>";													
+									echo"<td>".(string)$result[0]->status."</td>";							
+									echo "</tr>";																	
+								}	
+							}												
+						}
+					}else { echo "<tr><td>ERROR</td></tr>";}		
+				?></table>');        		
+        	 }        	             	        
+             
+             function handleRequests(){
+             	$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
+					echo "<tr>";
+					echo "<th>Username</th><th>email</th><th>Accept</th><th>Deny</th>";
+					echo "</tr>";					
+					$files = scandir(getcwd().'\users');
+					if ($files!=FALSE){
+						foreach ($files as $file){							
+							if (substr($file, 0,1)!="."){						
+								$userfile = simplexml_load_file("users/".$file);
+								$result = $userfile->xpath('/user');					
+								if($result!=FALSE)
+								{
+									if("pending" == $result[0]->status){
+										echo "<tr>";
+										echo "<td>".$file."</td>";												
+										echo"<td>".(string)$result[0]->email."</td>";													
+										echo '<td> <button type="submit" onclick="accept(this.value)" value="'.$file.'">X</button></td>';							
+										echo '<td> <button type="submit" onclick="deny(this.value)" value="'.$file.'">X</button></td>';
+										echo "</tr>";	
+									}																										
+								}	
+							}
+												
+						}
+					}else { echo "<tr><td>blaaa</td></tr>";}		
+				?></table>');
+             	
+             }
+             
+             function accept(userFile){             	             	
+             	$.preLoadImages("images/ajax-loader.gif");
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
+             	$.post("adminFunc.php", {func: "accept",user: <?php echo '"'.$username.'"'?>, userfile: userFile},
+             	function(data){
+             		if(data.type=="GOOD"){
+             			handleRequests();
+             		}
+             		if (data.type =="ERROR")
+                     	{alert(data.result);}
+             	}
+             	,"json");                                                  	
+             }
+             
+             function deny(userFile){             	             	
+             	$.preLoadImages("images/ajax-loader.gif");
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
+             	$.post("adminFunc.php", {func: "deny",user: <?php echo '"'.$username.'"'?>, userfile: userFile},
+             	function(data){
+             		if(data.type=="GOOD"){
+             			handleRequests();
+             		}
+             		if (data.type =="ERROR")
+                     	{alert(data.result);}
+             	}
+             	,"json");                                                  	
+             }
+             
+                         
             function pool_pq_status(pid){
             	if(globalData.pq_running==true){
             		$.post("query_backend.php", { func: "pq-status", blade: globalData.blade },
@@ -163,6 +252,8 @@
 	            	<p onclick="updateWeeks()"><u>Update weeks.xml</u></p>
 	            	<p onclick="updateAS()"><u>Update AS_info.xml</u></p>
 	            	<p onclick="showQueries()"><u>View running queries</u></p>
+	            	<p onclick="viewUsers()"><u>View system users</u></p>
+	            	<p onclick="handleRequests()"><u>Accept/Deny pending user requests</u></p>
 	            </div>
             </div>
             
