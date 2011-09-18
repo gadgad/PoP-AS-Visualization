@@ -25,6 +25,7 @@ if(isset($_POST['login'])){
 		$xml = new SimpleXMLElement('<user></user>');
 		$xml->addChild('password', hash("sha256",$password));
 		$xml->addChild('email', $email);
+		$xml->addChild('status', 'pending');
 		$xml->asXML('users/' . $username . '.xml');
 		header('Location: welcome.php');
 		die();
@@ -83,7 +84,22 @@ if(isset($_POST['login'])){
 		            </div>
 	            </div>
 	            
-	            <?php include("info.php") ?>
+				<div class="about">
+				    <h3>Thank you! </h3>   
+				    <p style="line-height:150%;padding-left: 30px;padding-right: 30px;">Dear user, your registration request was sent to the site admin. After your approval you would be able to login and use the system.</p>
+					<p style="line-height:150%;padding-left: 30px;padding-right: 30px;">
+					  <?php
+					    $filename = "User_Guide.pdf"; 
+				        if(file_exists($filename)) {
+				          echo ("for more information download the <a href=\"$filename\">user guide</a>");
+				        } else {
+				          echo( "Oops.. the user guide is temporary unavailable." );
+				        }
+				      ?>    	
+					</p>             	            
+				    <p>An example of a result file:</p>
+				</div>	           
+	           
 	            
 	            <div class="footer">
                 Copyright © 2011 <a href="http://www.netdimes.org/new/">DIMES</a>
