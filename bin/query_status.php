@@ -22,9 +22,10 @@
 			$user = (string)$blade["user"];
 			$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
 			$database = (string)$blade["db"];
-			$write_db = $blade["write-db"];
+			$write_db = (string)$blade["write-db"];
 			
 			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
+			if($mysqli->connect_error) die("can't connect to DB!\n");
 			
 			$result = $mysqli->query('SHOW FULL PROCESSLIST;');
 			$num = $result->num_rows;
@@ -66,12 +67,17 @@
 		}
 	
 		// 0 - error , 1 - running , 2 - db-ready, 3 - some-xml-ready,  4 - all-xml-ready, 5 - kml-ready
-		public function getQueryStatus($QID,$TID)
+		public function getQueryStatus()
 		{
-			if(isset($TID)){
+			if(func_num_args()==2){
+				$QID = func_get_arg(0);
+				$TID = func_get_arg(1);
 				$idg = new idGen($QID,$TID);
-			} else {
+			} else if(func_num_args()==1) {
+				$QID = func_get_arg(0);
 				$idg = new idGen($QID);	
+			} else {
+				return 0;
 			}
 			$tableID = $idg->getTableID();
 			$kml_dst_dir = 'queries/'.$idg->getDirName();
