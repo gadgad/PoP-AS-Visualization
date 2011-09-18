@@ -50,7 +50,7 @@
 		return $res;        
 	}
 	
-	function generateASinfo($mysqli){
+	function generateASinfo($table,$schema,$blade){
 		// TODO: complete.. 
 	}
 	 
@@ -116,9 +116,10 @@
 	
 	if($_POST["func"]=="updateAS")
 	{
-		$tableNum = $_POST["table"];
-		//update file by the table name
-		generateASinfo($mysqli);
+		$table = $_POST["table"];
+		$schema = "DIMES_DISTANCES";
+		$blade = "B4";
+		generateASinfo($table, $schema,$blade );
 	}
 	
 	if($_POST["func"]=="updateASfree")
@@ -126,8 +127,7 @@
 		$table = $_POST["table"];
 		$schema = $_POST["schema"];
 		$blade = $_POST["blade"];
-		//update file by the table name
-		generateASinfo($mysqli);
+		generateASinfo($table, $schema,$blade );
 	}
 	
 	if($_POST["func"]=="accept")
