@@ -116,8 +116,49 @@
 		//update file by the table name
 	}
 	
-	if($_POST["func"]=="showQueries")
+	if($_POST["func"]=="accept")
 	{
-		// ? 		
+		$path =  "users/".$_POST["userfile"]; 
+		$userData = simplexml_load_file($path);
+		
+		$res = $userData->xpath('/user/status');		
+		foreach ($res as $key => $state){
+			if ($state == "pending"){			  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    echo 'Error while converting SimpleXMLelement to DOM';
+				}		
+				$oNode->parentNode->removeChild($oNode); 				
+			}
+		}
+		
+		$userData->addChild('status',"authorized");		
+		$userData->asXML($path);			
+		ret_res('done',"GOOD");
 	}
+	
+	if($_POST["func"]=="deny")
+	{
+		$path =  "users/".$_POST["userfile"]; 
+		$userData = simplexml_load_file($path);
+		
+		$res = $userData->xpath('/user/status');		
+		foreach ($res as $key => $state){
+			if ($state == "pending"){			  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR"); ;
+				}		
+				$oNode->parentNode->removeChild($oNode); 				
+			}
+		}
+		
+		$userData->addChild('status',"denied");		
+		$userData->asXML($path);			
+		ret_res('done',"GOOD");
+	}
+	
+	
 ?>
