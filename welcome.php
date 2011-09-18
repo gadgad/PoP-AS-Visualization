@@ -19,6 +19,9 @@
 				}elseif ("pending" == $xml->status) {										 
 					header('Location: pending.php');
 					die();
+				}else {
+					header('Location: denied.php');
+					die();
 				}				
 			}
 		}

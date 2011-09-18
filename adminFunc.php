@@ -49,6 +49,10 @@
 		$res = parse($mysqli,$query);	
 		return $res;        
 	}
+	
+	function generateASinfo($mysqli){
+		// TODO: complete.. 
+	}
 	 
 	 if($_POST["func"]=="updateWeeks")
 	{
@@ -112,8 +116,18 @@
 	
 	if($_POST["func"]=="updateAS")
 	{
-		$table = $_POST["table"];
+		$tableNum = $_POST["table"];
 		//update file by the table name
+		generateASinfo($mysqli);
+	}
+	
+	if($_POST["func"]=="updateASfree")
+	{
+		$table = $_POST["table"];
+		$schema = $_POST["schema"];
+		$blade = $_POST["blade"];
+		//update file by the table name
+		generateASinfo($mysqli);
 	}
 	
 	if($_POST["func"]=="accept")
