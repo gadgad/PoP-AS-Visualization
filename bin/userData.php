@@ -7,7 +7,7 @@
 		
     	public function __construct($username,$queryID){
     		$this->username = $username;
-			$this->filename = 'users/'.$username.'.data';
+			$this->filename = 'data/'.$username.'.data';
 			$this->queryID = (isset($queryID))? $queryID : 'global';
 			$this->load_data();
 		}
