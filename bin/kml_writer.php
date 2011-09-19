@@ -260,7 +260,9 @@ class kmlWriter
 			$pop_lst_str.="PoP ID: ".$placeMark["pop_id_lst"][$i]."</BR>\n";
 		}
 		$pop_lst_str.="</P>";
-		$kmlString .= "<Placemark>\n<name>PlaceMark#".$counter++."</name>\n<description><![CDATA[<P>ASN#: ".$asn."</BR>ISP Name: ".$this->ASN_LIST[$asn]["ISPName"]."</BR>Country: ".$this->ASN_LIST[$asn]["Country"]."</P>".$pop_lst_str."]]></description><visibility>1</visibility>\n<Style>\n<LabelStyle>\n<scale>0</scale>\n</LabelStyle>\n<IconStyle>\n<Icon>\n<href><![CDATA[http://www.google.com/chart?chst=d_map_xpin_letter&chld=pin||".$this->ASN_LIST[$asn]["color"]->web_format()."]]></href>\n</Icon>\n</IconStyle>\n<LineStyle>\n<width>2</width>\n<color>".$this->ASN_LIST[$asn]["color"]->gm_format()."</color>\n</LineStyle>\n</Style>\n<Point>\n<extrude>1</extrude>\n<altitudeMode>relativeToGround</altitudeMode>\n<coordinates>\n".$lng.",".$lat.",".$this->ASN_LIST[$asn]["altitude"]."\n</coordinates>\n</Point>\n</Placemark>\n";
+		$icon_href = "http://www.google.com/chart?chst=";
+		$icon_href.= (ASN_EMBEDDED_IN_PLACEMARK)? "d_map_spin&chld=1|0|".$this->ASN_LIST[$asn]["color"]->web_format()."|10|_|".$asn : "d_map_xpin_letter&chld=pin||".$this->ASN_LIST[$asn]["color"]->web_format();
+		$kmlString .= "<Placemark>\n<name>PlaceMark#".$counter++."</name>\n<description><![CDATA[<P>ASN#: ".$asn."</BR>ISP Name: ".$this->ASN_LIST[$asn]["ISPName"]."</BR>Country: ".$this->ASN_LIST[$asn]["Country"]."</P>".$pop_lst_str."]]></description><visibility>1</visibility>\n<Style>\n<LabelStyle>\n<scale>0</scale>\n</LabelStyle>\n<IconStyle>\n<Icon>\n<href><![CDATA[".$icon_href."]]></href>\n</Icon>\n</IconStyle>\n<LineStyle>\n<width>2</width>\n<color>".$this->ASN_LIST[$asn]["color"]->gm_format()."</color>\n</LineStyle>\n</Style>\n<Point>\n<extrude>1</extrude>\n<altitudeMode>relativeToGround</altitudeMode>\n<coordinates>\n".$lng.",".$lat.",".$this->ASN_LIST[$asn]["altitude"]."\n</coordinates>\n</Point>\n</Placemark>\n";
 		
 	 	return $kmlString;
 	}

@@ -12,9 +12,9 @@
   }
 })(jQuery)
 ///////////-Global-Data-////////////////////////////////////////////////
-globalData = {};
-globalData.blade = "";
-globalData.pq_running = false;
+globalData = {blade: 'B4', pq_running: false}; //replace this with value from config file
+//globalData.blade = "B4"; 
+//globalData.pq_running = false;
 ///////////-JQuery-ajaxSetup-//////////////////////////////////////////
 $().ready(function(){
 	$.ajaxSetup({
@@ -71,7 +71,7 @@ function run_pq_script() {
 }
 
 function processQueries() {
-	$.post("query_backend.php", { func: "pq-check", blade: globalData.blade },
+	$.post("query_backend.php", { func: "pq-check" },
 	function(data,textStatus){
 		if(data!=null && data.type == "NOT-EMPTY") {
 			run_pq_script();

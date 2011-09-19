@@ -22,14 +22,12 @@
 		$filename = "xml\query.xml";
 		$queries = simplexml_load_file($filename);
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
-		$result[0]->lastKnownStatus=$new_status;
+		$tableID = (string)$result[0]->tableID;
+		$result2 = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
+		foreach($result2 as $rs){
+			$rs->lastKnownStatus=$new_status;
+		}
 		$queries->asXML($filename);
-		/*
-		$xml = $queries->asXML();
-		$filewrite = fopen($filename, "w");
-		fwrite($filewrite, $xml);
-		fclose($filewrite);
-		 */
 	}
 	
 	function create_ok_sig()
@@ -97,7 +95,10 @@
 				}
 			} else if($qs==5) {
 				xml_change_status($queryID,"completed");
-			}	
+			} else if($qs==0) {
+				xml_change_status($queryID,"error");
+				
+			}		
 		}
 	}
 

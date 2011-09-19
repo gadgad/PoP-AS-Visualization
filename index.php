@@ -171,21 +171,24 @@
                          ,"json");
              }
              
-             function stageThree()
+             function stageThree(resendQuery,queryID)
              {
-             	if(error_counter==3) {
+             	if(error_counter>=3) {
              		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
              		$("#sendQueryStatus").remove();
+             		if(resendQuery) $('#queryTable').html('');
              		return;
              	}
-             	$.post("query_backend.php", {func: "sendQuery", stage:3, blade: $("#blade").val() ,
-                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(),week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
+             	var properties1 =  {func: "resendQuery", query: queryID, stage:3,  username: <?php echo '"'.$username.'"'?> };
+             	var properties2 = {func: "sendQuery", stage:3, blade: $("#blade").val() ,
+                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(),week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() };
+             	$.post("query_backend.php", ((resendQuery)? properties1 : properties2) ,
                          function(data){
                          	if (data==null || data.type=="ERROR"){
                          		//$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
                          		//if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
                          		error_counter++;
-                         		stageThree();
+                         		stageThree(resendQuery,queryID);
                          	} else {
                          		if(data.type!="GOOD"){
                          			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
@@ -201,7 +204,29 @@
              }
              
              ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+			function resendQuery(queryID){
+				error_counter = 0;
+				$.preLoadImages("images/ajax-loader.gif");
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
+             	$.post("query_backend.php", {func: "resendQuery", query: queryID, stage:2,  username: <?php echo '"'.$username.'"'?> },
+             	function(data){
+		     		if (data==null || data.type=="ERROR"){
+                 		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
+                 		if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
+                 		$("#sendQueryStatus").remove();
+                 	} else {
+                 		if(data.type!="STAGE2_COMPLETE"){
+                 			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
+                 			$("#sendQueryStatus").remove();
+                 		} else {
+                 			stageThree(true,queryID);
+                 		}
+                 	}                         
+             	}
+             	,"json");
+			}
+			
+			
             function abort(queryID){             	
              	//$('#queryTable').fadeOut('fast');
              	$.preLoadImages("images/ajax-loader.gif");
@@ -489,7 +514,10 @@
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
-								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Complete"/></form>';														
+								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Complete"/></form>';
+							}elseif ($result[$i]->lastKnownStatus=="error"){
+								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';
+								//echo 'error';													
 							}else {
 								echo 'unknown status';
 							}
