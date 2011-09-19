@@ -108,3 +108,23 @@ table.imagetable td {
 	background-color: rgb(215,231,232);
 	font-size:16px;	
 }
+
+.formGrayOut{
+	          background: #ccc;
+	       }
+	       .validator {
+			    display: inline;
+			    height: 16px;
+			    width: 16px;
+			    margin-left: 6px;
+			    margin-top: -2px;
+			}
+			.sendQuery {
+				margin-left: 20px; 
+				margin-top: 10px
+			}
+			.sendQueryValidator {
+				display: block;
+				margin-left: 25px; 
+				margin-top: 10px
+			}
