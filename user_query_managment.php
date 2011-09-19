@@ -30,7 +30,7 @@
 	$database = (string)$blade["db"];
 	$write_db = (string)$blade["write-db"];
 	
-	$idg = new idGen($QID);
+	$idg = new idGen($queryID);
 	$popTbl = $idg->getPoPTblName();
 	$edgeTbl = $idg->getEdgeTblName();
 	
@@ -141,9 +141,13 @@
 		if($result!=FALSE) // the query is found in the queries file - good.
 		{	
 			if ($result[0]->lastKnownStatus=="running"){
+				$tableID = (string)$result[0]->tableID;
 				$allUsers = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users/user');
+				$allQIDs = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
 				if (count($allUsers)>1){					
-					deleteUser($username,$queryID);					
+					deleteUser($username,$queryID);	
+				} elseif (count($allQIDs)>1){
+					deleteQuery($queryID);				
 				} else {
 					
 					$qm = new QueryManager($selected_blade);
