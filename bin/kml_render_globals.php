@@ -14,6 +14,7 @@
 	$session->setGlobal('CONNECTED_POPS_ONLY',true);
 	$session->setGlobal('USE_COLOR_PICKER',false);
 	$session->setGlobal('BLACK_BACKGROUND',false);
+	$session->setGlobal('ASN_EMBEDDED_IN_PLACEMARK',true);
 	
 	$session->save_data();
 	
