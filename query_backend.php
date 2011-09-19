@@ -1,23 +1,36 @@
 <?php
-	include_once("bin/load_config.php");
-	include_once("bin/idgen.php");
-	include_once("bin/writeToXML.php");
-	include_once("bin/backgrounder.php");
+	require_once("bin/load_config.php");
+	require_once("bin/idgen.php");
+	require_once("bin/writeToXML.php");
+	require_once("bin/backgrounder.php");
 	require_once("bin/query_status.php");
 	require_once("bin/DBConnection.php");	
-	include_once("verify.php");
+	require_once("verify.php");
 				
 	// Turn off all error reporting
 	error_reporting(0);
 			
-	if(!isset($_POST["blade"]))
+	if(!isset($_POST["func"]))
 	{
-		echo "You are not permited to this page!";
+		echo 'missing parameters!';
 		die();
 	}
 	
 	// globals
-	$selected_blade = $_POST["blade"];
+	if(isset($_POST['query'])){
+		$queryID = $_POST['query'];
+		$queries = simplexml_load_file('xml\query.xml');							
+		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
+		if(empty($result)){
+			ret_res("query doesn't exists!","ERROR");
+		}
+		$result = $result[0];
+		$selected_blade = (string)$result->blade;       		
+	} else {
+		// TODO: replace B4 with value extracted from config file!
+		$selected_blade = isset($_POST["blade"])? $_POST["blade"] : 'B4';	
+	}
+	
 	$blade = $Blade_Map[$selected_blade];
 	$host = (string)$blade["host"];
 	$port = (int)$blade["port"];
@@ -60,6 +73,20 @@
 		$query = "select TABLE_NAME from INFORMATION_SCHEMA.TABLES WHERE table_schema='DIMES_DISTANCES' and (table_name like ".$query1." or table_name like ".$query2." or table_name like ".$query3." or table_name like ".$query4.")";
 		$res = parse($mysqli,$query);
 		return $res;        
+	}
+	
+	function xml_change_status($qid,$new_status)
+	{
+		$queryID = $qid;
+		$filename = "xml\query.xml";
+		$queries = simplexml_load_file($filename);
+		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
+		$tableID = (string)$result[0]->tableID;
+		$result2 = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
+		foreach($result2 as $rs){
+			$rs->lastKnownStatus=$new_status;
+		}
+		$queries->asXML($filename);
 	}
 	
 	if($_POST["func"]=="testConnection")
@@ -230,6 +257,56 @@
 		ret_res("last invokation is still valid, time interval is set to ".$time_interval." hours","GOOD");
 	}
 	
+	if($_POST["func"]=="resendQuery")
+	{
+		/*
+		$queryID = $_POST['query'];
+		$queries = simplexml_load_file('xml\query.xml');							
+		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
+		if(empty($result)){
+			ret_res("query doesn't exists!","ERROR");
+		}
+		$result = $result[0];	
+		$blade = (string)$result->blade;
+		*/
+		     		
+		$username = $_POST["username"];
+		$stage = intval($_POST["stage"]);			
+		
+		$pop = (string)$result->PopTbl;
+		$popIP =(string)$result->PopLocTbl;
+		$edge = (string)$result->EdgeTbl;
+		$as = (string)$result->allAS;
+		$idg = new idGen($queryID);
+		$tableID = $idg->getTableID();
+		
+		if($stage==2)
+		{
+			$cmd = "send_query.php --host=".$host." --user=".$user." --pass=".$pass." --database=".$database."  --writedb=".$write_db." --port=".$port." --PoPTblName=".$idg->getPoPTblName()." --pop=".$pop." --as=".$as." --EdgeTblName=".$idg->getEdgeTblName()." --edge=".$edge." --popIP=".$popIP." --query=";
+			$cmd1 = new Backgrounder($cmd."1",'query1',$queryID);
+			$cmd1->run();
+			$cmd2 = new Backgrounder($cmd."2",'query2',$queryID);
+			$cmd2->run();
+			ret_res("stage2 complete","STAGE2_COMPLETE");
+		}
+		
+		// check if present in 'SHOW PROCESSLIST' and/or table exist
+		if($stage==3)
+		{
+			$qm = new QueryManager($selected_blade);
+			$query_status = $qm->getQueryStatus($queryID,$tableID);
+			
+			if($query_status == 0){
+				ret_res("sql query failed to execute properly...</BR>","ERROR");
+			} else {
+				xml_change_status($queryID, 'running');
+				header('Content-type: application/json');
+				echo json_encode(array("result"=>"query is now running..." ,"type"=>"GOOD","queryID"=>$queryID));
+				die();
+			}
+		}						
+		
+	}
 	
 	if($_POST["func"]=="sendQuery")
 	{
@@ -253,9 +330,6 @@
 		
 		$year = $_POST["year"];
 		$week = $_POST["week"];
-		
-		//chdir( dirname ( __FILE__ ) );
-		//$thisdir = str_replace('\\','/',getcwd());
 	
 		if($stage==1)
 		{
@@ -263,6 +337,10 @@
 			$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users');		
 			if($result!=FALSE) // this query already exists
 			{
+				foreach($result as $rs){
+					if($username==(string)$rs->user)
+						ret_res("query already exists!","ALL_COMPLETE");
+				}
 				if($result[0]->user!=$username){
 					$result[0]->addChild('user', $username);
 					$queries->asXML('xml\query.xml');
@@ -273,13 +351,12 @@
 			}
 			$result = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
 			if(!empty($result)){
-				/*
+				$curr_status = (string)$result[0]->lastKnownStatus;
 				AddQuery($queryID,$tableID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
+				if($curr_status!='running') xml_change_status($queryID, $curr_status);
 				header('Content-type: application/json');
 				echo json_encode(array("result"=>"requested table already exsists..." ,"type"=>"GOOD","queryID"=>$queryID));
 				die();
-				 */
-				ret_res("requested table should be present on DB...","STAGE1_COMPLETE");
 			}
 			ret_res("stage1 complete","STAGE1_COMPLETE");
 		}
@@ -302,21 +379,9 @@
 			$query_status = $qm->getQueryStatus($queryID,$tableID);
 			
 			if($query_status == 0){
-				//ret_res("sql query failed to execute properly...</BR>try running the following queries directly:</BR>".(($pop_state==0)?$query1:"")."</BR>".(($edge_state==0)?$query2:""),"ERROR");
 				ret_res("sql query failed to execute properly...</BR>","ERROR");
 			} else {
 				AddQuery($queryID,$tableID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
-				
-				/*
-				// making a new dir to hold query results 
-				$querydir = $thisdir."/queries"."/".$queryID;
-				if(!file_exists($querydir)){			 		
-					if(!mkdir($querydir, 0777)) { 
-					   ret_res("Failed to create directory: ".$querydir,"ERROR"); 
-					}
-				}
-				 * 
-				 */
 				header('Content-type: application/json');
 				echo json_encode(array("result"=>"query is now running..." ,"type"=>"GOOD","queryID"=>$queryID));
 			}
