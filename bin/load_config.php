@@ -6,11 +6,17 @@
 	
 	$Blades = $arr["blades"]["blade"];
 	$DataTables = $arr["data-tables"];
-	$FileLocations = $arr["file-locations"];
+	$DEFAULT_BLADE;
+	$AS_INFO_DEFAULT_BLADE;
 	
 	foreach($Blades as $blade)
 	{
-		$Blade_Map[$blade["@attributes"]["name"]] = $blade;
+		$name = $blade["@attributes"]["name"];
+		$Blade_Map[$name] = $blade;
+		if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true"))
+			$DEFAULT_BLADE = $name;
+		if($blade["db"]==$DataTables["as-info"]["schema"])
+			$AS_INFO_DEFAULT_BLADE = $name;
 	}
 
 ?>

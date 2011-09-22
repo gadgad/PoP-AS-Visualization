@@ -25,7 +25,7 @@ $dst = $_REQUEST["dst_pop"];
 $queryID = $_REQUEST["QID"];
 $idg = new idGen($queryID);
 $baseDir='queries/'.$idg->getDirName();
-$as_info_dir = $FileLocations["as-info"];
+$as_info_dir = 'xml/ASN_info.xml';
 
 $pop_xml = simplexml_load_file($baseDir."/pop.xml");
 $EDGES_xml = simplexml_load_file($baseDir."/edges.xml");

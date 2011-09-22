@@ -58,7 +58,7 @@ class kmlWriter
 		$this->pop_xml = simplexml_load_file($this->xml_src_dir."\pop.xml");
 		$this->edges_xml = simplexml_load_file($this->xml_src_dir."\edges.xml");
 		
-		$as_info_path = $GLOBALS["FileLocations"]["as-info"];
+		$as_info_path = 'xml/ASN_info.xml';
 		$this->num_of_asns = 0;
 		$this->asn_info_xml = simplexml_load_file($as_info_path);
 		
@@ -74,7 +74,7 @@ class kmlWriter
 	}
 	
 	private function load_color_list(){
-		$filename = 'xml/ASN_color.data';
+		$filename = 'data/ASN_color.data';
 		if(file_exists($filename)){
 			$file_handle = fopen($filename,"r") or die("can't open ".$filename."\n");
 			$str = fgets($file_handle);
@@ -86,7 +86,7 @@ class kmlWriter
 	}
 	
 	private function save_color_list(){
-		$filename = 'xml/ASN_color.data';
+		$filename = 'data/ASN_color.data';
 		$file_handle = fopen($filename, "w") or die("can't open ".$filename."\n");;
 		fwrite($file_handle,  serialize($this->COLOR_LIST));
 		fclose($file_handle);
