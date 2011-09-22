@@ -12,9 +12,7 @@
   }
 })(jQuery)
 ///////////-Global-Data-////////////////////////////////////////////////
-globalData = {blade: 'B4', pq_running: false}; //replace this with value from config file
-//globalData.blade = "B4"; 
-//globalData.pq_running = false;
+globalData = {blade: '', pq_running: false}; 
 ///////////-JQuery-ajaxSetup-//////////////////////////////////////////
 $().ready(function(){
 	$.ajaxSetup({
@@ -40,24 +38,8 @@ $(document).ready(function() {
 		processQueries();
 });
 /////////////////////////////////////////////////////////////////////
-function testConnection(targetID) {
-	$.preLoadImages("images/ajax-loader.gif");
-	$(targetID).html('<p><img src="images/ajax-loader.gif"/></p>');
-	$.post("query_backend.php", { func: "testConnection", blade: globalData.blade },
-	function(data,textStatus){
-		if(textStatus == "error" || textStatus == "parseerror") {
-			$(targetID).html('<p>There was an error making the AJAX request</p>');
-			return;
-		}
-		if(data.result) {
-			$(targetID).html("<P>"+data.result+"</P>");
-			return;
-		}
-	}, "json");	
-}
-
 function run_pq_script() {
-	$.post("query_backend.php", { func: "processQueries", blade: globalData.blade },
+	$.post("query_backend.php", { func: "processQueries" },
 	function(data,textStatus){
 		if(data!=null) {
 			if(data.type == "ERROR"){

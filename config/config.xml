@@ -2,7 +2,7 @@
 <config>
 	
 	<blades>
-		<blade name="B4">
+		<blade name="B4" default="true">
 			<host>127.0.0.1</host>
 			<port>5554</port>
 			<user>codeLimited</user>
@@ -38,9 +38,5 @@
 			<prefix>ASInfoTbl</prefix>				
 		</as-info>
 	</data-tables>
-	
-	<file-locations>
-		<as-info>xml/ASN_info.xml</as-info>
-	</file-locations>
 	
 </config>
