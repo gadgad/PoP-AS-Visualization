@@ -117,8 +117,8 @@
 	if($_POST["func"]=="updateAS")
 	{
 		$table = $_POST["table"];
-		$schema = "DIMES_DISTANCES";
-		$blade = "B4";
+		$schema = $DataTables["as-info"]["schema"];
+		$blade = $GLOBALS["AS_INFO_DEFAULT_BLADE"];
 		generateASinfo($table, $schema,$blade );
 	}
 	
