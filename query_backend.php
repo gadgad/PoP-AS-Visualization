@@ -27,8 +27,7 @@
 		$result = $result[0];
 		$selected_blade = (string)$result->blade;       		
 	} else {
-		// TODO: replace B4 with value extracted from config file!
-		$selected_blade = isset($_POST["blade"])? $_POST["blade"] : 'B4';	
+		$selected_blade = isset($_POST["blade"])? $_POST["blade"] : $GLOBALS['DEFAULT_BLADE'];	
 	}
 	
 	$blade = $Blade_Map[$selected_blade];

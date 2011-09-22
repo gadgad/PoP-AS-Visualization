@@ -401,9 +401,13 @@
 	                            foreach($Blades as $blade)
                                 {
                                     $name = $blade["@attributes"]["name"];
-									var_dump($name);
-                                    if($name!="" && $Blade_Map[$name]["db"]=="DIMES_DISTANCES")
-                                            echo "<option>$name</option>";
+                                    if($name!="" && $Blade_Map[$name]["db"]=="DIMES_DISTANCES"){
+										if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
+                                            echo '<option selected="selected">'.$name.'</option>';
+										} else {
+											echo "<option>$name</option>";
+										}
+									}
                                 }
 	                            ?>
 	                    </select>
