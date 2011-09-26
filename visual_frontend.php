@@ -2,6 +2,7 @@
 require_once("verify.php");	
 require_once("bin/idgen.php");
 require_once('bin/userData.php');
+require_once('bin/color.php');
 
 $queryID = isset($_REQUEST["QID"])? $_REQUEST["QID"] : '2df5efc4b99b9486e245a49f6400a90f';
 
@@ -14,6 +15,29 @@ $full_url = $base_url.$filename."?".rand(0,10000000000);
 
 $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A": 
 								 "ABQIAAAAMYziiEA_p76rk0jQj-KuSxS9xmgvb7l5q_xOSCi2ySYKrO4w4RQ3kwRCrSDgo72ydEml2SNVnGd8DQ";
+								 
+$COLOR_LIST = array();
+$user_data = $session->user_data;
+$filename = 'data/ASN_color.data';
+if(file_exists($filename)){
+	$file_handle = fopen($filename,"r") or die("can't open ".$filename."\n");
+	$str = fgets($file_handle);
+	$COLOR_LIST =  unserialize($str);
+	fclose($file_handle);
+}
+if(isset($user_data[$queryID]) && isset($user_data[$queryID]['asn-color'])){
+	foreach($user_data[$queryID]['asn-color'] as $asn=>$color){
+		$COLOR_LIST['asn'][$asn] = $color;
+		$COLOR_LIST['color'][$color->web_format()] = $asn;
+	}
+}
+if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
+	foreach($user_data['global']['asn-color'] as $asn=>$color){
+		$COLOR_LIST['asn'][$asn] = $color;
+		$COLOR_LIST['color'][$color->web_format()] = $asn;
+	}
+}	
+
 ?>
 <html>
 <head>
@@ -29,12 +53,17 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <script type="text/javascript" src="js/loadData.js"></script>
     
-    <!--<link rel="stylesheet" type="text/css" href="http://extjs.cachefly.net/ext-2.2/resources/css/ext-all.css" />-->
-    <!--<script type="text/javascript" src="http://extjs.cachefly.net/builds/ext-cdn-611.js"></script>-->
+    <!-- includes for ExtJS GEarthPanel Plugin -->
     <link rel="stylesheet" type="text/css" href="css/Ext.ux.GEarthPanel-1.1.css" />
     <link rel="stylesheet" type="text/css" href="css/visual.css" />
     <script type="text/javascript" src="http://www.google.com/jsapi?key=<?php echo $key ?>"></script>
   	<script type="text/javascript" src="js/Ext.ux.GEarthPanel-1.1.js"></script>
+  	
+  	<!-- includes for ExtJS ColorPicker Widget -->
+  	<script language="javascript" src="js/ColorPicker/ux/widgets/ColorPicker.js"></script>
+    <script language="javascript" src="js/ColorPicker/ux/widgets/form/ColorPickerField.js"></script>
+    <link rel="stylesheet" type="text/css" href="js/ColorPicker/resources/color-picker.ux.css" />
+	
     <script type="text/javascript">
     	
     	var ge;
@@ -69,30 +98,13 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
                 margins: '5 0 5 0',
                 layout: 'accordion',
                 layoutConfig: {
-                    animate: true
+                    animate: true,
                 },
                 defaultType: 'panel',
                 defaults: {
-                    bodyStyle: 'padding: 10px'
+                    bodyStyle: 'padding: 10px',
                 }
             });
-            
-            /*
-	    	 var userPanel = new Ext.Panel({
-	            title: 'User Admin',
-		        border: false,
-		        autoHeight: true,
-		        autoWidth: true,
-		        buttonAlign: 'center',
-		        html: 'currently connected as: <?php echo $username; ?>',
-		        buttons: [{
-		        	text: 'Logout',
-                	handler: function() {
-                   		location.href='logout.php'; 
-                	}
-		        }]
-	        });
-	        */
 
             var downloadPanel = new Ext.Panel({
 				contentEl: 'downloadPanel',
@@ -118,6 +130,100 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
 				autoLoad: {url: 'extjs_form.php',scripts:true, params: 'queryID=<?php echo $queryID; ?>'}
 			});
 			*/
+		    
+			
+			function getASNColorPanel(){
+
+				var myData = [
+					<?php
+						foreach($COLOR_LIST['asn'] as $asn=>$color){
+							echo "['".$asn."','#".$color->web_format()."'],";
+						}
+					?>
+			        //['174','#0A9F50'],
+			        //['209','#E9111F'],
+			    ];
+				
+				var createWidget = function(val, id, r) {
+			        var cpf = new Ext.ux.ColorPickerField({
+				        //fieldLabel: '',
+				        value: val
+				    });
+				    cpf.on('valid', function(field) {
+				        r.set('color',field.getValue());
+				    });
+				    cpf.render(document.body, id);
+		    	}
+		    	
+		    	var renderColorPicker = function(value, metadata, record, rowIndex, colIndex, store){
+			    	var id = Ext.id();
+			    	createWidget.defer(1, this, [value, id, record]);
+			    	return '<div id="' + id + '"></div>';
+			    }
+		    	
+		    	// create the data store
+			    var store = new Ext.data.SimpleStore({
+			        fields: [
+			           {name: 'asn', type: 'int'},
+			           {name: 'color' },
+			        ]
+			    });
+			    store.loadData(myData);
+			    
+			    // create the Grid
+			    var gridPanel = new Ext.grid.GridPanel({
+			    	title: 'ASN Color Management',
+			    	autoHeight:true,
+			    	//enableColumnResize: false,
+			        //width: 280,
+			    	hideHeaders: true,
+			    	//titleCollapse: true,
+			    	//border: false,
+			        store: store,
+			        columns: [
+			            {id:'asn',header: "ASN", width: 30, align: 'center', sortable: true, dataIndex: 'asn'},
+			            {id:'color', header: "Color", width: 75, align: 'center', sortable: true, renderer: renderColorPicker, dataIndex: 'color'},
+			        ],
+			        stripeRows: true,
+			        viewConfig: {
+			         	autoFill:true,
+			            forceFit:true
+			        },
+			        autoExpandColumn:'color',
+			        //autoExpandMin: 100,
+			        // TODO: add buttons array - button with submit function
+			        bbar: [{
+			        	text: 'Submit',
+			        	handler: function() {
+			    			 var sm = store.getModifiedRecords();
+			    			 var temp = '';
+			    			 for (i=0; i<=sm.length-1; i++) {
+			    			 	var div = (i==0)? '' : '|';
+			        			temp = temp + div + sm[i].get('asn') + ':' + sm[i].get('color');
+			    			 }
+			    			 //alert(temp);
+			    			 Ext.Ajax.request({
+			        		 	url: 'process_data.php',
+			        			method: 'POST',
+			        			params: 'color_string=' + temp,
+			        			waitMsg: 'rendering kml...',
+	                        	waitTitle: 'kml-render-engine',
+			        			success: function(obj) {
+			            			var resp = obj.responseText;
+			            			if (resp != 0) {
+			                			Ext.MessageBox.alert('Success', resp + ' Processed');
+			            			} else {
+			                			Ext.MessageBox.alert('Failed', 'No Processed');
+			            			}
+			        			}
+			    			});
+			        	}
+			        }]
+			    });
+			    
+			    //return colorsPanel;
+			    return gridPanel;
+			}
 			
 			function  getGlobalsPanel(){
 		
@@ -244,7 +350,7 @@ $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3C
                 // Add panels
                 controlPanel.add(earthPanel.getKmlPanel());
                 controlPanel.add(getGlobalsPanel());
-                //controlPanel.add(userPanel);
+                controlPanel.add(getASNColorPanel());
                 controlPanel.add(earthPanel.getLocationPanel());
                 controlPanel.add(earthPanel.getLayersPanel());
                 controlPanel.add(earthPanel.getOptionsPanel());
