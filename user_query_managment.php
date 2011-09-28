@@ -14,8 +14,6 @@
 	$queryID = $_REQUEST["query"];
 	if(isset($_REQUEST["username"])){
 		$username = $_REQUEST["username"];
-	} else {
-		$username = isset($_COOKIE['username'])? $_COOKIE['username'] : $_SESSION['username'];
 	}
 		
 	$queries = simplexml_load_file("xml\query.xml");
