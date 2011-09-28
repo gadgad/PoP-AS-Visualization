@@ -5,7 +5,7 @@ require_once('bin/userData.php');
 require_once('bin/color.php');
 require_once('bin/colorManager.php');
 
-$queryID = isset($_REQUEST["QID"])? $_REQUEST["QID"] : '2df5efc4b99b9486e245a49f6400a90f';
+$queryID = isset($_REQUEST["QID"])? $_REQUEST["QID"] : '0b6f948d14f516e52dbe6f469a8dbbaf';
 
 include_once("bin/kml_render_globals.php");
 

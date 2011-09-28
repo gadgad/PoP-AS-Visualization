@@ -17,6 +17,7 @@
 		ret_res('missing parameters!','ERROR');
 	
 	$queryID = $_REQUEST['queryID'];
+	$cm = new colorManager($username,$queryID);	
 	
 	if($_REQUEST["func"]=="renderKML"){
 		if(!isset($_POST['MIN_LINE_WIDTH']) ||
@@ -55,10 +56,19 @@
 	{
 		$color_string = $_REQUEST["color_string"];
 		$saveToGlobal = $_REQUEST["global"];
+		$target =& $cm->USER_QID_COLOR_LIST;
+		if($saveToGlobal){
+			$target =& $cm->USER_GLOBAL_COLOR_LIST;
+		}
 		$color_prefs = json_decode($color_string);
-		
-		
-		//TODO: svae color prefs to colorManager!
+		foreach($color_prefs as $arr){
+			$asn = $arr[0];
+			$webf = trim($arr[1],'#');
+			$color = new Color($webf);
+			$target['asn'][$asn] = $color;
+			$target['color'][$color->web_format()] = $asn;
+		}
+		$cm->save_user_color_list();
 		ret_res('color prefs saved successfully',true);
 	}
     

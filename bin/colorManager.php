@@ -33,7 +33,7 @@
 			$this->user_data_file = 'data/'.$user.'.data';
 			
 			$this->session = new userData($this->username,$this->queryID);
-			$this->user_data = $this->session->user_data;
+			$this->user_data =& $this->session->user_data;
 			
 			$this->load_global_color_list();
 			$this->load_user_color_list();
@@ -98,8 +98,8 @@
 			}	
 		}
 		
-		private function save_user_color_list(){
-			$user_data = $this->user_data;
+		public function save_user_color_list(){
+			$user_data =& $this->user_data;
 			if(isset($this->USER_GLOBAL_COLOR_LIST['asn']) && !empty($this->USER_GLOBAL_COLOR_LIST['asn'])){
 				foreach($this->USER_GLOBAL_COLOR_LIST['asn'] as $asn=>$color){
 					$user_data['global']['asn-color'][$asn] = $color;
@@ -125,7 +125,7 @@
 			}
 		}
 		
-		private function save_global_color_list(){
+		public function save_global_color_list(){
 			$filename = $this->global_data_file;
 			$file_handle = fopen($filename, "w") or die("can't open ".$filename."\n");;
 			fwrite($file_handle,  serialize($this->GLOBAL_COLOR_LIST));
