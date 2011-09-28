@@ -3,6 +3,7 @@ require_once("bin/load_config.php");
 require_once("bin/color.php");
 require_once("bin/idgen.php");
 require_once('bin/userData.php');
+require_once('bin/colorManager.php');
 
 // global constants
 //define('MAX_EDGES_RESULTS',10);
@@ -32,7 +33,8 @@ class kmlWriter
 	private $edges_xml;
 	private $asn_info_xml;
 	
-	private $COLOR_LIST;	
+	private $COLOR_LIST;
+	private $USER_COLOR_LIST;	
 	private $ASN_LIST;
 	private $EDGES;
 	private $PLACEMARKS;
@@ -43,6 +45,8 @@ class kmlWriter
 	private $kml_dst_dir;
 	private $idg;
 	private $num_of_asns;
+	
+	private $cm;
 	
 	
 	public function __construct($queryID)
@@ -68,11 +72,16 @@ class kmlWriter
 		$this->LOC_2_POP_MAP=array();
 		$this->CIRCLES=array();
 		
-		$this->load_color_list();
+		$this->cm = new colorManager($GLOBALS["username"],$queryID);
+		$this->COLOR_LIST =& $this->cm->GLOBAL_COLOR_LIST;
+		$this->USER_COLOR_LIST = $this->cm->getColorList();
+		//$this->load_color_list();
 		$this->parseXML();
-		$this->save_color_list();
+		$this->cm->save_global_color_list;
+		//$this->save_color_list();
 	}
 	
+	/*
 	private function load_color_list(){
 		$filename = 'data/ASN_color.data';
 		if(file_exists($filename)){
@@ -91,6 +100,7 @@ class kmlWriter
 		fwrite($file_handle,  serialize($this->COLOR_LIST));
 		fclose($file_handle);
 	}
+	*/
 	
 	private function dispatchAltitude(){
 	    static  $altitude = INITIAL_ALTITUDE;
@@ -207,7 +217,9 @@ class kmlWriter
 				}
 				
 				if(!array_key_exists($asn,$this->ASN_LIST)){
-				  if(isset($this->COLOR_LIST['asn'][$asn])){
+				  if(isset($this->USER_COLOR_LIST['asn'][$asn])){
+				  	$asn_color = $this->USER_COLOR_LIST['asn'][$asn];
+				  }elseif(isset($this->COLOR_LIST['asn'][$asn])){
 				  	$asn_color = $this->COLOR_LIST['asn'][$asn];
 				  } else {
 				  	do {
