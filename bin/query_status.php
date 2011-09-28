@@ -97,16 +97,16 @@
 				return 3;
 			}
 			
-			if(array_key_exists($tableID, $this->PID_MAP)){
+			if(array_key_exists($tableID, $this->PID_MAP))
 				if(isset($this->PID_MAP[$tableID]["POP"]) || isset($this->PID_MAP[$tableID]["EDGE"]))
 					return 1;
-				
-				if(isset($this->TABLES_MAP[$tableID]["POP"]) && 
-				$this->TABLES_MAP[$tableID]["POP"] == true &&
-				isset($this->TABLES_MAP[$tableID]["EDGE"]) && 
-				$this->TABLES_MAP[$tableID]["EDGE"] == true)
-					return 2;
-			}
+            
+
+            if(isset($this->TABLES_MAP[$tableID]["POP"]) && 
+	            $this->TABLES_MAP[$tableID]["POP"] == true &&
+	            isset($this->TABLES_MAP[$tableID]["EDGE"]) && 
+	            $this->TABLES_MAP[$tableID]["EDGE"] == true)
+                    return 2;
 				
 			return 0;
 		}
