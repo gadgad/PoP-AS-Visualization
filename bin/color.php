@@ -21,6 +21,11 @@ class Color
 			$b = func_get_arg(2);
 			$this->setColor($r, $g, $b);
 			if(func_num_args()==4) $this->setTrans(func_get_arg(3)); 
+		} elseif (func_num_args()==1) {
+			$webf = func_get_arg(0);
+			if(strlen($webf)==6){
+				$this->setWebColor($webf);
+			}
 		}
 	}
 	
@@ -37,6 +42,14 @@ class Color
 		$this->red = $r;
 		$this->green = $g;
 		$this->blue = $b;
+		$this->Dec2Hex();
+	}
+	
+	public function setWebColor($webf)
+	{
+		$this->red = hexdec(substr($webf,0,2));
+		$this->green = hexdec(substr($webf,2,2));
+		$this->blue = hexdec(substr($webf,4,2));
 		$this->Dec2Hex();
 	}
 	
