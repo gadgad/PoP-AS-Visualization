@@ -3,6 +3,7 @@ require_once("verify.php");
 require_once("bin/idgen.php");
 require_once('bin/userData.php');
 require_once('bin/color.php');
+require_once('bin/colorManager.php');
 
 $queryID = isset($_REQUEST["QID"])? $_REQUEST["QID"] : '2df5efc4b99b9486e245a49f6400a90f';
 
@@ -15,58 +16,48 @@ $full_url = $base_url.$filename."?".rand(0,10000000000);
 
 $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A": 
 								 "ABQIAAAAMYziiEA_p76rk0jQj-KuSxS9xmgvb7l5q_xOSCi2ySYKrO4w4RQ3kwRCrSDgo72ydEml2SNVnGd8DQ";
-								 
-$COLOR_LIST = array();
-$user_data = $session->user_data;
-$filename = 'data/ASN_color.data';
-if(file_exists($filename)){
-	$file_handle = fopen($filename,"r") or die("can't open ".$filename."\n");
-	$str = fgets($file_handle);
-	$COLOR_LIST =  unserialize($str);
-	fclose($file_handle);
-}
-if(isset($user_data[$queryID]) && isset($user_data[$queryID]['asn-color'])){
-	foreach($user_data[$queryID]['asn-color'] as $asn=>$color){
-		$COLOR_LIST['asn'][$asn] = $color;
-		$COLOR_LIST['color'][$color->web_format()] = $asn;
-	}
-}
-if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
-	foreach($user_data['global']['asn-color'] as $asn=>$color){
-		$COLOR_LIST['asn'][$asn] = $color;
-		$COLOR_LIST['color'][$color->web_format()] = $asn;
-	}
-}	
 
+$cm = new colorManager($username,$queryID);								 
+$COLOR_LIST = $cm->getColorList();
 ?>
 <html>
 <head>
     <title>DIMES PoP/AS Visual FrontEnd</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	
-	<!-- includes for extJS 2.2 -->
+	<!-- ExtJS 2.2 -->
 	<link rel="stylesheet" type="text/css" href="js/ext-2.2/resources/css/ext-all.css">
     <script type="text/javascript" src="js/ext-2.2/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="js/ext-2.2/ext-all.js"></script>
     
-    <!-- includes for jQuery -->
+    <!-- jQuery -->
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <script type="text/javascript" src="js/loadData.js"></script>
     
-    <!-- includes for ExtJS GEarthPanel Plugin -->
+    <!-- ExtJS GEarthPanel Plugin -->
     <link rel="stylesheet" type="text/css" href="css/Ext.ux.GEarthPanel-1.1.css" />
     <link rel="stylesheet" type="text/css" href="css/visual.css" />
     <script type="text/javascript" src="http://www.google.com/jsapi?key=<?php echo $key ?>"></script>
   	<script type="text/javascript" src="js/Ext.ux.GEarthPanel-1.1.js"></script>
   	
-  	<!-- includes for ExtJS ColorPicker Widget -->
+  	<!-- ExtJS ColorPicker Widget -->
   	<script language="javascript" src="js/ColorPicker/ux/widgets/ColorPicker.js"></script>
     <script language="javascript" src="js/ColorPicker/ux/widgets/form/ColorPickerField.js"></script>
     <link rel="stylesheet" type="text/css" href="js/ColorPicker/resources/color-picker.ux.css" />
+    
+    <!-- local paging for ExtJS Grids -->
+    <script type="text/javascript" src="js/Ext.ux.data.PagingMemoryProxy.js"></script> 
+
+	<!-- encoding Json on client-side -->
+	<script type="text/javascript" src="js/JSON-js/json2.js"></script>
 	
     <script type="text/javascript">
     	
     	var ge;
+    	var myForm;
+    	var QID = '<?php echo $queryID; ?>';
+    	var as_list = eval('<?php echo json_encode($cm->getASList()); ?>');
+
         google.load("earth", "1");
         google.load("maps", "2.xx");
         
@@ -91,7 +82,7 @@ if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
                 region: 'west',
                 contentEl: 'westPanel',
                 title: 'Control Panel',
-                width: 280,
+                width: 280, 
                 border: true,
                 collapsible: true,
                 // top , right , bottom , left
@@ -133,16 +124,24 @@ if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
 		    
 			
 			function getASNColorPanel(){
+				
+				var page_size = 10;
 
 				var myData = [
 					<?php
 						foreach($COLOR_LIST['asn'] as $asn=>$color){
-							echo "['".$asn."','#".$color->web_format()."'],";
+							echo "[".$asn.",'#".$color->web_format()."'],";
 						}
 					?>
 			        //['174','#0A9F50'],
-			        //['209','#E9111F'],
 			    ];
+			    
+			    var myShortData = [];
+			    for(var i=0; i<myData.length; i++){
+			    	if($.inArray(myData[i][0],as_list)!=-1){
+			    		myShortData.push(myData[i]);
+			    	}
+			    }
 				
 				var createWidget = function(val, id, r) {
 			        var cpf = new Ext.ux.ColorPickerField({
@@ -160,25 +159,107 @@ if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
 			    	createWidget.defer(1, this, [value, id, record]);
 			    	return '<div id="' + id + '"></div>';
 			    }
-		    	
-		    	// create the data store
-			    var store = new Ext.data.SimpleStore({
-			        fields: [
-			           {name: 'asn', type: 'int'},
-			           {name: 'color' },
-			        ]
-			    });
-			    store.loadData(myData);
+			   
+			   // create the Data Store
+				var store = new Ext.data.Store({
+					proxy: new Ext.ux.data.PagingMemoryProxy(myShortData),
+					reader: new Ext.data.ArrayReader({id:0}, [
+						{name: 'asn', type: 'int'},
+				        {name: 'color' },
+					]),
+					remoteSort: true,
+				});
+				
+				/*	
+			    var store = new Ext.data.Store({
+			    	//autoLoad: true,
+					remoteSort: true,
+					proxy: new Ext.data.HttpProxy({
+						url: 'render_kml.php',
+						method: 'POST'
+					}),
+					baseParams: {func: 'getASNColorList', queryID: QID},
+					reader: new Ext.data.JsonReader({
+						id: 'asn',
+						root: 'asn-colors',
+						totalProperty: 'totalCount',
+			        	fields: [
+				           {name: 'asn', type: 'int'},
+				           {name: 'color' },
+				        ],
+					})
+				});
+				store.setDefaultSort('asn', 'ASC');
+				*/
+    			
+				var saveToGlobals = false;
+				var submitToolBar = new Ext.Toolbar ({
+					items:	[{
+								pressed: false,
+					            enableToggle:true,
+					            text: 'Make Default',
+					            //cls: 'x-btn-text-icon details',
+					            toggleHandler: function(btn, pressed){
+					            	saveToGlobals = ((saveToGlobals)? false : true);
+					            }
+
+			        		},'-',{
+					            text: 'Submit Changes',
+					        	handler: function() {
+					    			 var sm = store.getModifiedRecords();
+					    			 var arr = [];
+					    			 for (i=0; i<=sm.length-1; i++) {
+					        			arr.push([sm[i].get('asn'),sm[i].get('color')]);
+					    			 }
+					    			 var tmp_str = JSON.stringify(arr);
+
+					    			 Ext.Ajax.request({
+					        		 	url: 'render_kml.php',
+					        			method: 'POST',
+					        			params: {func: 'submitASNColorList', queryID: QID, color_string: tmp_str, global: saveToGlobals},
+					        			success: function(obj, request) {
+					            			var resp = obj.responseText;
+					            			var result = [];
+					            			if (resp != 0) result = Ext.util.JSON.decode(resp);
+					            			if (result.success){
+				              					myForm.submit({
+						                        	params: {queryID: QID, submitted: 'yes', func: 'renderKML'},
+						                        	waitMsg: 'rendering kml...',
+						                        	waitTitle: 'kml-render-engine',
+						                            success: function(form, action) {
+						                               reloadKML();
+						                            },
+						                            failure: function(form, action) {
+						                                Ext.Msg.alert('Failed', action.result.msg);
+						                            }
+						                        });
+					            			} else {
+					                			alert('Failed:' + result.msg);
+					            			}
+					        			}
+					    			});
+					        	}
+			        		}]
+		        });
+				
 			    
+			    //create paging bar	    
+			    var pagingBar = new Ext.PagingToolbar({
+			        pageSize: page_size,
+			        //displayInfo: true,
+			        //displayMsg: 'Displaying {0} - {1} of {2}',
+			        //emptyMsg: "No data to display",
+			        store: store
+			    });
+						    
 			    // create the Grid
 			    var gridPanel = new Ext.grid.GridPanel({
 			    	title: 'ASN Color Management',
 			    	autoHeight:true,
-			    	//enableColumnResize: false,
 			        //width: 280,
-			    	hideHeaders: true,
-			    	//titleCollapse: true,
 			    	//border: false,
+			    	//autoExpandMin: 100,
+			    	selModel: new Ext.grid.RowSelectionModel(),
 			        store: store,
 			        columns: [
 			            {id:'asn',header: "ASN", width: 30, align: 'center', sortable: true, dataIndex: 'asn'},
@@ -187,39 +268,36 @@ if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
 			        stripeRows: true,
 			        viewConfig: {
 			         	autoFill:true,
-			            forceFit:true
+			            //forceFit:true
 			        },
 			        autoExpandColumn:'color',
-			        //autoExpandMin: 100,
-			        // TODO: add buttons array - button with submit function
-			        bbar: [{
-			        	text: 'Submit',
-			        	handler: function() {
-			    			 var sm = store.getModifiedRecords();
-			    			 var temp = '';
-			    			 for (i=0; i<=sm.length-1; i++) {
-			    			 	var div = (i==0)? '' : '|';
-			        			temp = temp + div + sm[i].get('asn') + ':' + sm[i].get('color');
-			    			 }
-			    			 //alert(temp);
-			    			 Ext.Ajax.request({
-			        		 	url: 'process_data.php',
-			        			method: 'POST',
-			        			params: 'color_string=' + temp,
-			        			waitMsg: 'rendering kml...',
-	                        	waitTitle: 'kml-render-engine',
-			        			success: function(obj) {
-			            			var resp = obj.responseText;
-			            			if (resp != 0) {
-			                			Ext.MessageBox.alert('Success', resp + ' Processed');
-			            			} else {
-			                			Ext.MessageBox.alert('Failed', 'No Processed');
-			            			}
-			        			}
-			    			});
-			        	}
-			        }]
+			        tbar: pagingBar,
+			        bbar: submitToolBar
 			    });
+			    
+			    //show only relevant ASNs
+    			store.on('load', function(obj,records){
+    				/*
+					store.filterBy(function(record,id){
+	    				return ($.inArray(parseInt(id), as_list) != -1);
+	    				//return true;
+	    			});
+	    			*/
+					
+					var pagingTbar = gridPanel.getTopToolbar(); 
+	    			if(store.getCount() >= page_size){
+	    				//pagingTbar.enable();
+	    				pagingTbar.show();
+	    				store.load({params:{start:0, limit: page_size}});
+	    			} else {
+	    				//pagingTbar.disable();
+	    				pagingTbar.hide();
+	    			}
+	    				
+    			}, this, {single:true});
+			    
+			    // trigger the data store load
+    			store.loadData(myShortData);
 			    
 			    //return colorsPanel;
 			    return gridPanel;
@@ -245,16 +323,7 @@ if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
 			
 			
 			    var items = [];
-			    items.push({
-			    	xtype: 'hidden',
-			    	name: 'queryID',
-			    	value: '<?php echo $queryID; ?>'
-			    });
-			    items.push({
-			    	xtype: 'hidden',
-			    	name: 'submitted',
-			    	value: 'yes'
-			    });
+
 			    for (param in globalParams){
 			    	if(globalParams[param]['type']=='checkbox') {
 						items.push({
@@ -288,17 +357,11 @@ if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
 			        autoWidth: true,
 			        formId: 'globalsForm',
 			        labelWidth: 120,
-			        //stateful: true,
 			        url: 'render_kml.php',
-			        defaults: {
-			        	//stateful: true,
-			        	//stateEvents: ['change'],
-			        	//getState: function() {return this.getValue();},
-    					//applyState: function(state) {this.setValue(state);}
-			        },
 			        items: items
 		        });
 		        
+		        myForm = globalsPanel.getForm();
 		        
 		        var submit = globalsPanel.addButton({
 		        	text: 'Submit',
@@ -306,6 +369,7 @@ if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
 	                    var form = globalsPanel.getForm(); // get the basic form
 	                    if (form.isValid()) { // make sure the form contains valid data before submitting
 	                        form.submit({
+	                        	params: {queryID: QID, submitted: 'yes', func: 'renderKML'},
 	                        	waitMsg: 'rendering kml...',
 	                        	waitTitle: 'kml-render-engine',
 	                            success: function(form, action) {
@@ -320,7 +384,6 @@ if(isset($user_data['global']) && isset($user_data['global']['asn-color'])){
 	                    }
 	                }
 		        });
-		        
 		        return globalsPanel;
 		    }
 		    
