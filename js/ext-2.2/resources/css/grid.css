@@ -183,7 +183,7 @@
 }
 .x-grid3-header-offset {
     padding-left:1px;
-	 width:10000px;
+	width:100%;
 }
 
 td.x-grid3-hd-over, td.sort-desc, td.sort-asc, td.x-grid3-hd-menu-open {
