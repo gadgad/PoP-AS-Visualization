@@ -4,6 +4,7 @@
 	include_once("bin/writeToXML.php");
 	include_once("bin/backgrounder.php");
 	require_once("bin/DBConnection.php");
+	require_once("bin/query_status.php");
 	include("verify.php");
 				
 	// Turn off all error reporting
