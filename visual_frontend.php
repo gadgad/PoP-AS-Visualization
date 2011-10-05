@@ -24,7 +24,10 @@ $COLOR_LIST = $cm->getColorList();
 <head>
     <title>DIMES PoP/AS Visual FrontEnd</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	
+	<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+	<meta http-equiv='pragma' content='no-cache'>
+
 	<!-- ExtJS 2.2 -->
 	<link rel="stylesheet" type="text/css" href="js/ext-2.2/resources/css/ext-all.css">
     <script type="text/javascript" src="js/ext-2.2/adapter/ext/ext-base.js"></script>
@@ -55,6 +58,7 @@ $COLOR_LIST = $cm->getColorList();
     	
     	var ge;
     	var myForm;
+    	var myStore;
     	var QID = '<?php echo $queryID; ?>';
     	var as_list = eval('<?php echo json_encode($cm->getASList()); ?>');
 
@@ -82,7 +86,7 @@ $COLOR_LIST = $cm->getColorList();
                 region: 'west',
                 contentEl: 'westPanel',
                 title: 'Control Panel',
-                width: 280, 
+                width: 395, 
                 border: true,
                 collapsible: true,
                 // top , right , bottom , left
@@ -129,8 +133,12 @@ $COLOR_LIST = $cm->getColorList();
 
 				var myData = [
 					<?php
+						$as_info_xml = simplexml_load_file('xml/ASN_info.xml');
 						foreach($COLOR_LIST['asn'] as $asn=>$color){
-							echo "[".$asn.",'#".$color->web_format()."'],";
+							$as_info = $as_info_xml->xpath("/DATA/ROW[ASNumber=".$asn."]");
+							$isp_name = (string)$as_info[0]->ISPName;
+							$country = (string)$as_info[0]->Country;
+							echo "[".$asn.",'".$isp_name."','".$country."','#".$color->web_format()."'],";
 						}
 					?>
 			        //['174','#0A9F50'],
@@ -165,10 +173,14 @@ $COLOR_LIST = $cm->getColorList();
 					proxy: new Ext.ux.data.PagingMemoryProxy(myShortData),
 					reader: new Ext.data.ArrayReader({id:0}, [
 						{name: 'asn', type: 'int'},
+						{name: 'isp'},
+						{name: 'country'},
 				        {name: 'color' },
 					]),
 					remoteSort: true,
 				});
+				
+				myStore = store;
 				
 				/*	
 			    var store = new Ext.data.Store({
@@ -262,13 +274,15 @@ $COLOR_LIST = $cm->getColorList();
 			    	selModel: new Ext.grid.RowSelectionModel(),
 			        store: store,
 			        columns: [
-			            {id:'asn',header: "ASN", width: 30, align: 'center', sortable: true, dataIndex: 'asn'},
-			            {id:'color', header: "Color", width: 75, align: 'center', sortable: true, renderer: renderColorPicker, dataIndex: 'color'},
+			            {id:'asn',header: "ASN", width: 37, align: 'center', sortable: true, dataIndex: 'asn'},
+			            {id:'isp',header: "ISP", width: 85, align: 'center', sortable: true, dataIndex: 'isp'},
+			            {id:'country',header: "Country", width: 100, align: 'center', sortable: true, dataIndex: 'country'},
+			            {id:'color', header: "Color", width: 135, align: 'center', sortable: true, renderer: renderColorPicker, dataIndex: 'color'},
 			        ],
 			        stripeRows: true,
 			        viewConfig: {
 			         	autoFill:true,
-			            //forceFit:true
+			            forceFit:true
 			        },
 			        autoExpandColumn:'color',
 			        tbar: pagingBar,
@@ -403,12 +417,14 @@ $COLOR_LIST = $cm->getColorList();
 				},
                 items: [ northPanel, controlPanel, earthPanel ]
             });
+        
 
             // Build control panel
             earthPanel.on('earthLoaded', function(){
 
                 // Display KMLs
-                earthPanel.fetchKml('<?php echo("$full_url");?>');
+                earthPanel.fetchKml('<?php echo("$full_url");?>',true);
+                earthPanel.fetchKml('<?php echo("$base_url");?>kml/black_earth.kmz',false);
 
                 // Add panels
                 controlPanel.add(earthPanel.getKmlPanel());
@@ -419,17 +435,31 @@ $COLOR_LIST = $cm->getColorList();
                 controlPanel.add(earthPanel.getOptionsPanel());
                 controlPanel.items.items[0].add(downloadPanel);
                 controlPanel.doLayout();
-
+                
+               
                 ge = earthPanel.earth;
                 first_time = true;
 				google.earth.addEventListener(ge.getView(), 'viewchangeend', function() {
-					//if(first_time){
+					if(first_time){
 						ge.getFeatures().removeChild(earthPanel.networkLink);
-						earthPanel.kmlTreePanel.getRootNode().item(0).expand();
-						first_time = false; 
-					//}
+						//earthPanel.kmlTreePanel.getRootNode().item(0).expand();
+						//earthPanel.kmlTreePanel.getRootNode().expandChildNodes();
+						earthPanel.kmlTreePanel.getRootNode().findChild('text','PoP Map').expand();
+						first_time = false;
+					}
 				});
                 
+                first_time2 = true;
+				google.earth.addEventListener(ge.getView(), 'viewchangebegin', function() {
+					if(first_time2){
+						//ge.getFeatures().removeChild(earthPanel.networkLink);
+						//earthPanel.kmlTreePanel.getRootNode().item(0).expand();
+						//earthPanel.kmlTreePanel.getRootNode().expandChildNodes();
+						earthPanel.kmlTreePanel.getRootNode().findChild('text','Black Background').ui.toggleCheck();
+						first_time2 = false;
+					}
+				});
+				
 	            //set a click listener that affects all placemarks
 				google.earth.addEventListener(
 				    ge.getGlobe(), 'click', function(event) {
