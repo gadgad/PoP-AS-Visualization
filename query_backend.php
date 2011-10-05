@@ -317,7 +317,10 @@
 		$popIP = $_POST["popIP"];
 		$edge = $_POST["edge"];
 		$as = $_POST["as"];
-		$idg = new idGen($edge,$pop,$as,$popIP,$blade);
+		$year = $_POST["year"];
+		$week = $_POST["week"];
+		
+		$idg = new idGen($edge,$pop,$as,$popIP,$blade,$year,$week);
 		$queryID = $idg->getqueryID();
 		$tableID = $idg->getTableID();
 		
@@ -326,9 +329,6 @@
 		$as = "'";
 		$as .= implode("','", $asp);						
 		$as .= "'";
-		
-		$year = $_POST["year"];
-		$week = $_POST["week"];
 	
 		if($stage==1)
 		{
