@@ -258,8 +258,24 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
     },
 
     // Load and display KML file
-    fetchKml: function(kmlUrl){
+    fetchKml: function(kmlUrl,flyToView){
 		google.earth.fetchKml(this.earth, kmlUrl, this.addKml.createDelegate(this));
+		
+	    //console.log(flyToView);
+   		if(flyToView == true){
+       		var link = this.earth.createLink('');
+        	link.setHref(kmlUrl);
+        	this.networkLink = this.earth.createNetworkLink('');
+        	this.networkLink.set(link, true,true); // Sets the link, refreshVisibility, and flyToView.
+        	this.earth.getFeatures().appendChild(this.networkLink);
+        	
+        	/*
+        	var ge = this.earth; 
+        	google.earth.addEventListener(ge.getView(), 'viewchangeend', function() {
+				ge.getFeatures().removeChild(this.networkLink);
+			});
+			*/
+    	}
     },
     
     resetKml: function(){
@@ -274,17 +290,11 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
     },
 
     // Add KML object (called by above function)
-    addKml: function(kmlObject){
+    addKml: function(kmlObject,flyToView){
         if (kmlObject) {
        		this.earth.getFeatures().appendChild(kmlObject);
        		this.kmlTreePanel.getRootNode().appendChild(this.treeNodeFromKml(kmlObject));
        		this.currentKmlObject = kmlObject;
-       		
-       		var link = this.earth.createLink('');
-        	link.setHref(kmlObject.getUrl());
-        	this.networkLink = this.earth.createNetworkLink('');
-        	this.networkLink.set(link, true,true); // Sets the link, refreshVisibility, and flyToView.
-        	this.earth.getFeatures().appendChild(this.networkLink);
         	
        		if (kmlObject.getAbstractView() !== null)
       			this.earth.getView().setAbstractView(kmlObject.getAbstractView());
