@@ -50,7 +50,7 @@
         	
         	function updateAS(){
         		option = 2;
-        		$('#My_queries').html('<h3><b>Update AS_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</p><p>If new ASs were added, select a table to update from and click the update button to update the file.</p><br></br><select id="tbl"><option>ASinfo tbl</option><option>ASinfo tbl 2009</option><option>ASinfo tbl 2009 march</option></select>  <input type="button" onclick="updateASB()" value="Update"/><br></br><p>Or enter your own table:</p><br></br><p>Blade <input type="text" name="blade" id="blade" size="18"/> Schema <input type="text" name="schema" id="schema" size="18"/> table <input type="text" name="freetable" id="freetable" size="18"/></p> <input type="button" onclick="updateASBfree()" value="Update"/>');
+        		$('#My_queries').html('<h3><b>Update AS_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</p><p>If new ASs were added, select a table to update from and click the update button to update the file.</p><br></br><select id="tbl"><option>ASInfoTbl</option><option>ASInfoTbl_16bit_2009</option><option>ASInfoTbl_16bit_March_2009</option></select>  <input type="button" onclick="updateASB()" value="Update"/><br></br><p>Or enter your own table:</p><br></br><p>Blade <input type="text" name="blade" id="blade" size="18"/> Schema <input type="text" name="schema" id="schema" size="18"/> table <input type="text" name="freetable" id="freetable" size="18"/></p> <input type="button" onclick="updateASBfree()" value="Update"/>');
         	}
         	
         	function updateASB(){
@@ -199,6 +199,40 @@
              	,"json");                                                  	
              }
              
+             function blades(){
+             	$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
+					echo "<tr>";
+					echo "<th>Blade</th><th>host</th><th>port</th><th>user</th><th>password</th><th>DB</th><th>write DB</th>";
+					echo "</tr>";	
+									
+					$queries = simplexml_load_file("config/config.xml");					
+					$result = $queries->xpath('/config/blades');
+										
+					if($result!=FALSE)
+					{
+						echo var_dump($result);						
+						foreach ($result as $i => $value) {												
+							echo "<tr>";							
+							echo "<td>bla</td>";							
+							echo"<td>".$result[$i]->host."</td>";
+							
+							echo"<td>".$result[$i]->port."</td>";
+							echo"<td>".$result[$i]->user."</td>";
+							echo"<td>".$result[$i]->pass."</td>";
+							echo "</tr>";
+							/*
+							echo"<td>".$result[$i]->db."</td>";
+							echo"<td>".$result[$i]->write-db."</td>";														
+							echo "</tr>";*/		
+						} 
+					}
+				?></table>');
+             }
+             
+             function dataTables(){
+             	
+             }
+             
                          
             function pool_pq_status(pid){
             	if(globalData.pq_running==true){
@@ -254,6 +288,8 @@
 	            	<p onclick="showQueries()"><u>View running queries</u></p>
 	            	<p onclick="viewUsers()"><u>View system users</u></p>
 	            	<p onclick="handleRequests()"><u>Accept/Deny pending user requests</u></p>
+	            	<p onclick="blades()"><u>Configure blades (config.xml)</u></p>
+	            	<p onclick="dataTables()"><u>Configure data tables (config.xml)</u></p>
 	            </div>
             </div>
             
