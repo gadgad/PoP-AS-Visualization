@@ -54,6 +54,11 @@ $COLOR_LIST = $cm->getColorList();
 	<!-- encoding Json on client-side -->
 	<script type="text/javascript" src="js/JSON-js/json2.js"></script>
 	
+	<!-- extJS slider 
+	<script type="text/javascript" src="js/ext-2.2/examples/slider/slider.js"></script>
+    <script type="text/javascript" src="js/ext-2.2/examples/slider/SliderTip.js"></script>
+    <link rel="stylesheet" type="text/css" href="js/ext-2.2/examples/slider/slider.css"> -->
+    
     <script type="text/javascript">
     	
     	var ge;
@@ -385,12 +390,12 @@ $COLOR_LIST = $cm->getColorList();
 			function  getGlobalsPanel(){
 		
 				var globalParams = {
-					MIN_LINE_WIDTH: 	 { value: <?php echo MIN_LINE_WIDTH; ?>, 	type: 'number',		name: 'Min Edge Line Width'},
-					MAX_LINE_WIDTH: 	 { value: <?php echo MAX_LINE_WIDTH; ?>,	type: 'number',		name: 'Max Edge Line Width'},
-					TRANSPARENCY: 	 	 { value: <?php echo TRANSPARENCY; ?>,	type: 'number',		name: 'Line Transparency'},
-					INITIAL_ALTITUDE:	 { value: <?php echo INITIAL_ALTITUDE; ?>,	type: 'number',		name: 'Initial ASN Altitude'},
-					ALTITUDE_DELTA:		 { value: <?php echo ALTITUDE_DELTA; ?>,	type: 'number',		name: 'ASN Altitude Delta'},
-					STDEV_THRESHOLD: 	 { value: <?php echo STDEV_THRESHOLD; ?>,	type: 'number',		name: 'Standard Deviation Threshold'},
+					MIN_LINE_WIDTH: 	 { value: <?php echo MIN_LINE_WIDTH; ?>, 	type: 'number',		name: 'Min Edge Line Width',min:1,max:10,isFloat:false,delta:1},
+					MAX_LINE_WIDTH: 	 { value: <?php echo MAX_LINE_WIDTH; ?>,	type: 'number',		name: 'Max Edge Line Width',min:1,max:10,isFloat:false,delta:1},
+					TRANSPARENCY: 	 	 { value: <?php echo TRANSPARENCY; ?>,	type: 'number',		name: 'Line Transparency',min:0,max:255,isFloat:false,delta:1},
+					INITIAL_ALTITUDE:	 { value: <?php echo INITIAL_ALTITUDE; ?>,	type: 'number',		name: 'Initial ASN Altitude',min:0,max:10000,isFloat:false,delta:10},
+					ALTITUDE_DELTA:		 { value: <?php echo ALTITUDE_DELTA; ?>,	type: 'number',		name: 'ASN Altitude Delta',min:0,max:500000,isFloat:false,delta:10,expopnential:true},
+					STDEV_THRESHOLD: 	 { value: <?php echo STDEV_THRESHOLD; ?>,	type: 'number',		name: 'Standard Deviation Threshold',min:0.1,max:3,isFloat:true,delta:0.1},
 					DRAW_CIRCLES:		 { value: <?php echo DRAW_CIRCLES; ?>,	type: 'checkbox',	name: 'PoP Location Convergence Radiuses'},
 					INTER_CON: 			 { value: <?php echo INTER_CON; ?>,	type: 'checkbox',	name: 'Inter-Connectivity'},
 					INTRA_CON: 			 { value: <?php echo INTRA_CON; ?>,	type: 'checkbox',	name: 'Intra-Connectivity'},
@@ -418,10 +423,9 @@ $COLOR_LIST = $cm->getColorList();
 				            xtype: 'numberfield',
 			                fieldLabel: globalParams[param]['name'],
 			                value: globalParams[param]['value'],
-			               	minValue: 0,
-			                //maxValue: 100,
-			                //allowDecimals: true,
-			                //decimalPrecision: 1,
+			               	minValue: globalParams[param]['min'],
+			                maxValue: globalParams[param]['max'],
+			                allowDecimals: globalParams[param]['isFloat'],
 			                name: param
 						});
 					}
