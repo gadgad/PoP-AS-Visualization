@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://earth.google.com/kml/2.1">
 <Document>
-<name>Black Background</name>
+<name>White Background</name>
 	<Folder>
-	<name>Black Earth</name>
+	<name>White Earth</name>
 	<GroundOverlay>
 		<name>Blank Earth</name>
-		<visibility>0</visibility>
 		<Icon>
 			<href>files/untitled.bmp</href>
 			<viewBoundScale>0.75</viewBoundScale>
