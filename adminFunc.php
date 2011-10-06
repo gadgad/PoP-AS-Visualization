@@ -7,7 +7,7 @@
 	include("verify.php");
 				
 	// Turn off all error reporting
-	error_reporting(0);
+	error_reporting(E_ERROR);
 	if(($_POST["user"])!="admin")
 	{
 		echo "You are not permited to this page!";

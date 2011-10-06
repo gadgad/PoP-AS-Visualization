@@ -284,7 +284,10 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
 	    	for(var i=0; i<kmlObjects.getLength(); i++ ){
 	    		this.earth.getFeatures().removeChild(kmlObjects.item(i));
 	    	}
-	    	this.kmlTreePanel.getRootNode().item(0).remove();
+	    	var node = this.kmlTreePanel.getRootNode();
+	    	while(node.firstChild) {
+    			node.removeChild(node.firstChild);
+			}
 	    	this.currentKmlObject = null;
     	}
     },
