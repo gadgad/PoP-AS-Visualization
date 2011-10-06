@@ -30,7 +30,7 @@
         	
         	function updateWeeks(){
         		option = 1;
-        		$('#My_queries').html('<h3><b>Update weeks.xml</b></h3><p>The weeks.xml file holds the information of the possible years&weeks to display when generating a new query.</p><p>A week will only apear if all the three tables: edge,pop location and pop-IP exists for that week.</p><p>If any changes where made to the DB(e.g. new tables where added) click the UPDATE button to generate a new and updated file.</p><br></br><input type="submit" onclick="updateWeeksB()" value="Update"/>').fadeIn("slow");        		
+        		$('#My_queries').html('<h3><b>Update weeks.xml</b></h3><p>The weeks.xml file holds the information of the possible years&weeks to display when generating a new query.</p><p>A week will only apear if all the three tables: edge,pop location and pop-IP exists for that week.</p><p>If any changes where made to the DB(e.g. new tables where added) click the UPDATE button to generate a new and updated file.</p></br><input type="submit" onclick="updateWeeksB()" value="Update"/>').fadeIn("slow");        		
         	}
         	
         	function updateWeeksB(){
@@ -49,7 +49,7 @@
         	
         	function updateAS(){
         		option = 2;
-        		$('#My_queries').html('<h3><b>Update AS_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</p><p>If new ASs were added, select a table to update from and click the update button to update the file.</p><br></br><select id="tbl"><option>ASInfoTbl</option><option>ASInfoTbl_16bit_2009</option><option>ASInfoTbl_16bit_March_2009</option></select>  <input type="button" onclick="updateASB()" value="Update"/><br></br><p>Or enter your own table:</p><br></br><p>Blade <input type="text" name="blade" id="blade" size="18"/> Schema <input type="text" name="schema" id="schema" size="18"/> table <input type="text" name="freetable" id="freetable" size="18"/></p> <input type="button" onclick="updateASBfree()" value="Update"/>');
+        		$('#My_queries').html('<h3><b>Update AS_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</BR>If new ASs were added, select a table to update from and click the update button to update the file.</BR></BR><select id="tbl"><option>ASInfoTbl</option><option>ASInfoTbl_16bit_2009</option><option>ASInfoTbl_16bit_March_2009</option></select>  <input type="button" onclick="updateASB()" value="Update"/></br></br>Or enter your own table:</BR></BR>Blade: <input type="text" name="blade" id="blade" size="18"/> Schema: <input type="text" name="schema" id="schema" size="18"/> table: <input type="text" name="freetable" id="freetable" size="18"/> <input type="button" onclick="updateASBfree()" value="Update"/></p>');
         	}
         	
         	function updateASB(){
@@ -66,7 +66,7 @@
         	function showQueries(){
         		option = 3;
         		
-        		$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
+        		$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
 					echo "<tr>";
 					echo "<th>QID</th><th>User</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Cancel</th>";
 					echo "</tr>";
@@ -116,7 +116,7 @@
              }
              
              function viewUsers(){             	
-             	$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
+             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
 					echo "<tr>";
 					echo "<th>Username</th><th>email</th><th>Status</th>";
 					echo "</tr>";					
@@ -129,7 +129,7 @@
 								if($result!=FALSE)
 								{
 									echo "<tr>";
-									echo "<td>".$file."</td>";																					
+									echo "<td>".basename($file,'.xml')."</td>";																					
 									echo"<td>".(string)$result[0]->email."</td>";													
 									echo"<td>".(string)$result[0]->status."</td>";							
 									echo "</tr>";																	
@@ -141,7 +141,7 @@
         	 }        	             	        
              
              function handleRequests(){
-             	$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
+             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
 					echo "<tr>";
 					echo "<th>Username</th><th>email</th><th>Accept</th><th>Deny</th>";
 					echo "</tr>";					
@@ -155,7 +155,7 @@
 								{
 									if("pending" == $result[0]->status){
 										echo "<tr>";
-										echo "<td>".$file."</td>";												
+										echo "<td>".basename($file,'.xml')."</td>";												
 										echo"<td>".(string)$result[0]->email."</td>";													
 										echo '<td> <button type="submit" onclick="accept(this.value)" value="'.$file.'">X</button></td>';							
 										echo '<td> <button type="submit" onclick="deny(this.value)" value="'.$file.'">X</button></td>';
@@ -200,7 +200,7 @@
              
              function blades(){
              	/*
-             	$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
+             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
 					echo "<tr>";
 					echo "<th>Blade</th><th>host</th><th>port</th><th>user</th><th>password</th><th>DB</th><th>write DB</th>";
 					echo "</tr>";	
@@ -296,9 +296,9 @@
             
             <div id="My_queries">
             	<h3><b>Welcome admin!</b></h3>
-            	<p>In this page you can change and update some configuration files of the system.</p>
-            	<p>click on the options on the left, and get further explanation.</p>
-            	<p>Enjoy. </p>	 
+            	<p> In this page you can change and update some configuration files of the system.</BR>
+            	click on the options on the left, and get further explanation.</BR>
+            	Enjoy. </p>	 
         	</div>
         	                                  
             <div class="footer">
