@@ -26,6 +26,10 @@ class Color
 			if(strlen($webf)==6){
 				$this->setWebColor($webf);
 			}
+			if(strlen($webf)==7 && (substr($webf,0,1)=="#")){
+				$webf = trim($webf,'#');
+				$this->setWebColor($webf);
+			}
 		}
 	}
 	

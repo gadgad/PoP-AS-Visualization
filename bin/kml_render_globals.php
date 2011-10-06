@@ -16,6 +16,10 @@
 	$session->setGlobal('BLACK_BACKGROUND',false);
 	$session->setGlobal('ASN_EMBEDDED_IN_PLACEMARK',true);
 	
+	$session->setGlobal('EDGES_COLORING_SCHEME','bySrcAS');
+	$session->setGlobal('EDGES_INTER_COLOR','#FF0101');
+	$session->setGlobal('EDGES_INTRA_COLOR','#3CFF01');
+	
 	$session->save_data();
 	
 ?>
