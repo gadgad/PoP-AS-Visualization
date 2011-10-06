@@ -90,7 +90,17 @@ table.imagetable td {
 	height:85%;
 	float:right;
 	clear:right; 
+	text-align:left;
+}
+
+.about h3 {
 	text-align:center;
+}
+
+.about p {
+	line-height:150%;
+	padding-left: 30px;
+	padding-right: 30px;
 }
 
 .footer{	

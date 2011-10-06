@@ -34,8 +34,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Welcome-Login</title>        
         <script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
-        <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
-        <!-- <script type="text/javascript" src="js/loadData.js"></script> -->            
+        <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />          
     </head>
 
     <body>        
@@ -81,7 +80,16 @@
 	            
             </div>
             
-            <?php include("info.php") ?>
+            <?php
+			    		if(isset($_REQUEST["formComplete"])) echo
+				    		"<div class=\"about\">
+				    		<h3>Thank you! </h3>   
+				    		<p>Dear user, your registration request was sent to the site admin successfully.</br>
+				    		We we'll let you know as soon as your request is approved.</p>
+				    		</div>";
+				    		
+						else include("info.php")
+              ?>
             
             <div class="footer">
                 Copyright © 2011 <a href="http://www.netdimes.org/new/">DIMES</a>
