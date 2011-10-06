@@ -52,10 +52,11 @@
 		die();
 	}
 	
-	if($_REQUEST["func"]=="submitASNColorList")
+	if($_REQUEST["func"]=="submitColorPrefs")
 	{
 		$color_string = $_REQUEST["color_string"];
 		$saveToGlobal = $_REQUEST["global"];
+		
 		$target =& $cm->USER_QID_COLOR_LIST;
 		if($saveToGlobal){
 			$target =& $cm->USER_GLOBAL_COLOR_LIST;

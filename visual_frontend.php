@@ -57,6 +57,8 @@ $COLOR_LIST = $cm->getColorList();
     <script type="text/javascript">
     	
     	var ge;
+    	var myGlobalsPanel;
+    	var myColorsPanel;
     	var myForm;
     	var myStore;
     	var QID = '<?php echo $queryID; ?>';
@@ -127,7 +129,7 @@ $COLOR_LIST = $cm->getColorList();
 			*/
 		    
 			
-			function getASNColorPanel(){
+			function getColorPanel(){
 				
 				var page_size = 10;
 
@@ -203,13 +205,125 @@ $COLOR_LIST = $cm->getColorList();
 				});
 				store.setDefaultSort('asn', 'ASC');
 				*/
+			    
+			    //create paging bar	    
+			    var pagingBar = new Ext.PagingToolbar({
+			        pageSize: page_size,
+			        //displayInfo: true,
+			        //displayMsg: 'Displaying {0} - {1} of {2}',
+			        //emptyMsg: "No data to display",
+			        store: store
+			    });
+						    
+			    // create the Grid
+			    var asnPanel = new Ext.grid.GridPanel({
+			    	title: 'ASN Color Selection',
+			    	//frame: true,
+			    	autoHeight:true,
+			        //width: 280,
+			    	border: false,
+			    	selModel: new Ext.grid.RowSelectionModel(),
+			        store: store,
+			        columns: [
+			            {id:'asn',header: "ASN", width: 37, align: 'center', sortable: true, dataIndex: 'asn'},
+			            {id:'isp',header: "ISP", width: 85, align: 'center', sortable: true, dataIndex: 'isp'},
+			            {id:'country',header: "Country", width: 95, align: 'center', sortable: true, dataIndex: 'country'},
+			            {id:'color', header: "Color", width: 145, align: 'center', sortable: true, renderer: renderColorPicker, dataIndex: 'color'},
+			        ],
+			        stripeRows: true,
+			        viewConfig: {
+			         	autoFill:true,
+			            forceFit:true
+			        },
+			        autoExpandColumn:'color',
+			        tbar: pagingBar
+			        //bbar: submitToolBar
+			    });
+			    
+			    //show only relevant ASNs
+    			store.on('load', function(obj,records){
+    				/*
+					store.filterBy(function(record,id){
+	    				return ($.inArray(parseInt(id), as_list) != -1);
+	    				//return true;
+	    			});
+	    			*/
+					
+					var pagingTbar = asnPanel.getTopToolbar(); 
+	    			if(store.getCount() >= page_size){
+	    				//pagingTbar.enable();
+	    				pagingTbar.show();
+	    				store.load({params:{start:0, limit: page_size}});
+	    			} else {
+	    				//pagingTbar.disable();
+	    				pagingTbar.hide();
+	    			}
+	    				
+    			}, this, {single:true});
+			    
+			    // trigger the data store load
+    			store.loadData(myShortData);
     			
-				var saveToGlobals = false;
+    			
+    			//////////////////////////////////////////////////
+    			
+    			var intraColor = '<?php echo EDGES_INTRA_COLOR; ?>';
+    			var interColor = '<?php echo EDGES_INTER_COLOR; ?>';
+    			var bySrcAS = <?php echo ((EDGES_COLORING_SCHEME=='bySrcAS')? 'true':'false'); ?>;
+    			
+		    	var intra = new Ext.ux.ColorPickerField({
+			        fieldLabel: 'Intra-Connectivity',
+			        value: intraColor,
+			        labelStyle: 'width: 120px; margin-left: 20px;'
+			    });
+			    intra.on('valid', function(field) {
+			        intraColor = field.getValue();
+			    });
+			    
+		    	var inter = new Ext.ux.ColorPickerField({
+			        fieldLabel: 'Inter-Connectivity',
+			        value: interColor,
+			        labelStyle: 'width: 120px; margin-left: 20px;'
+			    });
+			    inter.on('valid', function(field) {
+			        interColor = field.getValue();
+			    });
+			    
+			    var edgesColoring = new Ext.form.RadioGroup ({
+			            hideLabel: true,
+			            columns: 1,
+			            items: [
+			                {boxLabel: 'Same As SourceAS', name: 'EDGES_COLORING_SCHEME', inputValue: 'bySrcAS', checked: bySrcAS}, 
+			                {boxLabel: 'By Connectivity Type:', name: 'EDGES_COLORING_SCHEME', inputValue: 'static', checked:!bySrcAS },
+			            ]
+			    });
+			    
+    			var items = [{
+			        xtype:'fieldset',
+			        autoHeight: true,
+			        items: [edgesColoring,intra,inter]
+			    }];
+	
+		    	// Create FormPanel with all layers
+		        var edgesPanel = new Ext.FormPanel({
+		            title: 'Edge Color Selection',
+		            //frame: true,
+			        border: false,
+			        autoHeight: true,
+			        autoWidth: true,
+			        style: 'margin-top: 10px;',
+			        formId: 'edgesForm',
+			        labelWidth: 120,
+			        items: items
+		        });
+    			/////////////////////////////////////////////////
+    			    			
+    			var saveToGlobals = false;
 				var submitToolBar = new Ext.Toolbar ({
 					items:	[{
 								pressed: false,
 					            enableToggle:true,
-					            text: 'Make Default',
+					            text: 'Save As Default',
 					            //cls: 'x-btn-text-icon details',
 					            toggleHandler: function(btn, pressed){
 					            	saveToGlobals = ((saveToGlobals)? false : true);
@@ -228,14 +342,14 @@ $COLOR_LIST = $cm->getColorList();
 					    			 Ext.Ajax.request({
 					        		 	url: 'render_kml.php',
 					        			method: 'POST',
-					        			params: {func: 'submitASNColorList', queryID: QID, color_string: tmp_str, global: saveToGlobals},
+					        			params: {func: 'submitColorPrefs', queryID: QID, color_string: tmp_str, global: saveToGlobals},
 					        			success: function(obj, request) {
 					            			var resp = obj.responseText;
 					            			var result = [];
 					            			if (resp != 0) result = Ext.util.JSON.decode(resp);
 					            			if (result.success){
 				              					myForm.submit({
-						                        	params: {queryID: QID, submitted: 'yes', func: 'renderKML'},
+						                        	params: {queryID: QID, submitted: 'yes', EDGES_COLORING_SCHEME: edgesPanel.getForm().getValues()['EDGES_COLORING_SCHEME'], EDGES_INTER_COLOR: interColor, EDGES_INTRA_COLOR: intraColor, func: 'renderKML', edgesPrefsToGlobal: saveToGlobals, global: myGlobalsPanel.saveToGlobals},
 						                        	waitMsg: 'rendering kml...',
 						                        	waitTitle: 'kml-render-engine',
 						                            success: function(form, action) {
@@ -254,67 +368,18 @@ $COLOR_LIST = $cm->getColorList();
 			        		}]
 		        });
 				
-			    
-			    //create paging bar	    
-			    var pagingBar = new Ext.PagingToolbar({
-			        pageSize: page_size,
-			        //displayInfo: true,
-			        //displayMsg: 'Displaying {0} - {1} of {2}',
-			        //emptyMsg: "No data to display",
-			        store: store
-			    });
-						    
-			    // create the Grid
-			    var gridPanel = new Ext.grid.GridPanel({
-			    	title: 'ASN Color Management',
-			    	autoHeight:true,
-			        //width: 280,
-			    	//border: false,
-			    	//autoExpandMin: 100,
-			    	selModel: new Ext.grid.RowSelectionModel(),
-			        store: store,
-			        columns: [
-			            {id:'asn',header: "ASN", width: 37, align: 'center', sortable: true, dataIndex: 'asn'},
-			            {id:'isp',header: "ISP", width: 85, align: 'center', sortable: true, dataIndex: 'isp'},
-			            {id:'country',header: "Country", width: 100, align: 'center', sortable: true, dataIndex: 'country'},
-			            {id:'color', header: "Color", width: 135, align: 'center', sortable: true, renderer: renderColorPicker, dataIndex: 'color'},
-			        ],
-			        stripeRows: true,
-			        viewConfig: {
-			         	autoFill:true,
-			            forceFit:true
-			        },
-			        autoExpandColumn:'color',
-			        tbar: pagingBar,
+    			var colorsPanel = new Ext.Panel({
+		            title: 'Color Management',
+			        border: false,
+			        autoHeight: true,
+			        autoWidth: true,
+			        labelWidth: 120,
+			        items: [asnPanel,edgesPanel],
 			        bbar: submitToolBar
-			    });
-			    
-			    //show only relevant ASNs
-    			store.on('load', function(obj,records){
-    				/*
-					store.filterBy(function(record,id){
-	    				return ($.inArray(parseInt(id), as_list) != -1);
-	    				//return true;
-	    			});
-	    			*/
-					
-					var pagingTbar = gridPanel.getTopToolbar(); 
-	    			if(store.getCount() >= page_size){
-	    				//pagingTbar.enable();
-	    				pagingTbar.show();
-	    				store.load({params:{start:0, limit: page_size}});
-	    			} else {
-	    				//pagingTbar.disable();
-	    				pagingTbar.hide();
-	    			}
-	    				
-    			}, this, {single:true});
-			    
-			    // trigger the data store load
-    			store.loadData(myShortData);
-			    
-			    //return colorsPanel;
-			    return gridPanel;
+		        });
+    			
+			    myColorsPanel = colorsPanel;
+			    return colorsPanel;
 			}
 			
 			function  getGlobalsPanel(){
@@ -362,48 +427,63 @@ $COLOR_LIST = $cm->getColorList();
 					}
 			    }
 			    
-	
 		        // Create FormPanel with all layers
+		        //var saveToGlobals = false;
 		        var globalsPanel = new Ext.FormPanel({
 		            title: 'Kml Renderer Options',
 			        border: false,
+			        saveToGlobals: false,
 			        autoHeight: true,
 			        autoWidth: true,
 			        formId: 'globalsForm',
 			        labelWidth: 120,
 			        url: 'render_kml.php',
-			        items: items
+			        items: items,
+			        bbar: new Ext.Toolbar ({
+						items:	[{
+									pressed: false,
+									enableToggle:true,
+									text: 'Save As Default',
+									//cls: 'x-btn-text-icon details',
+									toggleHandler: function(btn, pressed){
+										globalsPanel.saveToGlobals = ((globalsPanel.saveToGlobals)? false : true);
+									}
+					
+								},'-',{
+									text: 'Submit Changes',
+									handler: function() {
+										var form = globalsPanel.getForm(); // get the basic form
+		                    			if (form.isValid()) { // make sure the form contains valid data before submitting
+											 form.submit({
+												params: {queryID: QID, submitted: 'yes', global: globalsPanel.saveToGlobals ,func: 'renderKML' },
+												waitMsg: 'rendering kml...',
+												waitTitle: 'kml-render-engine',
+												success: function(form, action) {
+												   reloadKML();
+												},
+												failure: function(form, action) {
+													Ext.Msg.alert('Failed', action.result.msg);
+												}
+											});
+										} else {
+											Ext.Msg.alert('Invalid Data', 'Please correct form errors.')
+										}
+									}
+								}]
+					})
 		        });
 		        
+		        myGlobalsPanel = globalsPanel;
 		        myForm = globalsPanel.getForm();
-		        
-		        var submit = globalsPanel.addButton({
-		        	text: 'Submit',
-	                handler: function() {
-	                    var form = globalsPanel.getForm(); // get the basic form
-	                    if (form.isValid()) { // make sure the form contains valid data before submitting
-	                        form.submit({
-	                        	params: {queryID: QID, submitted: 'yes', func: 'renderKML'},
-	                        	waitMsg: 'rendering kml...',
-	                        	waitTitle: 'kml-render-engine',
-	                            success: function(form, action) {
-	                               reloadKML();
-	                            },
-	                            failure: function(form, action) {
-	                                Ext.Msg.alert('Failed', action.result.msg);
-	                            }
-	                        });
-	                    } else { // display error alert if the data is invalid
-	                        Ext.Msg.alert('Invalid Data', 'Please correct form errors.')
-	                    }
-	                }
-		        });
 		        return globalsPanel;
 		    }
 		    
 		    function reloadKML(){
 		    	earthPanel.resetKml();
-		    	earthPanel.fetchKml('<?php echo("$full_url");?>?'+Math.random()*10000000000);
+		    	first_time = true;
+		    	first_time2 = true;
+		    	earthPanel.fetchKml('<?php echo("$full_url");?>?'+Math.random()*10000000000,true);
+		    	earthPanel.fetchKml('<?php echo("$base_url");?>kml/black_earth.kmz',false);
 		    }
 		    
 
@@ -429,7 +509,7 @@ $COLOR_LIST = $cm->getColorList();
                 // Add panels
                 controlPanel.add(earthPanel.getKmlPanel());
                 controlPanel.add(getGlobalsPanel());
-                controlPanel.add(getASNColorPanel());
+                controlPanel.add(getColorPanel());
                 controlPanel.add(earthPanel.getLocationPanel());
                 controlPanel.add(earthPanel.getLayersPanel());
                 controlPanel.add(earthPanel.getOptionsPanel());
@@ -452,9 +532,6 @@ $COLOR_LIST = $cm->getColorList();
                 first_time2 = true;
 				google.earth.addEventListener(ge.getView(), 'viewchangebegin', function() {
 					if(first_time2){
-						//ge.getFeatures().removeChild(earthPanel.networkLink);
-						//earthPanel.kmlTreePanel.getRootNode().item(0).expand();
-						//earthPanel.kmlTreePanel.getRootNode().expandChildNodes();
 						earthPanel.kmlTreePanel.getRootNode().findChild('text','Black Background').ui.toggleCheck();
 						first_time2 = false;
 					}

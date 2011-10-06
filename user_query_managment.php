@@ -87,7 +87,7 @@
 	if($_REQUEST["func"]=="getRunningStatus")
 	{
 		// Turn off all error reporting
-		error_reporting(0);
+		error_reporting(E_ERROR);
 		
 		$queries = simplexml_load_file("xml\query.xml");									
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');		

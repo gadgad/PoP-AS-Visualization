@@ -31,23 +31,34 @@
 		
 		public function setGlobal($param,$value) {
 			$QID = $this->queryID;
+			$toGlobal = false;
 			if(isset($_POST['submitted'])) {
 				$QID = $_POST['queryID'];
+				if(substr_compare($param, 'EDGES',0) == 0){
+					if($_POST['edgesPrefsToGlobal']=='true')
+						$toGlobal = true;	
+				} elseif($_POST['global']=='true'){
+					$toGlobal = true;
+				}
 				if(is_bool($value)){
 					define($param,isset($_POST[$param]));
 					$this->user_data[$QID][$param]=(isset($_POST[$param])? 1:0);
+					if($toGlobal) $this->user_data['global'][$param]=(isset($_POST[$param])? 1:0);
 				} else if(isset($_POST[$param])){
 					define($param,$_POST[$param]);
 					$this->user_data[$QID][$param]=$_POST[$param];
+					if($toGlobal) $this->user_data['global'][$param]=$_POST[$param];
 				}
-			} else if(isset($this->user_data[$QID][$param])){
-					define($param,$this->user_data[$QID][$param]);
+			} else if(isset($this->user_data[$QID][$param])) {
+				define($param,$this->user_data[$QID][$param]);
+			} else if(isset($this->user_data['global'][$param])) {
+				define($param,$this->user_data['global'][$param]);
 			} else { // not submitted and no data in userData
 				if(is_bool($value)){
-					$this->user_data[$QID][$param]=(($value)?1:0);
+					$this->user_data['global'][$param]=(($value)?1:0);
 					define($param,(($value)?1:0));
 				} else {
-					$this->user_data[$QID][$param]=$value;
+					$this->user_data['global'][$param]=$value;
 					define($param,$value);
 				}	
 			}

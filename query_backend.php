@@ -8,7 +8,7 @@
 	require_once("verify.php");
 				
 	// Turn off all error reporting
-	error_reporting(0);
+	error_reporting(E_ERROR);
 			
 	if(!isset($_POST["func"]))
 	{
