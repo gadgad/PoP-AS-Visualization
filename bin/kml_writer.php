@@ -225,13 +225,13 @@ class kmlWriter
 				  	do {
 				  		$asn_color = (USE_COLOR_PICKER)? $cp->getColor() : new Color();
 					} while(isset($this->COLOR_LIST['color'][$asn_color->web_format()]));
-					$asn_color->setTrans(TRANSPARENCY);
+					$asn_color->setTrans(255-TRANSPARENCY);
 					// TODO: add implementation of k-d-tree & k-nearest alg', making sure euclidean dist' of curr color from it's nearest neighbour is bigger than treshold...
 					// this will be an efficient method to enforce color diversity. 
 					$this->COLOR_LIST['color'][$asn_color->web_format()] = $asn;
 					$this->COLOR_LIST['asn'][$asn] = $asn_color;
 				  }
-				  $this->COLOR_LIST['asn'][$asn]->setTrans(TRANSPARENCY);
+				  $this->COLOR_LIST['asn'][$asn]->setTrans(255-TRANSPARENCY);
 				  
 				  
 				  $this->ASN_LIST[$asn]= array("color"=>$asn_color, "altitude"=>$this->dispatchAltitude());
@@ -404,9 +404,12 @@ class kmlWriter
 			
 			// \n<P>Source AS: ".$srcAS."</BR>Dest AS: ".$dstAS."</BR>Source PoP: ".$srcPOP."</BR>Dest PoP: ".$dstPOP."</P>".$edge_lst_str."\n
 			//EDGES_COLORING_SCHEME
+			$src_color = $this->ASN_LIST[$srcAS]["color"];
 			$static_color = (($srcAS == $dstAS)? new Color(EDGES_INTRA_COLOR) : new Color(EDGES_INTER_COLOR));
-			$linkColorArr = array('bySrcAS'=>$this->ASN_LIST[$srcAS]["color"], 'static'=>$static_color);
+			$linkColorArr = array('bySrcAS'=>$src_color, 'static'=>$static_color);
 			$linkColor = $linkColorArr[EDGES_COLORING_SCHEME];
+			if(!is_object($linkColor))
+				$linkColor = $src_color;
 			
 	        $kmlString.="<Placemark>\n<name>Edge#".$counter++."</name>\n<description>\n<![CDATA[<A href=\"more_info.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&threshold=".STDEV_THRESHOLD."&inter_con=".INTER_CON."&intra_con=".INTRA_CON."&QID=".$this->queryID."\" target=\"_blank\">Open in new window</A></BR><div class=\"ifrm\"><iframe name=\"ifrm\" id=\"ifrm\" src=\"more_info.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&threshold=".STDEV_THRESHOLD."&inter_con=".INTER_CON."&intra_con=".INTRA_CON."&QID=".$this->queryID."\" frameborder=\"0\" width=\"100%\" height=\"90%\">Your browser doesn't support iframes.</iframe></div>]]>\n</description>\n<visibility>1</visibility>\n<Style>\n<LineStyle>\n<color>".($linkColor->gm_format())."</color>\n<width>".max(MIN_LINE_WIDTH,min($link["numOfEdges"],MAX_LINE_WIDTH))."</width>\n</LineStyle>\n<PolyStyle>\n<color>".($linkColor->gm_format())."</color>\n</PolyStyle>\n</Style>\n<LineString>\n<tessellate>1</tessellate>\n<altitudeMode>relativeToGround</altitudeMode>\n<coordinates>\n";
 	        $kmlString.=$srcLNG.",".$srcLAT.",".$this->ASN_LIST[$srcAS]["altitude"]."\n"; //first coordinate
