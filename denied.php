@@ -3,7 +3,6 @@
 		<title>Request denied</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
-	    <script type="text/javascript" src="js/loadData.js"></script>
 	    <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />        
 	</head>
 		<body>

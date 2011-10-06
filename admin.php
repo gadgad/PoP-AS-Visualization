@@ -16,7 +16,6 @@
         <title>Admin page</title>        
         <script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
         <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
-        <script type="text/javascript" src="js/loadData.js"></script>
         <script type="text/javascript">
         
         	var queryID;
@@ -200,18 +199,20 @@
              }
              
              function blades(){
+             	/*
              	$('#My_queries').html('<br></br><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
 					echo "<tr>";
 					echo "<th>Blade</th><th>host</th><th>port</th><th>user</th><th>password</th><th>DB</th><th>write DB</th>";
 					echo "</tr>";	
 									
 					$queries = simplexml_load_file("config/config.xml");					
-					$result = $queries->xpath('/config/blades');
+					$result = $queries->xpath('/config/blades/blade');
 										
 					if($result!=FALSE)
 					{
 						echo var_dump($result);						
-						foreach ($result as $i => $value) {												
+						foreach ($result as $i => $value) {
+																				
 							echo "<tr>";							
 							echo "<td>bla</td>";							
 							echo"<td>".$result[$i]->host."</td>";
@@ -220,13 +221,13 @@
 							echo"<td>".$result[$i]->user."</td>";
 							echo"<td>".$result[$i]->pass."</td>";
 							echo "</tr>";
-							/*
+							
 							echo"<td>".$result[$i]->db."</td>";
 							echo"<td>".$result[$i]->write-db."</td>";														
-							echo "</tr>";*/		
+							echo "</tr>";		
 						} 
 					}
-				?></table>');
+				?></table>'); */
              }
              
              function dataTables(){
