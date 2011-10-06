@@ -43,6 +43,11 @@
     float:left; 
     clear:none;
 }
+
+#adminActions p {
+	cursor: pointer;
+}
+
 .selection-text{
 }			
 
@@ -55,6 +60,11 @@
 	clear:right; 
 	text-align:center;
 }
+
+#My_queries p{
+	text-align:left;
+}
+
 table{
 	margin-left:auto; 
 	margin-right:auto;
