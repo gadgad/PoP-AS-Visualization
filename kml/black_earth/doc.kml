@@ -6,7 +6,7 @@
 	<name>Black Earth</name>
 	<GroundOverlay>
 		<name>Blank Earth</name>
-		<visibility>0</visibility>
+		<visibility>1</visibility>
 		<Icon>
 			<href>files/untitled.bmp</href>
 			<viewBoundScale>0.75</viewBoundScale>
