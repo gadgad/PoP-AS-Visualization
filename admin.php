@@ -18,6 +18,22 @@
         <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
         <script type="text/javascript">
         
+///////////-JQuery Plugins-////////////////////////////////////////////////
+			(function($) {
+			  var cache = [];
+			  // Arguments are image paths relative to the current page.
+			  $.preLoadImages = function() {
+			    var args_len = arguments.length;
+			    for (var i = args_len; i--;) {
+			      var cacheImage = document.createElement('img');
+			      cacheImage.src = arguments[i];
+			      cache.push(cacheImage);
+			    }
+			  }
+			})(jQuery)
+//////////////////////////////////////////////////////////////////////////
+        	$.preLoadImages("images/ajax-loader.gif");
+        	
         	var queryID;
         	var option = 0;    
              function updateTable(){
@@ -65,38 +81,9 @@
         	
         	function showQueries(){
         		option = 3;
-        		
-        		$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
-					echo "<tr>";
-					echo "<th>QID</th><th>User</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Cancel</th>";
-					echo "</tr>";
-					$queries = simplexml_load_file("xml\query.xml");
-					$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');					
-					if($result!=FALSE)
-					{						
-						foreach ($result as $i => $value) {												
-							echo "<tr>";							
-							echo "<td>".substr($result[$i]->queryID,-4)."</td>";
-							$Qusers = "";
-							$res = $queries->xpath('/DATA/QUERY[queryID="'.$result[$i]->queryID.'"]/users');
-							if($res!=FALSE){
-								$arr = $res[0];								
-								foreach($arr as $j){
-									$Qusers .= (string)$j." ";					
-								}									
-							}
-							echo"<td>".$Qusers."</td>";
-							echo"<td>".$result[$i]->year."</td>";
-							echo"<td>".$result[$i]->week."</td>";
-							echo"<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
-							echo"<td>".$result[$i]->ASnum."</td>";
-							echo "<td>";
-							echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';							
-							echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
-							echo "</tr>";		
-						} 
-					}
-				?></table>');        		
+        		$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
+             	$('#queryTable').load('admin.php?viewRunningQueries #queryTable').fadeIn("slow");     
         	}        	
         	
         	 function abort(queryID){             	
@@ -116,58 +103,15 @@
              }
              
              function viewUsers(){             	
-             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
-					echo "<tr>";
-					echo "<th>Username</th><th>email</th><th>Status</th>";
-					echo "</tr>";					
-					$files = scandir(getcwd().'\users');
-					if ($files!=FALSE){
-						foreach ($files as $file){							
-							if (substr($file, 0,1)!="."){						
-								$userfile = simplexml_load_file("users/".$file);
-								$result = $userfile->xpath('/user');					
-								if($result!=FALSE)
-								{
-									echo "<tr>";
-									echo "<td>".basename($file,'.xml')."</td>";																					
-									echo"<td>".(string)$result[0]->email."</td>";													
-									echo"<td>".(string)$result[0]->status."</td>";							
-									echo "</tr>";																	
-								}	
-							}												
-						}
-					}else { echo "<tr><td>ERROR</td></tr>";}		
-				?></table>');        		
+             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
+             	$('#queryTable').load('admin.php?viewUsers #queryTable').fadeIn("slow");         		
         	 }        	             	        
              
              function handleRequests(){
-             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
-					echo "<tr>";
-					echo "<th>Username</th><th>email</th><th>Accept</th><th>Deny</th>";
-					echo "</tr>";					
-					$files = scandir(getcwd().'\users');
-					if ($files!=FALSE){
-						foreach ($files as $file){							
-							if (substr($file, 0,1)!="."){						
-								$userfile = simplexml_load_file("users/".$file);
-								$result = $userfile->xpath('/user');					
-								if($result!=FALSE)
-								{
-									if("pending" == $result[0]->status){
-										echo "<tr>";
-										echo "<td>".basename($file,'.xml')."</td>";												
-										echo"<td>".(string)$result[0]->email."</td>";													
-										echo '<td> <button type="submit" onclick="accept(this.value)" value="'.$file.'">X</button></td>';							
-										echo '<td> <button type="submit" onclick="deny(this.value)" value="'.$file.'">X</button></td>';
-										echo "</tr>";	
-									}																										
-								}	
-							}
-												
-						}
-					}else { echo "<tr><td>blaaa</td></tr>";}		
-				?></table>');
-             	
+             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
+             	$('#queryTable').load('admin.php?viewPendingUsers #queryTable').fadeIn("slow"); 	
              }
              
              function accept(userFile){             	             	
@@ -175,7 +119,7 @@
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("adminFunc.php", {func: "accept",user: <?php echo '"'.$username.'"'?>, userfile: userFile},
              	function(data){
-             		if(data.type=="GOOD"){
+             		if(data.type=="GOOD"){ 
              			handleRequests();
              		}
              		if (data.type =="ERROR")
@@ -189,7 +133,7 @@
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("adminFunc.php", {func: "deny",user: <?php echo '"'.$username.'"'?>, userfile: userFile},
              	function(data){
-             		if(data.type=="GOOD"){
+             		if(data.type=="GOOD"){ 
              			handleRequests();
              		}
              		if (data.type =="ERROR")
@@ -199,35 +143,9 @@
              }
              
              function blades(){
-             	/*
-             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"><?php
-					echo "<tr>";
-					echo "<th>Blade</th><th>host</th><th>port</th><th>user</th><th>password</th><th>DB</th><th>write DB</th>";
-					echo "</tr>";	
-									
-					$queries = simplexml_load_file("config/config.xml");					
-					$result = $queries->xpath('/config/blades/blade');
-										
-					if($result!=FALSE)
-					{
-						echo var_dump($result);						
-						foreach ($result as $i => $value) {
-																				
-							echo "<tr>";							
-							echo "<td>bla</td>";							
-							echo"<td>".$result[$i]->host."</td>";
-							
-							echo"<td>".$result[$i]->port."</td>";
-							echo"<td>".$result[$i]->user."</td>";
-							echo"<td>".$result[$i]->pass."</td>";
-							echo "</tr>";
-							
-							echo"<td>".$result[$i]->db."</td>";
-							echo"<td>".$result[$i]->write-db."</td>";														
-							echo "</tr>";		
-						} 
-					}
-				?></table>'); */
+             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
+             	$('#queryTable').load('admin.php?viewBlades=true #queryTable').fadeIn("slow");    
              }
              
              function dataTables(){
@@ -275,7 +193,120 @@
                     
     </head>
 
-    <body>        
+    <body>  
+    	   
+    	<?php
+    	
+    	if(isset($_REQUEST['viewRunningQueries'])){
+			echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
+			echo "<tr>";
+			echo "<th>QID</th><th>User</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Cancel</th>";
+			echo "</tr>";
+			$queries = simplexml_load_file("xml\query.xml");
+			$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');					
+			if($result!=FALSE)
+			{						
+				foreach ($result as $i => $value) {												
+					echo "<tr>";							
+					echo "<td>".substr($result[$i]->queryID,-4)."</td>";
+					$Qusers = "";
+					$res = $queries->xpath('/DATA/QUERY[queryID="'.$result[$i]->queryID.'"]/users');
+					if($res!=FALSE){
+						$arr = $res[0];								
+						foreach($arr as $j){
+							$Qusers .= (string)$j." ";					
+						}									
+					}
+					echo"<td>".$Qusers."</td>";
+					echo"<td>".$result[$i]->year."</td>";
+					echo"<td>".$result[$i]->week."</td>";
+					echo"<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
+					echo"<td>".$result[$i]->ASnum."</td>";
+					echo "<td>";
+					echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';							
+					echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
+					echo "</tr>";		
+				} 
+			}
+		echo '</table>';
+		die();
+	}
+		
+    if(isset($_REQUEST['viewPendingUsers'])){
+		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central"><tr><th>Username</th><th>email</th><th>Accept</th><th>Deny</th></tr>';					
+		$files = scandir(getcwd().'\users');
+		if ($files!=FALSE){
+			foreach ($files as $file){							
+				if (substr($file, 0,1)!="."){						
+					$userfile = simplexml_load_file("users/".$file);
+					$result = $userfile->xpath('/user');					
+					if($result!=FALSE)
+					{
+						if("pending" == $result[0]->status){
+							echo "<tr>";
+							echo "<td>".basename($file,'.xml')."</td>";												
+							echo"<td>".(string)$result[0]->email."</td>";													
+							echo '<td> <button type="submit" onclick="accept(this.value)" value="'.$file.'">&#8730</button></td>';							
+							echo '<td> <button type="submit" onclick="deny(this.value)" value="'.$file.'">X</button></td>';
+							echo "</tr>";	
+						}																										
+					}	
+				}
+									
+			}
+		}
+		echo '</table>';
+		die();
+	}
+	
+	if(isset($_REQUEST["viewUsers"])){
+		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
+		echo "<tr>";
+		echo "<th>Username</th><th>email</th><th>Status</th>";
+		echo "</tr>";					
+		$files = scandir(getcwd().'\users');
+		if ($files!=FALSE){
+			foreach ($files as $file){							
+				if (substr($file, 0,1)!="."){						
+					$userfile = simplexml_load_file("users/".$file);
+					$result = $userfile->xpath('/user');					
+					if($result!=FALSE)
+					{
+						echo "<tr>";
+						echo "<td>".basename($file,'.xml')."</td>";																					
+						echo"<td>".(string)$result[0]->email."</td>";													
+						echo"<td>".(string)$result[0]->status."</td>";							
+						echo "</tr>";																	
+					}	
+				}												
+			}
+		}else { echo "<tr><td>ERROR</td></tr>";}		
+		echo '</table>';
+		die();
+	}
+	
+	if(isset($_REQUEST["viewBlades"])){
+		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
+		echo "<tr>";
+		echo "<th>Blade</th><th>host</th><th>port</th><th>user</th><th>password</th><th>DB</th><th>write DB</th>";
+		echo "</tr>";									
+		foreach ($Blades as $blade) {
+																
+			echo "<tr>";							
+			echo "<td>".$blade["@attributes"]["name"]."</td>";							
+			echo "<td>".$blade["host"]."</td>";
+			echo "<td>".$blade["port"]."</td>";
+			echo "<td>".$blade["user"]."</td>";
+			echo "<td>".(is_array($blade["pass"])? '':$blade["pass"])."</td>";
+			echo "<td>".$blade["db"]."</td>";
+			echo "<td>".$blade["write-db"]."</td>";														
+			echo "</tr>";		
+		}
+		echo '</table>';
+		die();
+	}
+	
+	?>   
         
         <div id="container">
 
