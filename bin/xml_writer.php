@@ -55,34 +55,59 @@
 			return $mysqli;
 		}
 		
-		private function getPoPQuery(){return "select * from `".$this->schema."`.`".$this->idg->getPoPTblName()."` where ASN in(".$this->asList.");";}
-		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.") AND Source_PoPID is not null AND Dest_PoPID is not null;";}
+		private function getPoPQuery(){return "select * from `".$this->schema."`.`".$this->idg->getPoPTblName()."` where ASN in(".$this->asList.")";}
+		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.")";}
 		
-		private function sql2xml($sql)
-		{	
+		private function sql2xml($sql,$filename)
+		{
+			$bufferSize = 4096; // Bytes
+			$pageSize = 1000; // Records
+				
 			if(($this->mysqli = $this->get_connection()) == NULL)
 				return false;
 			$mysqli = $this->mysqli;
 			
-			$query = $sql;
-			$result = $mysqli->query($query) or die("Data not found."); 
-	
+			$filepath = ($this->xml_dst_dir.'/'.$filename);
+			$filewrite = fopen($filepath, "w");
+			if(!$filewrite) return false;
+			
 			$xml_output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"; 
 			$xml_output .= "<DATA>\n"; 
 			
-			$num = $result->num_rows;
-			for($x = 0 ; $x < $num ; $x++){ 
-			    $row = $result->fetch_assoc();
-			    $xml_output .= "\t<ROW>\n"; 
-				foreach($row as $key => $value){
-					$xml_output .= "\t\t<".$key.">" .$value . "</".$key.">\n";
-				}
-			    $xml_output .= "\t</ROW>\n"; 
-			} 
-			$xml_output .= "</DATA>"; 
+			$query = str_replace("*", "count(*)", $sql);
+			$result = $mysqli->query($query) or die("SQL Query Failed.");
+			$row = $result->fetch_row();
+			$num = (int)$row[0];
+			$numOfPages = ceil($num/$pageSize);
 			
+			for($currPage = 0; $currPage<$numOfPages; $currPage++){
+				$pageOffset = $currPage*$pageSize;
+				
+				$query = $sql." limit $pageOffset,$pageSize";
+				$result = $mysqli->query($query) or die("SQL Query Failed.");
+				$numOfRecords = $result->num_rows;
+				for($x = 0 ; $x < $numOfRecords ; $x++){
+				    $row = $result->fetch_assoc();
+				    $xml_output .= "\t<ROW>\n"; 
+					foreach($row as $key => $value){
+						$xml_output .= "\t\t<".$key.">" .$value . "</".$key.">\n";
+					}
+				    $xml_output .= "\t</ROW>\n"; 
+				}
+				
+				if(strlen($xml_output)>=$bufferSize){
+					fwrite($filewrite, $xml_output);
+					unset($xml_output);
+					$xml_output = '';
+				}
+				
+			} 
+			
+			$xml_output .= "</DATA>"; 
+			fwrite($filewrite, $xml_output);
+			fclose($filewrite);
 			//$mysqli->close();
-			return $xml_output;
+			return true;
 		}
 
 		private function drop_tables()
@@ -102,6 +127,7 @@
 		
 		private function write_pop_XML()
 		{
+			/*
 			$filepath = ($this->xml_dst_dir.'/pop.xml');
 			$filewrite = fopen($filepath, "w");
 			if($this->pop_xmlString = $this->sql2xml($this->getPoPQuery())){
@@ -110,10 +136,16 @@
 				return true;
 			}
 			return false;
+			 * 
+			 */
+			
+			$this->sql2xml($this->getPoPQuery(), 'pop.xml');
+			return true;
 		}
 		
 		private function write_edge_XML()
 		{
+			/*
 			$filepath = ($this->xml_dst_dir.'/edges.xml');
 			$filewrite = fopen($filepath, "w");
 			if($this->edge_xmlString = $this->sql2xml($this->getEdgeQuery())){
@@ -122,6 +154,11 @@
 				return true;
 			}
 			return false;
+			 * 
+			 */
+			
+			$this->sql2xml($this->getEdgeQuery(), 'edges.xml');
+			return true;
 		}
 		
 		private function createDir()
