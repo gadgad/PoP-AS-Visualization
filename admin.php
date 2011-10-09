@@ -155,11 +155,10 @@
         			if (data!=null){
         				if (data.type=="ERROR"){
                  			alert("Error while adding blade: " + data.result);
-                 		}
+                 		}else $('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>');
         			}else alert("data is null");
                 }
-        		,"json");
-        		$('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>')
+        		,"json");        		
              }
              
              function removeBlade(){
@@ -168,11 +167,10 @@
         			if (data!=null){
         				if (data.type=="ERROR"){
                  			alert("Error while removing blade: " + data.result);
-                 		}
+                 		}else $('#My_queries').append('<p style="color:navy">The Blade was removed from config.xml.</p>'); 
         			}else alert("data is null");
                 }
-        		,"json");
-        		$('#My_queries').append('<p style="color:navy">The Blade was removed from config.xml.</p>')
+        		,"json");        		
              }
              
              function dataTables(){
