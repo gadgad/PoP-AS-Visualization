@@ -146,7 +146,33 @@
              	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
              	$('#queryTable').load('admin.php?viewBlades=true #queryTable').fadeIn("slow");
-             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Add a new blade </u></p><p style="text-align:center">blade <input type="text" name="blade" id="blade" size="18"/>  host <input type="text" name="host" id="host" size="18"/>  port <input type="text" name="port" id="port" size="18"/></p><p style="text-align:center">user <input type="text" name="user" id="user" size="18"/>  password <input type="text" name="pass" id="pass" size="18"/></p><p style="text-align:center">DB <input type="text" name="db" id="db" size="18"/>  write DB <input type="text" name="write-db" id="write-db" size="18"/></p><input type="button" onclick="addBlade()" value="Add"/></br><p style="color: navy;text-align:center"><u> Remove blade </u></p><p style="text-align:center">blade <input type="text" name="bladeR" id="bladeR" size="18"/>   <input type="button" onclick="addBlade()" value="Remove"/></p>');    
+             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Add a new blade </u></p><p style="text-align:center">blade <input type="text" name="bladeA" id="bladeA" size="18"/>  host <input type="text" name="host" id="host" size="18"/>  port <input type="text" name="port" id="port" size="18"/></p><p style="text-align:center">user <input type="text" name="user" id="user" size="18"/>  password <input type="text" name="pass" id="pass" size="18"/></p><p style="text-align:center">DB <input type="text" name="db" id="db" size="18"/>  write DB <input type="text" name="write-db" id="write-db" size="18"/></p><input type="button" onclick="addBlade()" value="Add"/></br><p style="color: navy;text-align:center"><u> Remove blade </u></p><p style="text-align:center">blade <input type="text" name="bladeR" id="bladeR" size="18"/>   <input type="button" onclick="removeBlade()" value="Remove"/></p>');    
+             }
+             
+             function addBlade(){
+             	$.post("adminFunc.php", {func: "addBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeA").val(), host: $("#host").val(), port: $("#port").val(), bladeUser: $("#user").val(), pass: $("#pass").val(), db: $("#db").val(), writedb: $("#write-db").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert("Error while adding blade: " + data.result);
+                 		}
+        			}else alert("data is null");
+                }
+        		,"json");
+        		$('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>')
+             }
+             
+             function removeBlade(){
+             	$.post("adminFunc.php", {func: "removeBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeR").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert("Error while removing blade: " + data.result);
+                 		}
+        			}else alert("data is null");
+                }
+        		,"json");
+        		$('#My_queries').append('<p style="color:navy">The Blade was removed from config.xml.</p>')
              }
              
              function dataTables(){
