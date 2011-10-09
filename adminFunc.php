@@ -176,4 +176,37 @@
 	}
 	
 	
+	if($_POST["func"]=="addBlade")
+	{
+		$blade =  $_POST["blade"];
+		$host =  $_POST["host"];
+		$port =  $_POST["port"];
+		$bladeUser =  $_POST["bladeUser"];
+		$pass =  $_POST["pass"];
+		$db =  $_POST["db"];
+		$writedb =  $_POST["writedb"];
+				
+		$xml = simplexml_load_file('config/config.xml');							
+		$blades = $xml->xpath('/config/blades');		
+		if($blades!=FALSE)
+		{
+			$newBlade = $blades[0]->addChild('blade name="'.$blade.'"');
+			$newBlade->addChild('host', $host);
+			$newBlade->addChild('port', $port);
+			$newBlade->addChild('user', $bladeUser);
+			$newBlade->addChild('pass', $pass);
+			$newBlade->addChild('db', $db);
+			$newBlade->addChild('write-db', $writedb);
+			$xml->asXML('config/config.xml');			
+		}
+		ret_res('done',"GOOD");		
+	}
+	
+	if($_POST["func"]=="removeBlade")
+	{
+		$blade =  $_POST["blade"];
+	
+	}
+	
+	
 ?>
