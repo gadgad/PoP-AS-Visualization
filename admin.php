@@ -145,14 +145,54 @@
              function blades(){
              	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
-             	$('#queryTable').load('admin.php?viewBlades=true #queryTable').fadeIn("slow");    
+             	$('#queryTable').load('admin.php?viewBlades=true #queryTable').fadeIn("slow");
+             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Add a new blade </u></p><p style="text-align:center">blade <input type="text" name="bladeA" id="bladeA" size="18"/>  host <input type="text" name="host" id="host" size="18"/>  port <input type="text" name="port" id="port" size="18"/></p><p style="text-align:center">user <input type="text" name="user" id="user" size="18"/>  password <input type="text" name="pass" id="pass" size="18"/></p><p style="text-align:center">DB <input type="text" name="db" id="db" size="18"/>  write DB <input type="text" name="write-db" id="write-db" size="18"/></p><input type="button" onclick="addBlade()" value="Add"/></br><p style="color: navy;text-align:center"><u> Remove blade </u></p><p style="text-align:center">blade <input type="text" name="bladeR" id="bladeR" size="18"/>   <input type="button" onclick="removeBlade()" value="Remove"/></p>');    
+             }
+             
+             function addBlade(){
+             	$.post("adminFunc.php", {func: "addBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeA").val(), host: $("#host").val(), port: $("#port").val(), bladeUser: $("#user").val(), pass: $("#pass").val(), db: $("#db").val(), writedb: $("#write-db").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert("Error while adding blade: " + data.result);
+                 		}else $('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>');
+        			}else alert("data is null");
+                }
+        		,"json");        		
+             }
+             
+             function removeBlade(){
+             	$.post("adminFunc.php", {func: "removeBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeR").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert("Error while removing blade: " + data.result);
+                 		}else $('#My_queries').append('<p style="color:navy">The Blade was removed from config.xml.</p>'); 
+        			}else alert("data is null");
+                }
+        		,"json");        		
              }
              
              function dataTables(){
-             	
+             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
+             	$('#queryTable').load('admin.php?viewDataTables=true #queryTable').fadeIn("slow");
+             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Change data table </u></p><select id="dataTable"><option>ip-edges</option><option>pop-locations</option><option>popip</option><option>as-info</option></select> <select id="SP"><option>schema</option><option>prefix</option></select> <p style="text-align:center">new value <input type="text" id="paramValue" size="18"/>   <input type="button" onclick="changeParam()" value="Change"/></p>');
              }
              
-                         
+             function changeParam(){
+             	$.post("adminFunc.php", {func: "changeParam", user: <?php echo '"'.$username.'"'?>,dataTable : $("#dataTable").val(), SP : $("#SP").val(), paramValue : $("#paramValue").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert("Error while removing blade: " + data.result);
+                 		}else $('#My_queries').append('<p style="color:navy">The data table was changed.</p>'); 
+        			}else alert("data is null");
+                }
+        		,"json");        		
+             }
+            
+              
             function pool_pq_status(pid){
             	if(globalData.pq_running==true){
             		$.post("query_backend.php", { func: "pq-status", blade: globalData.blade },
@@ -303,6 +343,33 @@
 			echo "</tr>";		
 		}
 		echo '</table>';
+		 
+		die();
+	}
+	
+	
+	if(isset($_REQUEST["viewDataTables"])){
+													
+		$xml = simplexml_load_file("config\config.xml");
+		$result = $xml->xpath('/config/data-tables');
+							
+		if($result!=FALSE)
+		{
+			echo '</br><p style="color: navy;text-align:center"><u> bla </u></p></br>';
+			echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
+			echo "<tr>";
+			echo "<th>table</th><th>schema</th><th>prefix</th>";
+			echo "</tr>";
+			$tables = $result[0];						
+			foreach ($tables as $i => $value) {																
+				echo "<tr>";
+				echo"<td>".(string)$i."</td>";
+				echo"<td>".$value->schema."</td>";
+				echo"<td>".$value->prefix."</td>";
+				echo "</tr>";						
+			} 
+ 			echo '</table>';	
+		}		
 		die();
 	}
 	
@@ -327,9 +394,10 @@
             
             <div id="My_queries">
             	<h3><b>Welcome admin!</b></h3>
-            	<p> In this page you can change and update some configuration files of the system.</BR>
+            	<p  style="text-align:center"> In this page you can change and update some configuration files of the system.</BR>
             	click on the options on the left, and get further explanation.</BR>
             	Enjoy. </p>	 
+            	
         	</div>
         	                                  
             <div class="footer">
