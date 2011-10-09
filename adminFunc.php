@@ -190,7 +190,8 @@
 		$blades = $xml->xpath('/config/blades');		
 		if($blades!=FALSE)
 		{
-			$newBlade = $blades[0]->addChild('blade name="'.$blade.'"');
+			$newBlade = $blades[0]->addChild('blade');
+			$newBlade->addAttribute(name, $blade);
 			$newBlade->addChild('host', $host);
 			$newBlade->addChild('port', $port);
 			$newBlade->addChild('user', $bladeUser);
@@ -198,13 +199,29 @@
 			$newBlade->addChild('db', $db);
 			$newBlade->addChild('write-db', $writedb);
 			$xml->asXML('config/config.xml');			
-		}
+		}else ret_res('cant add blade to file',"ERROR");
 		ret_res('done',"GOOD");		
 	}
 	
 	if($_POST["func"]=="removeBlade")
 	{
 		$blade =  $_POST["blade"];
+		
+		$xml = simplexml_load_file('config/config.xml');
+		$res = $xml->xpath('/config/blades/blade[@name="'.$blade.'"]');
+		
+		if($res!=FALSE){
+			foreach ($res as $key => $value){						  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    echo 'Error while converting SimpleXMLelement to DOM';
+				}		
+				$oNode->parentNode->removeChild($oNode); 							
+			}	
+		}else ret_res('The specified blade wasnt found',"ERROR");				
+		$xml->asXML('config/config.xml');
+		ret_res('done',"GOOD");
 	
 	}
 	
