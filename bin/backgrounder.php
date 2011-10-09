@@ -18,6 +18,8 @@ class Backgrounder
 	
 	private $exe;
 	
+	private $lastLogLine;
+	
 	public function __construct($cmd,$id,$qid)
 	{
 		$this->id = $id;
@@ -39,6 +41,7 @@ class Backgrounder
 		
 		$this->pid = -10;
 		$this->lastRunTime = -1;
+		$this->lastLogLine = '';
 		
 		if(file_exists($this->pid_filename)){
 			$this->extract_pid();
@@ -65,6 +68,42 @@ class Backgrounder
 		return $status;
 	}
 	
+	private function extract_lastLogLines($lines){
+		if($this->isWin){
+			$line = '';
+			$f = fopen($this->log_filename, 'r');
+			$cursor = -1;
+			fseek($f, $cursor, SEEK_END);
+			$char = fgetc($f);
+			/**
+			 * Trim trailing newline chars of the file
+			 */
+			while ($char === "\n" || $char === "\r") {
+			    fseek($f, $cursor--, SEEK_END);
+			    $char = fgetc($f);
+			}
+			/**
+			 * Read until the start of file or first newline char
+			 */
+			$counter = $lines;
+			while ($char !== false && $counter>=0) {
+				if($char == "\n" || $char == "\r")
+					$counter--;
+			    /**
+			     * Prepend the new char
+			     */
+			    $line = $char . $line;
+			    fseek($f, $cursor--, SEEK_END);
+			    $char = fgetc($f);
+			}
+			$this->lastLogLine = $line;
+		} else {
+			$file = escapeshellarg($this->log_filename);
+			$line = `tail -n $lines $file`;
+			$this->lastLogLine = $line;
+		}
+	}
+	
 	private function extract_pid(){
 		static $counter = 0;
 		while(!file_exists($this->pid_filename) && $counter < 3){
@@ -89,7 +128,7 @@ class Backgrounder
 			fwrite($bat_file, "echo %PID% ".time()." > ".$this->pid_filename."\n");	
 		    fwrite($bat_file, "echo Starting proces >> ".$this->log_filename."\n");
 		    fwrite($bat_file, $this->cmd." >> ".$this->log_filename."\n");
-		    fwrite($bat_file, "echo End proces >> ".$this->log_filename."\n");
+		    //fwrite($bat_file, "echo End proces >> ".$this->log_filename."\n");
 		    fwrite($bat_file, "EXIT"."\n");
 		    fclose($bat_file);
 		}
@@ -111,6 +150,11 @@ class Backgrounder
 	
 	public function getLastRunTime(){
 		return  (time()-$this->lastRunTime);
+	}
+	
+	public function getLastLogLines($lines){
+		$this->extract_lastLogLines($lines);
+		return $this->lastLogLine;
 	}
 	
 	public function isRunning(){

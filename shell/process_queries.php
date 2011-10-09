@@ -1,5 +1,4 @@
 <?php
-
     require_once("bin/xml_writer.php");
     require_once("bin/kml_writer.php");
 	require_once("bin/query_status.php");
@@ -44,11 +43,25 @@
 			unlink($filename);
 	}
 	
+	function log_query($QID,$status){
+		$ourFileName = "shell/queries.log";
+		$ourFileHandle = fopen($ourFileName, 'a') or die("can't open file");
+		fwrite($ourFileHandle,$QID." ".$status."\n");
+		fclose($ourFileHandle);
+	}
+	
+	function clean_query_log(){
+		$filename = "shell/queries.log";
+		if(file_exists($filename))
+			unlink($filename);
+	}
+	
 	//$args = parseArgs($argv);
 	//$foo = $args['foo'];
 	//echo getcwd() . "\n";
 	
 	remove_ok_sig();
+	clean_query_log();
 	$queries = simplexml_load_file("xml\query.xml");
 	$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');
 	if(empty($result)){
@@ -73,13 +86,16 @@
 			// 0 - error , 1 - running , 2 - db-ready, 3 - some-xml-ready,  4 - all-xml-ready, 5 - kml-ready
 			if($qs >= 2 && $qs != 5) // db-tables are ready, but no kml file..
 			{
+				log_query($queryID,'db_ready');
 				$xw = new xml_Writer($blade,$queryID);
 			    if($xw->writeXML()){
 			    	echo "$queryID generate-xml: success!\n";
+					log_query($queryID,'xml_done');
 			    }
 				else {
 					$all_ok = false;
 					echo "$queryID generate-xml: failure :(\n";
+					log_query($queryID,'xml_fail');
 				}
 				
 				//write generated KML file to disk
@@ -89,15 +105,18 @@
 					$filename=$kmlWriter->getFileName();
 					xml_change_status($queryID,"completed");
 					echo "$queryID generate-kml: success! $filename generated successfully! :)\n";
+					log_query($queryID,'complete');
 				} else {
 					$all_ok = false;
 					echo "$queryID generate-kml: failure :(\n";
+					log_query($queryID,'kml_fail');
 				}
 			} else if($qs==5) {
 				xml_change_status($queryID,"completed");
+				log_query($queryID,'complete');
 			} else if($qs==0) {
 				xml_change_status($queryID,"error");
-				
+				log_query($queryID,'error');
 			}		
 		}
 	}
