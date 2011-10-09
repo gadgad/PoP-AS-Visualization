@@ -17,6 +17,7 @@
 		<script type="text/javascript" src="js/jquery-blink.js" ></script>
           
           <script type="text/javascript">
+			
 			 // Test connection to blade 
              function testConnection() {
              	$.preLoadImages("images/ajax-loader.gif");
@@ -49,7 +50,11 @@
                      year: $("#year").val(),week: $("#week").val()},
                     function(data){                        			
                          
-                         if (data.type=="GOOD"){                    	
+                         if (data.type=="GOOD"){  
+                         	
+                         	 $("#Edge").html("");
+	                    	 $("#PoP").html("");
+	                    	 $("#popIP").html("");                  	
                          
 	                         if (data.edge!= ""){
 	                         	var allEdges = data.edge;	                                               
@@ -81,6 +86,9 @@
 	                    	$("#popIP").html("<option>Connection error</option> ");
 	                    }
 	                    $('#button-wrap-t').html('<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>');
+	                    $("#getTables").click(function() {
+		                	getTables();                    
+		                });
 	                    }, "json");	
                 }
              } 
@@ -231,11 +239,26 @@
 								globalData.pq_running==false;
 								clearInterval(globalData.interval);
 								//alert(data.result);
-								$("#My_queries").append('<p style="color:red">ERROR - '+data.result+'</p>');
+								$("#My_queries").append('<p style="color:red;">ERROR - '+data.result+'</p>');
 								$(".checkStatus").each(function(index) {
 			         				var queryID = $(this).attr('id');
 			         				$("#"+queryID).html('error');
 			         			});
+								return;
+							}
+							if(data.type == "RUNNING_STATUS"){
+								var msg = {
+									db_ready: 'fetching XML...',
+									xml_done: 'rendering KML...',
+									xml_fail: 'error during xml fetch',
+									complete: 'completed',
+									kml_fail: 'error during kml rendering',
+									error: 'error'
+								};
+								var status = eval('('+data.result+')');
+								for(qid in status){
+									$("#"+qid).html(msg[jQuery.trim(status[qid])]);
+								}
 								return;
 							}
 							if(data.type == "FINISHED"){
@@ -255,7 +278,8 @@
          				var queryID = $(this).attr('id');
          				$("#"+queryID).html('<p class="blink">checking...</p>');
          			});
-            		globalData.interval = setInterval( "pool_pq_status("+data.pid+")" , 5000 );  // pool with 5-sec intervals
+         			pool_pq_status(data.pid);
+            		globalData.interval = setInterval( "pool_pq_status("+data.pid+")" , 30000 );  // pool with 5-sec intervals
             	});        
 			});
 			                      

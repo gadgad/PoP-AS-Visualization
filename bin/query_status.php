@@ -89,6 +89,7 @@
 				return 5;
 			}
 			
+			/*
 			if(file_exists($edges_filename) && file_exists($pop_filename)){
 				return 4;
 			}
@@ -96,6 +97,8 @@
 			if(file_exists($edges_filename) || file_exists($pop_filename)){
 				return 3;
 			}
+			 * 
+			 */
 			
 			if(array_key_exists($tableID, $this->PID_MAP))
 				if(isset($this->PID_MAP[$tableID]["POP"]) || isset($this->PID_MAP[$tableID]["EDGE"]))

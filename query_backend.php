@@ -216,12 +216,24 @@
 		//$lrt = $cmd->getLastRunTime();
 		$ok_sig = file_exists('shell/process_queries.ok');
 		if($cmd->isRunning()) {
-			ret_res("pq script still running","RUNNING");
+			$log_file = 'shell/queries.log';
+			if(file_exists($log_file)){
+				$data = file($log_file);
+				$data_arr = array();
+				foreach($data as $line){
+					list($QID,$status) = explode(' ', $line);
+					$data_arr[$QID] = $status;
+				}
+				ret_res(json_encode($data_arr),"RUNNING_STATUS");
+			} else {
+				ret_res("pq script still running","RUNNING");
+			}
 		}
 		if($ok_sig) {
 			ret_res("pq script finished","FINISHED");
 		}
-		ret_res("update-status procedure ended unexpectedly","ERROR");
+		$lines = $cmd->getLastLogLines(10);
+		ret_res("update-status procedure ended unexpectedly: ".nl2br($lines),"ERROR");
 	}
 
 	if($_REQUEST["func"]=="pq-check")
@@ -237,13 +249,13 @@
 	if($_REQUEST["func"]=="processQueries")
 	{
 		// TODO: move this param to config file!
-		$time_interval = 4; // hours
+		$time_interval = 1; // minutes
 		
 	 	$cmd_str = "process_queries.php";
 		$cmd = new Backgrounder($cmd_str,'process_queries');
 		$lrt = $cmd->getLastRunTime();
 		$ok_sig = file_exists('shell/process_queries.ok'); 
-		if(!$ok_sig || $lrt == -1 || ($lrt/3600) >= $time_interval)
+		if(!$ok_sig || $lrt == -1 || ($lrt/60) >= $time_interval)
 		{
 			$cmd->run();
 			if(!$cmd->isRunning()) {
@@ -253,7 +265,7 @@
         	echo json_encode(array("result"=>"background processing job is now running","pid"=>$cmd->getPID(),"type"=>"GOOD"));
 			die(); 
 		}
-		ret_res("last invokation is still valid, time interval is set to ".$time_interval." hours","GOOD");
+		ret_res("last invokation is still valid, time interval is set to ".$time_interval." minutes","GOOD");
 	}
 	
 	if($_POST["func"]=="resendQuery")
