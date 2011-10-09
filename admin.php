@@ -264,7 +264,7 @@
 		echo "<tr>";
 		echo "<th>Username</th><th>email</th><th>Status</th>";
 		echo "</tr>";					
-		$files = scandir(getcwd().'\users');
+		$files = scandir(getcwd().'/users');
 		if ($files!=FALSE){
 			foreach ($files as $file){							
 				if (substr($file, 0,1)!="."){						
