@@ -225,5 +225,32 @@
 	
 	}
 	
+	if($_POST["func"]=="changeParam")
+	{
+		$dataTable = $_POST["dataTable"];
+		$SP = $_POST["SP"];
+		$paramValue = $_POST["paramValue"];
+		
+		$xml = simplexml_load_file('config/config.xml');
+		$res = $xml->xpath('/config/data-tables/'.$dataTable.'/'.$SP);
+		
+		if($res!=FALSE){
+			foreach ($res as $key => $value){						  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    echo 'Error while converting SimpleXMLelement to DOM';
+				}		
+				$oNode->parentNode->removeChild($oNode); 							
+			}	
+		}else ret_res('The specified parameter wasnt found',"ERROR");
+		
+		$res = $xml->xpath('/config/data-tables/'.$dataTable);
+		$res[0]->addChild($SP,$paramValue);
+								
+		$xml->asXML('config/config.xml');		
+		ret_res('done',"GOOD");
+	
+	}
 	
 ?>
