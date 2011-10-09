@@ -192,8 +192,7 @@
         		,"json");        		
              }
             
-             
-                         
+              
             function pool_pq_status(pid){
             	if(globalData.pq_running==true){
             		$.post("query_backend.php", { func: "pq-status", blade: globalData.blade },
@@ -350,54 +349,27 @@
 	
 	
 	if(isset($_REQUEST["viewDataTables"])){
-											
-		
+													
 		$xml = simplexml_load_file("config\config.xml");
 		$result = $xml->xpath('/config/data-tables');
-		echo var_dump($result);
-		echo '</br><p style="color: navy;text-align:center"><u> bla </u></p></br>';
-		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
-		echo "<tr>";
-		echo "<th>table</th><th>schema</th><th>prefix</th>";
-		echo "</tr>";					
+							
 		if($result!=FALSE)
 		{
+			echo '</br><p style="color: navy;text-align:center"><u> bla </u></p></br>';
+			echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
+			echo "<tr>";
+			echo "<th>table</th><th>schema</th><th>prefix</th>";
+			echo "</tr>";
 			$tables = $result[0];						
-			foreach ($tables as $i => $value) {
-																
+			foreach ($tables as $i => $value) {																
 				echo "<tr>";
-				echo"<td>".(string)$value."</td>";
-				echo"<td>".$tables[$i]->schema."</td>";
-				echo"<td>".$tables[$i]->prefix."</td>";
-				/*							
-				echo "<td>".substr($result[$i]->queryID,-4)."</td>";
-				
-				$res = $queries->xpath('/DATA/QUERY[queryID="'.$result[$i]->queryID.'"]/users');
-				if($res!=FALSE){
-					$arr = $res[0];								
-					foreach($arr as $j){
-						$Qusers .= (string)$j." ";					
-					}									
-				}
-				echo"<td>".$Qusers."</td>";
-				echo"<td>".$result[$i]->year."</td>";
-				echo"<td>".$result[$i]->week."</td>";
-				echo"<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
-				echo"<td>".$result[$i]->ASnum."</td>";
-				echo "<td>";
-				echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';							
-				echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
-				
-				 * 
-				 */echo "</tr>";
-						
+				echo"<td>".(string)$i."</td>";
+				echo"<td>".$value->schema."</td>";
+				echo"<td>".$value->prefix."</td>";
+				echo "</tr>";						
 			} 
  			echo '</table>';	
-		}
-		
-		
-		
-		 
+		}		
 		die();
 	}
 	
