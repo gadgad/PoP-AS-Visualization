@@ -478,7 +478,7 @@ class kmlWriter
 		$this->kmlString = $kml_header.$kml_body.$kml_footer;
 	}
 	
-	public function writeKMZ()
+	public function writeKMZ($userSpecific)
 	{
 		
 		$this->generateKML();
@@ -496,7 +496,7 @@ class kmlWriter
 		
 		// generate the .kmz file
 		$zip = new ZipArchive();
-		$zip_filename = ($this->kml_dst_dir.'/result.kmz');
+		$zip_filename = ($this->kml_dst_dir.'/'.(($userSpecific)? ($GLOBALS["username"].'-'):'').'result.kmz');
 		$this->filename = $zip_filename;
 		
 		if ($zip->open($zip_filename, ZIPARCHIVE::CREATE)!==TRUE) {
