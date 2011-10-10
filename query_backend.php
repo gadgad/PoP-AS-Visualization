@@ -233,7 +233,7 @@
 			ret_res("pq script finished","FINISHED");
 		}
 		$lines = $cmd->getLastLogLines(10);
-		ret_res("update-status procedure ended unexpectedly: ".nl2br($lines),"ERROR");
+		ret_res(nl2br($lines),"ERROR");
 	}
 
 	if($_REQUEST["func"]=="pq-check")

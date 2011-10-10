@@ -11,11 +11,16 @@ include_once("bin/kml_render_globals.php");
 
 $idg = new idGen($queryID);
 $filename='queries/'.$idg->getDirName().'/result.kmz';
-$base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI'])."/";
+$userFilename = 'queries/'.$idg->getDirName().'/'.$GLOBALS["username"].'-result.kmz';
+if(file_exists($userFilename))
+	$filename = $userFilename;
+
+$base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']);
 $full_url = $base_url.$filename."?".rand(0,10000000000);
+$full_user_url = $base_url.$userFilename."?".rand(0,10000000000);
 
 $key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A": 
-								 "ABQIAAAAMYziiEA_p76rk0jQj-KuSxS9xmgvb7l5q_xOSCi2ySYKrO4w4RQ3kwRCrSDgo72ydEml2SNVnGd8DQ";
+								 "ABQIAAAAMYziiEA_p76rk0jQj-KuSxTK177e1Gh7BX1loiUPYBjodQ7UWxSIUu5oSnvILbkBqQVNC8wU7PkpqQ";
 
 $cm = new colorManager($username,$queryID);								 
 $COLOR_LIST = $cm->getColorList();
@@ -35,7 +40,7 @@ $COLOR_LIST = $cm->getColorList();
     
     <!-- jQuery -->
     <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script type="text/javascript" src="js/loadData.js"></script>
+    <!-- <script type="text/javascript" src="js/loadData.js"></script> -->
     
     <!-- ExtJS GEarthPanel Plugin -->
     <link rel="stylesheet" type="text/css" href="css/Ext.ux.GEarthPanel-1.1.css" />
@@ -486,8 +491,10 @@ $COLOR_LIST = $cm->getColorList();
 		    	earthPanel.resetKml();
 		    	first_time = true;
 		    	first_time2 = true;
-		    	earthPanel.fetchKml('<?php echo("$full_url");?>?'+Math.random()*10000000000,true);
+		    	earthPanel.fetchKml('<?php echo("$full_user_url");?>?'+Math.random()*10000000000,true);
 		    	earthPanel.fetchKml('<?php echo("$base_url");?>kml/black_earth.kmz',false);
+		    	//earthPanel.kmlTreePanel.getRootNode().findChild('text','PoP Map').expand();
+		    	//earthPanel.kmlTreePanel.getRootNode().findChild('text','Black Background').ui.toggleCheck();
 		    }
 		    
 
@@ -526,9 +533,6 @@ $COLOR_LIST = $cm->getColorList();
 				google.earth.addEventListener(ge.getView(), 'viewchangeend', function() {
 					if(first_time){
 						ge.getFeatures().removeChild(earthPanel.networkLink);
-						//earthPanel.kmlTreePanel.getRootNode().item(0).expand();
-						//earthPanel.kmlTreePanel.getRootNode().expandChildNodes();
-						earthPanel.kmlTreePanel.getRootNode().findChild('text','PoP Map').expand();
 						first_time = false;
 					}
 				});
@@ -537,6 +541,9 @@ $COLOR_LIST = $cm->getColorList();
 				google.earth.addEventListener(ge.getView(), 'viewchangebegin', function() {
 					if(first_time2){
 						earthPanel.kmlTreePanel.getRootNode().findChild('text','Black Background').ui.toggleCheck();
+						//earthPanel.kmlTreePanel.getRootNode().item(0).expand();
+						//earthPanel.kmlTreePanel.getRootNode().expandChildNodes();
+						earthPanel.kmlTreePanel.getRootNode().findChild('text','PoP Map').expand();
 						first_time2 = false;
 					}
 				});

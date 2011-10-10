@@ -239,7 +239,8 @@
 								globalData.pq_running==false;
 								clearInterval(globalData.interval);
 								//alert(data.result);
-								$("#My_queries").append('<p style="color:red;">ERROR - '+data.result+'</p>');
+								console.log(data.result);
+								$("#My_queries").append('<p style="color:red;text-align:center;">ERROR - update-status procedure ended unexpectedly.</br>look in js console for details..</p>');
 								$(".checkStatus").each(function(index) {
 			         				var queryID = $(this).attr('id');
 			         				$("#"+queryID).html('error');
