@@ -30,7 +30,7 @@
 		}
 		
 	    $kmlWriter = new kmlWriter($queryID);
-		if($kmlWriter->writeKMZ())
+		if($kmlWriter->writeKMZ(true))
 		{
 			//$filename=$kmlWriter->getFileName();
 			ret_res('kml file rendered successfully',true);
