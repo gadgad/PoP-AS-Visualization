@@ -88,7 +88,7 @@
         	
         	 function abort(queryID){             	
              	//$('#queryTable').fadeOut('fast');
-             	$.preLoadImages("images/ajax-loader.gif");
+             	//$.preLoadImages("images/ajax-loader.gif");
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("user_query_managment.php", {func: "abort", query: queryID, username: <?php echo '"'.$username.'"'?> },
              	function(data){
@@ -115,7 +115,7 @@
              }
              
              function accept(userFile){             	             	
-             	$.preLoadImages("images/ajax-loader.gif");
+             	//$.preLoadImages("images/ajax-loader.gif");
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("adminFunc.php", {func: "accept",user: <?php echo '"'.$username.'"'?>, userfile: userFile},
              	function(data){
@@ -129,7 +129,7 @@
              }
              
              function deny(userFile){             	             	
-             	$.preLoadImages("images/ajax-loader.gif");
+             	//$.preLoadImages("images/ajax-loader.gif");
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("adminFunc.php", {func: "deny",user: <?php echo '"'.$username.'"'?>, userfile: userFile},
              	function(data){

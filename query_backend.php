@@ -214,9 +214,9 @@
 		$cmd_str = "process_queries.php";
 		$cmd = new Backgrounder($cmd_str,'process_queries');
 		//$lrt = $cmd->getLastRunTime();
-		$ok_sig = file_exists('shell/process_queries.ok');
+		$ok_sig = file_exists('shell/log/process_queries.ok');
 		if($cmd->isRunning()) {
-			$log_file = 'shell/queries.log';
+			$log_file = 'shell/log/queries.log';
 			if(file_exists($log_file)){
 				$data = file($log_file);
 				$data_arr = array();
@@ -233,7 +233,7 @@
 			ret_res("pq script finished","FINISHED");
 		}
 		$lines = $cmd->getLastLogLines(10);
-		ret_res(nl2br($lines),"ERROR");
+		ret_res($lines,"ERROR");
 	}
 
 	if($_REQUEST["func"]=="pq-check")
@@ -254,7 +254,7 @@
 	 	$cmd_str = "process_queries.php";
 		$cmd = new Backgrounder($cmd_str,'process_queries');
 		$lrt = $cmd->getLastRunTime();
-		$ok_sig = file_exists('shell/process_queries.ok'); 
+		$ok_sig = file_exists('shell/log/process_queries.ok'); 
 		if(!$ok_sig || $lrt == -1 || ($lrt/60) >= $time_interval)
 		{
 			$cmd->run();
@@ -362,9 +362,9 @@
 			}
 			$result = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
 			if(!empty($result)){
-				$curr_status = (string)$result[0]->lastKnownStatus;
+				//$curr_status = (string)$result[0]->lastKnownStatus;
 				AddQuery($queryID,$tableID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
-				if($curr_status!='running') xml_change_status($queryID, $curr_status);
+				//if($curr_status!='running') xml_change_status($queryID, $curr_status);
 				header('Content-type: application/json');
 				echo json_encode(array("result"=>"requested table already exsists..." ,"type"=>"GOOD","queryID"=>$queryID));
 				die();
