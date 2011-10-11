@@ -20,13 +20,25 @@
 	$cm = new colorManager($username,$queryID);	
 	
 	if($_REQUEST["func"]=="renderKML"){
-		if(!isset($_POST['MIN_LINE_WIDTH']) ||
-		!isset($_POST['MAX_LINE_WIDTH']) ||
-		!isset($_POST['INITIAL_ALTITUDE']) ||
-		!isset($_POST['ALTITUDE_DELTA']) ||
-		!isset($_POST['STDEV_THRESHOLD']))
-		{
-			ret_res('missing parameters!',false);
+		
+		if(!isset($_POST["panel"])) ret_res('missing parameters!',false);
+		
+		if($_POST["panel"] == 'edges'){
+			if(!isset($_POST['EDGES_COLORING_SCHEME']) ||
+			!isset($_POST['EDGES_INTER_COLOR']) ||
+			!isset($_POST['EDGES_INTRA_COLOR']))
+			{
+				ret_res('missing parameters!',false);
+			}
+		} else {
+			if(!isset($_POST['MIN_LINE_WIDTH']) ||
+			!isset($_POST['MAX_LINE_WIDTH']) ||
+			!isset($_POST['INITIAL_ALTITUDE']) ||
+			!isset($_POST['ALTITUDE_DELTA']) ||
+			!isset($_POST['STDEV_THRESHOLD']))
+			{
+				ret_res('missing parameters!',false);
+			}
 		}
 		
 	    $kmlWriter = new kmlWriter($queryID);
