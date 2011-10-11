@@ -29,15 +29,12 @@
 			fclose($file_handle);
 		}
 		
-		public function setGlobal($param,$value) {
+		public function setGlobal($param,$value,$panelName) {
 			$QID = $this->queryID;
 			$toGlobal = false;
-			if(isset($_POST['submitted'])) {
+			if(isset($_POST['submitted']) && strcmp($panelName,$_POST['panel']) == 0) {
 				$QID = $_POST['queryID'];
-				if(substr_compare($param, 'EDGES',0) == 0){
-					if($_POST['edgesPrefsToGlobal']=='true')
-						$toGlobal = true;	
-				} elseif($_POST['global']=='true'){
+				if($_POST['global']=='true'){
 					$toGlobal = true;
 				}
 				if(is_bool($value)){
