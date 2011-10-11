@@ -225,6 +225,38 @@
 	
 	}
 	
+	
+	if($_POST["func"]=="changeDefaultBlade")
+	{
+		$newBlade = $_POST["blade"];				
+		$xml = simplexml_load_file('config/config.xml');
+		//checking for the existance of the 2 blades
+		$res = $xml->xpath('/config/blades/blade[@default="true"]');
+		$res2 = $xml->xpath('/config/blades/blade[@name="'.$newBlade.'"]');
+		
+		if($res==FALSE){
+			ret_res('The old default blade wasnt found',"ERROR");
+			}elseif($res2==FALSE){
+				ret_res('The new default blade wasnt found',"ERROR");
+			}else {
+				//removing the "default" tag
+				foreach ($res as $key => $value){						  
+					$theNodeToBeDeleted = $res[$key];								
+					$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+					if (!$oNode) {
+					    echo 'Error while converting SimpleXMLelement to DOM';
+					}		
+					$oNode->removeAttribute('default');				 							
+				}
+				//adding the "default" tag to the new default blade
+				$res2[0]->addAttribute('default','true');	
+			}
+											
+		$xml->asXML('config/config.xml');
+		ret_res('done',"GOOD");
+	 }
+	
+	
 	if($_POST["func"]=="changeParam")
 	{
 		$dataTable = $_POST["dataTable"];
