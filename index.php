@@ -20,7 +20,7 @@
 			
 			 // Test connection to blade 
              function testConnection() {
-             	$.preLoadImages("images/ajax-loader.gif");
+             	//$.preLoadImages("images/ajax-loader.gif");
              	$.preLoadImages("images/icon_OK.png");
              	$("#testStatus").remove();
 				$('#blade').after('<img id="testStatus" class="validator" src="images/ajax-loader.gif"/>');
@@ -43,7 +43,7 @@
              function getTables(){
              	if ($("#blade").val()!="" && $("#year").val()!="" && $("#week").val()!=""){
              		
-             		$.preLoadImages("images/ajax-loader.gif");
+             		//$.preLoadImages("images/ajax-loader.gif");
 					$('#button-wrap-t').html('<p><img src="images/ajax-loader.gif"/></p>');                                   
 					
                     $.post("query_backend.php", {func: "showTables", blade: $("#blade").val(),
@@ -126,6 +126,7 @@
                          		queryID=data.queryID;
 	                     		$("#sendQueryStatus").remove();
 	                     		updateTable();
+	                     		var t=setTimeout("run_pq_script()",3000);
                          	} else {
                          		if(data.type!="STAGE1_COMPLETE"){
                          			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
@@ -193,7 +194,7 @@
              ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			function resendQuery(queryID){
 				error_counter = 0;
-				$.preLoadImages("images/ajax-loader.gif");
+				//$.preLoadImages("images/ajax-loader.gif");
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("query_backend.php", {func: "resendQuery", query: queryID, stage:2,  username: <?php echo '"'.$username.'"'?> },
              	function(data){
@@ -216,7 +217,7 @@
 			
             function abort(queryID){             	
              	//$('#queryTable').fadeOut('fast');
-             	$.preLoadImages("images/ajax-loader.gif");
+             	//$.preLoadImages("images/ajax-loader.gif");
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("user_query_managment.php", {func: "abort", query: queryID, username: <?php echo '"'.$username.'"'?> },
              	function(data){
@@ -322,7 +323,7 @@
                                     
             $(document).ready(function() {
                     $("#getAS").click(function() {
-                    	$.preLoadImages("images/ajax-loader.gif");
+                    	//$.preLoadImages("images/ajax-loader.gif");
   						$('#button-wrap').html('<p><img src="images/ajax-loader.gif"/></p>');                                                           
                         $.post("query_backend.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                         function(data){
@@ -400,18 +401,6 @@
         <div id="container">
 			
 			<?php include("header.php") ?>
-			<!--
-            <div id="header">
-            	<p>
-	                <h5 style="text-align: left; margin-left: 5px">Welcome <?php echo $username; ?>,                	
-	                	<a href="logout.php"> <u>Logout</u></a>	<?php if ($username=="admin"){echo 'or <a href="admin.php"> <u>Go to admin page</u></a>';}?> 
-	                </h5>
-                	<div class="main-title">
-                		<img src="images/logo.png">
-                	</div>
-                </p>                
-            </div>
-           -->
 						                       
             <div id="user-select" class="user-select">          
             <h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Make a new query</h3>
