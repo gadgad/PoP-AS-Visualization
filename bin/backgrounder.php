@@ -35,8 +35,8 @@ class Backgrounder
 			$this->basedir = getcwd();
 		}
 		$this->shelldir = $this->basedir."/shell";
-		$this->log_filename = $this->shelldir."/".$id.(($qid)?('-'.$qid):'').'.log';
-		$this->pid_filename = $this->shelldir."/".$id.(($qid)?('-'.$qid):'').'.pid';
+		$this->log_filename = $this->shelldir."/log/".$id.(($qid)?('-'.$qid):'').'.log';
+		$this->pid_filename = $this->shelldir."/log/".$id.(($qid)?('-'.$qid):'').'.pid';
 		$this->cmd = "php ".$this->shelldir."/".$cmd;
 		
 		$this->pid = -10;

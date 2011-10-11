@@ -1,4 +1,6 @@
 <?php
+	error_reporting(E_ERROR);
+	
     require_once("bin/xml_writer.php");
     require_once("bin/kml_writer.php");
 	require_once("bin/query_status.php");
@@ -31,27 +33,27 @@
 	
 	function create_ok_sig()
 	{
-		$ourFileName = "shell/process_queries.ok";
+		$ourFileName = "shell/log/process_queries.ok";
 		$ourFileHandle = fopen($ourFileName, 'w') or die("can't open file");
 		fclose($ourFileHandle);
 	}
 	
 	function remove_ok_sig()
 	{
-		$filename = "shell/process_queries.ok";
+		$filename = "shell/log/process_queries.ok";
 		if(file_exists($filename))
 			unlink($filename);
 	}
 	
 	function log_query($QID,$status){
-		$ourFileName = "shell/queries.log";
+		$ourFileName = "shell/log/queries.log";
 		$ourFileHandle = fopen($ourFileName, 'a') or die("can't open file");
 		fwrite($ourFileHandle,$QID." ".$status."\n");
 		fclose($ourFileHandle);
 	}
 	
 	function clean_query_log(){
-		$filename = "shell/queries.log";
+		$filename = "shell/log/queries.log";
 		if(file_exists($filename))
 			unlink($filename);
 	}
@@ -99,7 +101,9 @@
 				}
 				
 				//write generated KML file to disk
+				echo "calling kmlWriter CTOR\n";
 				$kmlWriter = new kmlWriter($queryID);
+				echo "after CTOR\n";
 				if($kmlWriter->writeKMZ())
 				{
 					$filename=$kmlWriter->getFileName();
