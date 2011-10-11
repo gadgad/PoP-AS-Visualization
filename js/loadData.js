@@ -35,6 +35,7 @@ $().ready(function(){
 });
 
 $(document).ready(function() {
+		$.preLoadImages("images/ajax-loader.gif");
 		processQueries();
 });
 /////////////////////////////////////////////////////////////////////
