@@ -15,7 +15,8 @@ $userFilename = 'queries/'.$idg->getDirName().'/'.$GLOBALS["username"].'-result.
 if(file_exists($userFilename))
 	$filename = $userFilename;
 
-$base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']);
+$isWin = stristr(PHP_OS, 'WIN');
+$base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']).($isWin?'/':'');
 $full_url = $base_url.$filename."?".rand(0,10000000000);
 $full_user_url = $base_url.$userFilename."?".rand(0,10000000000);
 
@@ -67,10 +68,6 @@ $COLOR_LIST = $cm->getColorList();
     <script type="text/javascript">
     	
     	var ge;
-    	var myGlobalsPanel;
-    	var myColorsPanel;
-    	var myForm;
-    	var myStore;
     	var QID = '<?php echo $queryID; ?>';
     	var as_list = eval('<?php echo json_encode($cm->getASList()); ?>');
 
@@ -192,8 +189,6 @@ $COLOR_LIST = $cm->getColorList();
 					remoteSort: true,
 				});
 				
-				myStore = store;
-				
 				/*	
 			    var store = new Ext.data.Store({
 			    	//autoLoad: true,
@@ -282,6 +277,7 @@ $COLOR_LIST = $cm->getColorList();
     			var bySrcAS = <?php echo ((EDGES_COLORING_SCHEME=='bySrcAS')? 'true':'false'); ?>;
     			
 		    	var intra = new Ext.ux.ColorPickerField({
+		    		name: 'EDGES_INTRA_COLOR',
 			        fieldLabel: 'Intra-Connectivity',
 			        value: intraColor,
 			        labelStyle: 'width: 120px; margin-left: 20px;'
@@ -291,6 +287,7 @@ $COLOR_LIST = $cm->getColorList();
 			    });
 			    
 		    	var inter = new Ext.ux.ColorPickerField({
+		    		name: 'EDGES_INTER_COLOR',
 			        fieldLabel: 'Inter-Connectivity',
 			        value: interColor,
 			        labelStyle: 'width: 120px; margin-left: 20px;'
@@ -323,12 +320,14 @@ $COLOR_LIST = $cm->getColorList();
 			        autoWidth: true,
 			        style: 'margin-top: 10px;',
 			        formId: 'edgesForm',
+			        saveToGlobals: false,
+			        url: 'render_kml.php',
 			        labelWidth: 120,
 			        items: items
 		        });
     			/////////////////////////////////////////////////
+    			var form = edgesPanel.getForm();
     			    			
-    			var saveToGlobals = false;
 				var submitToolBar = new Ext.Toolbar ({
 					items:	[{
 								pressed: false,
@@ -336,7 +335,7 @@ $COLOR_LIST = $cm->getColorList();
 					            text: 'Save As Default',
 					            //cls: 'x-btn-text-icon details',
 					            toggleHandler: function(btn, pressed){
-					            	saveToGlobals = ((saveToGlobals)? false : true);
+					            	edgesPanel.saveToGlobals = ((edgesPanel.saveToGlobals)? false : true);
 					            }
 
 			        		},'-',{
@@ -352,23 +351,27 @@ $COLOR_LIST = $cm->getColorList();
 					    			 Ext.Ajax.request({
 					        		 	url: 'render_kml.php',
 					        			method: 'POST',
-					        			params: {func: 'submitColorPrefs', queryID: QID, color_string: tmp_str, global: saveToGlobals},
+					        			params: {func: 'submitColorPrefs', queryID: QID, color_string: tmp_str, global: edgesPanel.saveToGlobals},
 					        			success: function(obj, request) {
 					            			var resp = obj.responseText;
 					            			var result = [];
 					            			if (resp != 0) result = Ext.util.JSON.decode(resp);
 					            			if (result.success){
-				              					myForm.submit({
-						                        	params: {queryID: QID, submitted: 'yes', EDGES_COLORING_SCHEME: edgesPanel.getForm().getValues()['EDGES_COLORING_SCHEME'], EDGES_INTER_COLOR: interColor, EDGES_INTRA_COLOR: intraColor, func: 'renderKML', edgesPrefsToGlobal: saveToGlobals, global: myGlobalsPanel.saveToGlobals},
-						                        	waitMsg: 'rendering kml...',
-						                        	waitTitle: 'kml-render-engine',
-						                            success: function(form, action) {
-						                               reloadKML();
-						                            },
-						                            failure: function(form, action) {
-						                                Ext.Msg.alert('Failed', action.result.msg);
-						                            }
-						                        });
+					            				if (form.isValid()) {
+					            					form.submit({
+							                        	params: {queryID: QID, func: 'renderKML', panel: 'edges', submitted: 'yes', global: edgesPanel.saveToGlobals},
+							                        	waitMsg: 'rendering kml...',
+							                        	waitTitle: 'kml-render-engine',
+							                            success: function(form, action) {
+							                               reloadKML();
+							                            },
+							                            failure: function(form, action) {
+							                                Ext.Msg.alert('Failed', action.result.msg);
+							                            }
+						                        	}); 
+												} else {
+													Ext.Msg.alert('Invalid Data', 'Please correct form errors.')
+												}
 					            			} else {
 					                			alert('Failed:' + result.msg);
 					            			}
@@ -388,7 +391,6 @@ $COLOR_LIST = $cm->getColorList();
 			        bbar: submitToolBar
 		        });
     			
-			    myColorsPanel = colorsPanel;
 			    return colorsPanel;
 			}
 			
@@ -437,7 +439,6 @@ $COLOR_LIST = $cm->getColorList();
 			    }
 			    
 		        // Create FormPanel with all layers
-		        //var saveToGlobals = false;
 		        var globalsPanel = new Ext.FormPanel({
 		            title: 'Kml Renderer Options',
 			        border: false,
@@ -464,7 +465,7 @@ $COLOR_LIST = $cm->getColorList();
 										var form = globalsPanel.getForm(); // get the basic form
 		                    			if (form.isValid()) { // make sure the form contains valid data before submitting
 											 form.submit({
-												params: {queryID: QID, submitted: 'yes', global: globalsPanel.saveToGlobals ,func: 'renderKML' },
+												params: {queryID: QID, submitted: 'yes', global: globalsPanel.saveToGlobals ,func: 'renderKML', panel: 'default' },
 												waitMsg: 'rendering kml...',
 												waitTitle: 'kml-render-engine',
 												success: function(form, action) {
@@ -482,8 +483,6 @@ $COLOR_LIST = $cm->getColorList();
 					})
 		        });
 		        
-		        myGlobalsPanel = globalsPanel;
-		        myForm = globalsPanel.getForm();
 		        return globalsPanel;
 		    }
 		    
