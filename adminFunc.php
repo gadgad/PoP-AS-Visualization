@@ -133,8 +133,10 @@
 	
 	if($_POST["func"]=="accept")
 	{
-		$path =  "users/".$_POST["userfile"]; 
+		$path =  "users/".$_POST["userfile"];
+		$username = substr($_POST["userfile"],-4) ; 
 		$userData = simplexml_load_file($path);
+		$to = $userData->xpath('/user/email');
 		
 		$res = $userData->xpath('/user/status');		
 		foreach ($res as $key => $state){
@@ -146,17 +148,25 @@
 				}		
 				$oNode->parentNode->removeChild($oNode); 				
 			}
-		}
-		
+		}		
 		$userData->addChild('status',"authorized");		
 		$userData->asXML($path);			
-		ret_res('done',"GOOD");
+		
+		$subject = "PoP-AS visualization";
+		$body = "Hi ".$username.",\n\nYour request for the PoP-AS visualization website accepted.\n\nLogin to start!";
+		if (mail($to, $subject, $body)) {
+		   ret_res('done',"GOOD");
+		} else {
+		   ret_res('user authorized, mail delivery failed.',"ERROR");
+		}
+		ret_res('done',"GOOD");		
 	}
 	
 	if($_POST["func"]=="deny")
 	{
 		$path =  "users/".$_POST["userfile"]; 
 		$userData = simplexml_load_file($path);
+		$to = $userData->xpath('/user/email');
 		
 		$res = $userData->xpath('/user/status');		
 		foreach ($res as $key => $state){
@@ -171,7 +181,15 @@
 		}
 		
 		$userData->addChild('status',"denied");		
-		$userData->asXML($path);			
+		$userData->asXML($path);
+		
+		$subject = "PoP-AS visualization";
+		$body = "Hi ".$username.",\n\nYour request for the PoP-AS visualization website denied.";
+		if (mail($to, $subject, $body)) {
+		   ret_res('done',"GOOD");
+		} else {
+		   ret_res('user denied, mail delivery failed.',"ERROR");
+		}			
 		ret_res('done',"GOOD");
 	}
 	
