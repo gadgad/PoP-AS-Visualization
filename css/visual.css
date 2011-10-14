@@ -59,10 +59,11 @@
 	float: right; 
 	clear:right; 
 	text-align:center;
+	padding: 8px;
 }
 
 #My_queries p{
-	text-align:left;
+	text-align:center;
 }
 
 table{
