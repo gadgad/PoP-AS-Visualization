@@ -1,3 +1,6 @@
+<!--
+	this page is loaded when a user was registered and denied access by the admin. 
+-->
 <html>
 	<head>
 		<title>Request denied</title>
