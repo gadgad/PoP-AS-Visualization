@@ -75,7 +75,7 @@
 	            </div>
 	            
 	            <div style="text-align:center; padding-top:20px;">
-	            	<img src="images/DIMES.gif">	
+	            	<img src="images/DIMES.gif" style="margin-top: 20px">	
 	            </div>
 	            
             </div>
