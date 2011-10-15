@@ -133,8 +133,10 @@
 	
 	if($_POST["func"]=="accept")
 	{
-		$path =  "users/".$_POST["userfile"]; 
+		$path =  "users/".$_POST["userfile"];
+		$username = substr($_POST["userfile"],-4) ; 
 		$userData = simplexml_load_file($path);
+		$to = $userData->xpath('/user/email');
 		
 		$res = $userData->xpath('/user/status');		
 		foreach ($res as $key => $state){
@@ -146,17 +148,25 @@
 				}		
 				$oNode->parentNode->removeChild($oNode); 				
 			}
-		}
-		
+		}		
 		$userData->addChild('status',"authorized");		
 		$userData->asXML($path);			
-		ret_res('done',"GOOD");
+		
+		$subject = "PoP-AS visualization";
+		$body = "Hi ".$username.",\n\nYour request for the PoP-AS visualization website accepted.\n\nLogin to start!";
+		if (mail($to, $subject, $body)) {
+		   ret_res('done',"GOOD");
+		} else {
+		   ret_res('user authorized, mail delivery failed.',"ERROR");
+		}
+		ret_res('done',"GOOD");		
 	}
 	
 	if($_POST["func"]=="deny")
 	{
 		$path =  "users/".$_POST["userfile"]; 
 		$userData = simplexml_load_file($path);
+		$to = $userData->xpath('/user/email');
 		
 		$res = $userData->xpath('/user/status');		
 		foreach ($res as $key => $state){
@@ -171,7 +181,15 @@
 		}
 		
 		$userData->addChild('status',"denied");		
-		$userData->asXML($path);			
+		$userData->asXML($path);
+		
+		$subject = "PoP-AS visualization";
+		$body = "Hi ".$username.",\n\nYour request for the PoP-AS visualization website denied.";
+		if (mail($to, $subject, $body)) {
+		   ret_res('done',"GOOD");
+		} else {
+		   ret_res('user denied, mail delivery failed.',"ERROR");
+		}			
 		ret_res('done',"GOOD");
 	}
 	
@@ -224,6 +242,38 @@
 		ret_res('done',"GOOD");
 	
 	}
+	
+	
+	if($_POST["func"]=="changeDefaultBlade")
+	{
+		$newBlade = $_POST["blade"];				
+		$xml = simplexml_load_file('config/config.xml');
+		//checking for the existance of the 2 blades
+		$res = $xml->xpath('/config/blades/blade[@default="true"]');
+		$res2 = $xml->xpath('/config/blades/blade[@name="'.$newBlade.'"]');
+		
+		if($res==FALSE){
+			ret_res('The old default blade wasnt found',"ERROR");
+			}elseif($res2==FALSE){
+				ret_res('The new default blade wasnt found',"ERROR");
+			}else {
+				//removing the "default" tag
+				foreach ($res as $key => $value){						  
+					$theNodeToBeDeleted = $res[$key];								
+					$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+					if (!$oNode) {
+					    echo 'Error while converting SimpleXMLelement to DOM';
+					}		
+					$oNode->removeAttribute('default');				 							
+				}
+				//adding the "default" tag to the new default blade
+				$res2[0]->addAttribute('default','true');	
+			}
+											
+		$xml->asXML('config/config.xml');
+		ret_res('done',"GOOD");
+	 }
+	
 	
 	if($_POST["func"]=="changeParam")
 	{
