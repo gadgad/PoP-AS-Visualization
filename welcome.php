@@ -1,5 +1,11 @@
+<!--
+	the login page. the first page to load.  
+-->
 <?php
 	//include_once("bin/load_config.php");
+	/*
+	 * after the user enters his login details, we check for correctness and cookie
+	 */
 	
 	$error = false;
 	if(isset($_POST['login'])){
@@ -81,14 +87,14 @@
             </div>
             
             <?php
-			    		if(isset($_REQUEST["formComplete"])) echo
-				    		"<div class=\"about\">
-				    		<h3>Thank you! </h3>   
-				    		<p>Dear user, your registration request was sent to the site admin successfully.</br>
-				    		We we'll let you know as soon as your request is approved.</p>
-				    		</div>";
-				    		
-						else include("info.php")
+	    		if(isset($_REQUEST["formComplete"])) echo
+		    		"<div class=\"about\">
+		    		<h3>Thank you! </h3>   
+		    		<p>Dear user, your registration request was sent to the site admin successfully.</br>
+		    		We we'll let you know as soon as your request is approved.</p>
+		    		</div>";
+		    		
+				else include("info.php")
               ?>
             
             <div class="footer">
