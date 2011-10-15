@@ -11,7 +11,7 @@
 	$session->setGlobal('DRAW_CIRCLES',true,'default');
 	$session->setGlobal('INTER_CON',true,'default');
 	$session->setGlobal('INTRA_CON',true,'default');
-	$session->setGlobal('CONNECTED_POPS_ONLY',true,'default');
+	$session->setGlobal('CONNECTED_POPS_ONLY',false,'default');
 	$session->setGlobal('USE_COLOR_PICKER',false,'default');
 	$session->setGlobal('BLACK_BACKGROUND',false,'default');
 	$session->setGlobal('ASN_EMBEDDED_IN_PLACEMARK',true,'default');

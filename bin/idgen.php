@@ -31,7 +31,7 @@
 					$this->tableID = func_get_arg(1);
 				}
 				
-				$sx = simplexml_load_file("xml\query.xml");
+				$sx = simplexml_load_file("xml/query.xml");
 				$res = $sx->xpath('/DATA/QUERY[queryID="'.$this->queryID.'"]');
 				
 				 if(func_num_args()==1)

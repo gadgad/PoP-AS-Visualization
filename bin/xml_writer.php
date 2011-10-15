@@ -28,7 +28,7 @@
 			$this->retries = 0;
 			$this->limit = 10;
 			
-			$sx = simplexml_load_file("xml\query.xml");
+			$sx = simplexml_load_file("xml/query.xml");
 			$res = $sx->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 			$this->asList = $res[0]->allAS;
 			
@@ -58,21 +58,29 @@
 		private function getPoPQuery(){return "select * from `".$this->schema."`.`".$this->idg->getPoPTblName()."` where ASN in(".$this->asList.")";}
 		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.")";}
 		
-		private function sql2xml($sql,$filename)
+		private function sql2xml($sql,$dir)
 		{
-			$bufferSize = 4096; // Bytes
 			$pageSize = 1000; // Records
-				
-			if(($this->mysqli = $this->get_connection()) == NULL)
-				return false;
-			$mysqli = $this->mysqli;
 			
-			$filepath = ($this->xml_dst_dir.'/'.$filename);
+			$bufferSize = 4096; // Bytes	
+			$xmlChunkSize = 10; // in MB
+			$bytesLimit = $xmlChunkSize*1048576; // in Bytes...
+			
+			$bytesWritten = 0;
+			$currentChunk = 0;
+			$firstTime = true;
+			//$xml_output = '';
+			
+			$filepath = ($this->xml_dst_dir.'/'.$dir.'.xml');
 			$filewrite = fopen($filepath, "w");
 			if(!$filewrite) return false;
 			
 			$xml_output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"; 
-			$xml_output .= "<DATA>\n"; 
+			$xml_output .= "<DATA>\n";
+			
+			if(($this->mysqli = $this->get_connection()) == NULL)
+				return false;
+			$mysqli = $this->mysqli;
 			
 			$query = str_replace("*", "count(*)", $sql);
 			$result = $mysqli->query($query) or die("SQL Query Failed.");
@@ -80,9 +88,10 @@
 			$num = (int)$row[0];
 			$numOfPages = ceil($num/$pageSize);
 			
-			for($currPage = 0; $currPage<$numOfPages; $currPage++){
-				$pageOffset = $currPage*$pageSize;
+			for($currPage = 0; $currPage<$numOfPages; $currPage++){ 
 				
+				// parse 'pageSize' records from DB
+				$pageOffset = $currPage*$pageSize;
 				$query = $sql." limit $pageOffset,$pageSize";
 				$result = $mysqli->query($query) or die("SQL Query Failed.");
 				$numOfRecords = $result->num_rows;
@@ -95,17 +104,66 @@
 				    $xml_output .= "\t</ROW>\n"; 
 				}
 				
-				if(strlen($xml_output)>=$bufferSize){
-					fwrite($filewrite, $xml_output);
-					unset($xml_output);
-					$xml_output = '';
+				// if current chunk is bigger than 'chunkSize'
+				// we continue the writing process in a new Chunk of xml 
+				// xml is splitted into smaller chunks to avoid 'large' xml files
+				// residing in memory during the reading phase
+				if($bytesWritten>=$bytesLimit){
+					
+					// close the currrent chunk & flush to disk
+					$xml_output .= "</DATA>"; 
+					if($fwrite = fwrite($filewrite, $xml_output)){
+						$bytesWritten+=$fwrite;
+						fclose($filewrite);
+						$bytesWritten = 0;
+					} else {
+						return false;
+					}
+					
+					if($firstTime){ // create chunks dir & move file into it
+						if(!$this->createDir($this->xml_dst_dir.'/'.$dir))
+							return false;
+						if (stristr(PHP_OS, 'WIN')) sleep(1); // arrrgh!
+						rename($filepath,$this->xml_dst_dir."/$dir/".$dir.$currentChunk.'.xml');
+						$firstTime=false;	
+					}
+					
+					// continue by opening a new Chunk for writing...
+					$filepath = ($this->xml_dst_dir."/$dir/".$dir.(++$currentChunk).'.xml');
+					$filewrite = fopen($filepath, "w");
+					if(!$filewrite) return false;
+					
+					$xml_output = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"; 
+					$xml_output .= "<DATA>\n";
+					
 				}
 				
+				// flush generated XML to disk , if current output buffer is bigger than 'bufferSize'				
+				if(strlen($xml_output)>=$bufferSize){
+					if($fwrite = fwrite($filewrite, $xml_output)){
+						$bytesWritten+=$fwrite;
+						unset($xml_output);
+						$xml_output = '';
+					} else {
+						return false;
+					}
+				}
+				
+			}
+
+			$xml_output .= "</DATA>"; 
+			if($fwrite = fwrite($filewrite, $xml_output)){
+				$bytesWritten+=$fwrite;
+				fclose($filewrite);
+			} else {
+				return false;
 			} 
 			
-			$xml_output .= "</DATA>"; 
-			fwrite($filewrite, $xml_output);
-			fclose($filewrite);
+			/*
+			if($currentChunk>0)
+				if(!file_put_contents($this->xml_dst_dir."/$dir/".'numOfChunks.txt', $currentChunk))
+					return false;
+			 * */
 			//$mysqli->close();
 			return true;
 		}
@@ -139,8 +197,7 @@
 			 * 
 			 */
 			
-			$this->sql2xml($this->getPoPQuery(), 'pop.xml');
-			return true;
+			return $this->sql2xml($this->getPoPQuery(), 'pop');
 		}
 		
 		private function write_edge_XML()
@@ -157,16 +214,14 @@
 			 * 
 			 */
 			
-			$this->sql2xml($this->getEdgeQuery(), 'edges.xml');
-			return true;
+			return $this->sql2xml($this->getEdgeQuery(), 'edges');
 		}
 		
-		private function createDir()
+		private function createDir($path)
 		{
 			// making a new dir to hold query results 
-			$querydir = $this->xml_dst_dir;
-			if(!file_exists($querydir)){			 		
-				if(!mkdir($querydir, 0777)) { 
+			if(!file_exists($path)){			 		
+				if(!mkdir($path, 0777)) { 
 				   return false;
 				}
 			}
@@ -175,7 +230,7 @@
 		
 		public function writeXML()
 		{
-			if($this->createDir()){
+			if($this->createDir($this->xml_dst_dir)){
 				if($this->write_pop_XML() && $this->write_edge_XML()){
 					//$this->drop_tables();
 					$this->mysqli->close();

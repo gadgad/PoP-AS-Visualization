@@ -42,7 +42,7 @@
 		
 		public function getASList(){
 			if($this->as_list == NULL){
-				$queries = simplexml_load_file('xml\query.xml');							
+				$queries = simplexml_load_file('xml/query.xml');							
 				$result = $queries->xpath('/DATA/QUERY[queryID="'.$this->queryID.'"]');
 				if(empty($result)){
 					return NULL;

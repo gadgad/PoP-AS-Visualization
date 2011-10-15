@@ -77,7 +77,7 @@
 	function xml_change_status($qid,$new_status)
 	{
 		$queryID = $qid;
-		$filename = "xml\query.xml";
+		$filename = "xml/query.xml";
 		$queries = simplexml_load_file($filename);
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 		$tableID = (string)$result[0]->tableID;
@@ -108,7 +108,7 @@
 		$year = $_POST["year"];
 		
 		$weeks[] = array();
-		$xml = simplexml_load_file("xml\weeks.xml");
+		$xml = simplexml_load_file("xml/weeks.xml");
 		$result = $xml->xpath('/DATA/YEAR[year="'.$year.'"]/WEEK');					
 		if($result!=FALSE)
 		{
@@ -187,7 +187,7 @@
 		$query ="SELECT distinct ASN FROM `".$database."`.`".$popTbl."` order by ASN" ;		
 		
 		$AS = "";
-		$ASinfo = simplexml_load_file("xml\ASN_info.xml");
+		$ASinfo = simplexml_load_file("xml/ASN_info.xml");
 		
 		if ($result = $mysqli->query($query)){			
 	    	 while ($row = $result->fetch_assoc()) {
@@ -216,6 +216,7 @@
 		//$lrt = $cmd->getLastRunTime();
 		$ok_sig = file_exists('shell/log/process_queries.ok');
 		if($cmd->isRunning()) {
+			
 			$log_file = 'shell/log/queries.log';
 			if(file_exists($log_file)){
 				$data = file($log_file);
@@ -228,6 +229,19 @@
 			} else {
 				ret_res("pq script still running","RUNNING");
 			}
+			
+			/*
+			$data_arr = array();
+			$queryXML = simplexml_load_file("xml/query.xml");
+			$result = $queryXML->xpath('/DATA/QUERY[lastKnownStatus="running"]');
+			foreach($result as $query){
+				$QID = (string)$query->queryID;
+				$status = (string)$query->lastRunningState;
+				$data_arr[$QID] = $status; 
+			}
+			ret_res(json_encode($data_arr),"RUNNING_STATUS");
+			 */
+			
 		}
 		if($ok_sig) {
 			ret_res("pq script finished","FINISHED");
@@ -238,7 +252,7 @@
 
 	if($_REQUEST["func"]=="pq-check")
 	{
-		$queries = simplexml_load_file("xml\query.xml");
+		$queries = simplexml_load_file("xml/query.xml");
 		$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');
 		if(empty($result)){
 			ret_res("no running queries","EMPTY");
@@ -272,7 +286,7 @@
 	{
 		/*
 		$queryID = $_POST['query'];
-		$queries = simplexml_load_file('xml\query.xml');							
+		$queries = simplexml_load_file('xml/query.xml');							
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 		if(empty($result)){
 			ret_res("query doesn't exists!","ERROR");
@@ -304,7 +318,11 @@
 		// check if present in 'SHOW PROCESSLIST' and/or table exist
 		if($stage==3)
 		{
-			$qm = new QueryManager($selected_blade);
+			//$qm = new QueryManager($selected_blade);
+			$qm = QueryManager::load($selected_blade);
+			if($qm==null)
+				ret_res("can't connect to db!","ERROR");
+			
 			$query_status = $qm->getQueryStatus($queryID,$tableID);
 			
 			if($query_status == 0){
@@ -344,7 +362,7 @@
 	
 		if($stage==1)
 		{
-			$queries = simplexml_load_file('xml\query.xml');							
+			$queries = simplexml_load_file('xml/query.xml');							
 			$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users');		
 			if($result!=FALSE) // this query already exists
 			{
@@ -354,7 +372,7 @@
 				}
 				if($result[0]->user!=$username){
 					$result[0]->addChild('user', $username);
-					$queries->asXML('xml\query.xml');
+					$queries->asXML('xml/query.xml');
 					ret_res("query already assigned to a different user,adding current user to record","GOOD");
 				} else {
 					ret_res("query already exists!","ALL_COMPLETE");
@@ -386,7 +404,11 @@
 		// check if present in 'SHOW PROCESSLIST' and/or table exist, if so add to query.xml 
 		if($stage==3)
 		{
-			$qm = new QueryManager($selected_blade);
+			//$qm = new QueryManager($selected_blade);
+			$qm = QueryManager::load($selected_blade);
+			if($qm==null)
+				ret_res("can't connect to db!","ERROR");
+			
 			$query_status = $qm->getQueryStatus($queryID,$tableID);
 			
 			if($query_status == 0){

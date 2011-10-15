@@ -3,19 +3,40 @@
     require_once("bin/idgen.php");
 	require_once("bin/DBConnection.php");
 	
+	class DBConnectionError extends Exception {}
+	
 	class QueryManager
 	{
 		private $PID_MAP;
 		private $TABLES_MAP;
 		private $Status_MAP;
+		private $queryXML;
+		private $queryFilename;
+		
+		public static function load($blade){
+			try {
+				return new QueryManager($blade);
+			} catch(DBConnectionError $e) {
+				return null;
+			}
+		}
 		
 		public function __construct($blade)
 		{
 			global $Blade_Map;
 			$this->PID_MAP = array();
 			$this->TABLES_MAP = array();
-			$this->Status_MAP = array(0=>"error",1=>"running",2=>"db-ready",3 =>"some-xml-ready",4 =>"all-xml-ready",5 =>"kml-ready");
+			$this->Status_MAP = array(0=>"error", // db-error
+									  1=>"running", // db-running
+									  2=>"db-ready",
+									  3=>"fetching-xml",
+									  4=>"xml-ready",
+									  5=>"kml-ready");
 			
+			$this->queryFilename = "xml/query.xml";
+			$this->queryXML = simplexml_load_file($this->queryFilename);
+		  
+			///////////////////////////////////////////
 			$blade = $Blade_Map[$blade];
 			$host = (string)$blade["host"];
 			$port = (int)$blade["port"];
@@ -25,7 +46,8 @@
 			$write_db = (string)$blade["write-db"];
 			
 			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
-			if($mysqli->connect_error) die("can't connect to DB!\n");
+			if($mysqli->connect_error) //die("can't connect to DB!\n");
+				throw new DBConnectionError();
 			
 			$result = $mysqli->query('SHOW FULL PROCESSLIST;');
 			$num = $result->num_rows;
@@ -65,8 +87,32 @@
 			$mysqli->close();
 				
 		}
+
+		public function setQueryStatus($qid,$new_status,$allQIDS)
+		{
+			$queryID = $qid;
+			$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
+			if($allQIDS){
+				$tableID = (string)$result[0]->tableID;
+				$result = $this->queryXML->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
+				foreach($result as $rs){
+					$rs->lastKnownStatus=$new_status;
+				}
+			} else {
+				$result[0]->lastKnownStatus=$new_status;
+			}
+			$this->queryXML->asXML($this->queryFilename);
+		}
+		
+		function setQueryRunningStatus($qid,$new_status_id)
+		{
+			$queryID = $qid;
+			$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
+			$result[0]->lastRunningState=$this->getStatusMsg($new_status_id);
+			$this->queryXML->asXML($this->queryFilename);
+		}
 	
-		// 0 - error , 1 - running , 2 - db-ready, 3 - some-xml-ready,  4 - all-xml-ready, 5 - kml-ready
+		// 0 - error , 1 - running , 2 - db-ready, 3 - fetching-xml,  4 - xml-ready, 5 - kml-ready
 		public function getQueryStatus()
 		{
 			if(func_num_args()==2){
@@ -80,26 +126,21 @@
 				return 0;
 			}
 			$tableID = $idg->getTableID();
-			$kml_dst_dir = 'queries/'.$idg->getDirName();
-			$kml_filename = $kml_dst_dir.'/result.kmz';
-			$edges_filename = $kml_dst_dir.'/edges.xml';
-			$pop_filename = $kml_dst_dir.'/pop.xml';
+			
+			//$kml_dst_dir = 'queries/'.$idg->getDirName();
+			//$kml_filename = $kml_dst_dir.'/result.kmz';
+			//$edges_filename = $kml_dst_dir.'/edges.xml';
+			//$pop_filename = $kml_dst_dir.'/pop.xml';
+			
+			$queryID = $QID;
+			$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
+			$lastRunningState = (string)$result[0]->lastRunningState;
+			$stateID = array_search($lastRunningState, $this->Status_MAP);
 		
-			if(file_exists($kml_filename)){
-				return 5;
+			if($stateID>=3){
+				return $stateID;
 			}
-			
-			/*
-			if(file_exists($edges_filename) && file_exists($pop_filename)){
-				return 4;
-			}
-			
-			if(file_exists($edges_filename) || file_exists($pop_filename)){
-				return 3;
-			}
-			 * 
-			 */
-			
+
 			if(array_key_exists($tableID, $this->PID_MAP))
 				if(isset($this->PID_MAP[$tableID]["POP"]) || isset($this->PID_MAP[$tableID]["EDGE"]))
 					return 1;

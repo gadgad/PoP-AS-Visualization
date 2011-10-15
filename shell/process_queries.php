@@ -17,20 +17,6 @@
 	    @ob_start();
 	}
 	
-	function xml_change_status($qid,$new_status)
-	{
-		$queryID = $qid;
-		$filename = "xml\query.xml";
-		$queries = simplexml_load_file($filename);
-		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
-		$tableID = (string)$result[0]->tableID;
-		$result2 = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
-		foreach($result2 as $rs){
-			$rs->lastKnownStatus=$new_status;
-		}
-		$queries->asXML($filename);
-	}
-	
 	function create_ok_sig()
 	{
 		$ourFileName = "shell/log/process_queries.ok";
@@ -81,45 +67,55 @@
 	
 	$all_ok = true;
 	foreach($running_blade_map as $blade => $rq_lst) {
-		$qm = new QueryManager($blade);
+		//$qm = new QueryManager($blade);
+		$qm = QueryManager::load($blade);
+		if($qm==null){
+			die("QueryManager init fail: can't connect to db!\n");
+		}
 		foreach($rq_lst as $queryID) {
 			$qs = $qm->getQueryStatus($queryID);
 			echo "$queryID status: ".$qm->getStatusMsg($qs)."\n";
-			// 0 - error , 1 - running , 2 - db-ready, 3 - some-xml-ready,  4 - all-xml-ready, 5 - kml-ready
-			if($qs >= 2 && $qs != 5) // db-tables are ready, but no kml file..
+			// 0 - error , 1 - running , 2 - db-ready, 3 - fetching-xml,  4 - xml-ready, 5 - kml-ready
+			if($qs == 2 || $qs == 3) // db-tables are ready, but no xml file..
 			{
 				log_query($queryID,'db_ready');
+				$qm->setQueryRunningStatus($queryID,3);
 				$xw = new xml_Writer($blade,$queryID);
 			    if($xw->writeXML()){
 			    	echo "$queryID generate-xml: success!\n";
 					log_query($queryID,'xml_done');
-			    }
-				else {
+					$qm->setQueryRunningStatus($queryID,4);
+					$qs=4;
+			    } else {
 					$all_ok = false;
 					echo "$queryID generate-xml: failure :(\n";
 					log_query($queryID,'xml_fail');
 				}
-				
+			}
+			if($qs==4){ // xml ready, but no kml file
 				//write generated KML file to disk
 				echo "calling kmlWriter CTOR\n";
 				$kmlWriter = new kmlWriter($queryID);
 				echo "after CTOR\n";
-				if($kmlWriter->writeKMZ())
+				if($kmlWriter->writeKMZ(false))
 				{
 					$filename=$kmlWriter->getFileName();
-					xml_change_status($queryID,"completed");
+					$qm->setQueryStatus($queryID,"completed");
 					echo "$queryID generate-kml: success! $filename generated successfully! :)\n";
 					log_query($queryID,'complete');
+					$qm->setQueryRunningStatus($queryID,5);
 				} else {
 					$all_ok = false;
 					echo "$queryID generate-kml: failure :(\n";
 					log_query($queryID,'kml_fail');
 				}
-			} else if($qs==5) {
-				xml_change_status($queryID,"completed");
+			} 
+			if($qs==5) {
+				$qm->setQueryStatus($queryID,"completed");
 				log_query($queryID,'complete');
-			} else if($qs==0) {
-				xml_change_status($queryID,"error");
+			} 
+			if($qs==0) {
+				$qm->setQueryStatus($queryID,"error");
 				log_query($queryID,'error');
 			}		
 		}
