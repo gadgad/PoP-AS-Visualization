@@ -80,7 +80,7 @@ if(isset($_POST['login'])){
 												                          
 		            </div>
 		            <div style="text-align:center; padding-top:20px;">
-		            	<img src="images/DIMES.gif">	
+		            	<img src="images/DIMES.gif" style="margin-top: 20px">	
 		            </div>
 	            </div>
 	            
@@ -89,8 +89,14 @@ if(isset($_POST['login'])){
 		    		<p>Dear user, please complete the following form.</br>
 		    		After an aproval of your request by the system admin,
 		    		you'll be able to login into the system using the security credentials provided here.</p>
-				    		
-				</div>	           
+		    		<p>An example of the result file:</p>
+		    		
+		    		<div align="center">
+				    	<img src="images/earth_example.jpg">	
+				    </div>				    		
+				</div>
+				
+					           
 	            <div class="footer">
                 	Copyright © 2011 <a href="http://www.netdimes.org/new/">DIMES</a>
             	</div>
