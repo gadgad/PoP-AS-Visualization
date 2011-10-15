@@ -4,6 +4,7 @@ require_once("bin/color.php");
 require_once("bin/idgen.php");
 require_once('bin/userData.php');
 require_once('bin/colorManager.php');
+require_once('bin/xml_chunk_reader.php');
 
 // global constants
 //define('MAX_EDGES_RESULTS',10);
@@ -59,12 +60,13 @@ class kmlWriter
 		$this->xml_src_dir = $this->kml_dst_dir = $xml_src_dir = 'queries/'.$this->idg->getDirName();
 		
 		$this->kmlString = '';
-		$this->pop_xml = simplexml_load_file($this->xml_src_dir."\pop.xml");
-		$this->edges_xml = simplexml_load_file($this->xml_src_dir."\edges.xml");
-		
-		$as_info_path = 'xml/ASN_info.xml';
 		$this->num_of_asns = 0;
-		$this->asn_info_xml = simplexml_load_file($as_info_path);
+		
+		$this->asn_info_xml = simplexml_load_file('xml/ASN_info.xml');
+		//$this->pop_xml = simplexml_load_file($this->xml_src_dir."/pop.xml");
+		//$this->edges_xml = simplexml_load_file($this->xml_src_dir."/edges.xml");
+		$this->pop_xml_reader = new XMLChunkReader($this->xml_src_dir,'pop');
+		$this->edges_xml_reader = new XMLChunkReader($this->xml_src_dir,'edges');
 		
 		$this->ASN_LIST=array();
 		$this->EDGES=array();
@@ -75,33 +77,10 @@ class kmlWriter
 		$this->cm = new colorManager($GLOBALS["username"],$queryID);
 		$this->COLOR_LIST =& $this->cm->GLOBAL_COLOR_LIST;
 		$this->USER_COLOR_LIST = $this->cm->getColorList();
-		//$this->load_color_list();
 		$this->parseXML();
-		$this->cm->save_global_color_list;
-		//$this->save_color_list();
+		$this->cm->save_global_color_list();
 	}
-	
-	/*
-	private function load_color_list(){
-		$filename = 'data/ASN_color.data';
-		if(file_exists($filename)){
-			$file_handle = fopen($filename,"r") or die("can't open ".$filename."\n");
-			$str = fgets($file_handle);
-			$this->COLOR_LIST =  unserialize($str);
-			fclose($file_handle);
-		} else {
-			$this->COLOR_LIST = array();
-		}
-	}
-	
-	private function save_color_list(){
-		$filename = 'data/ASN_color.data';
-		$file_handle = fopen($filename, "w") or die("can't open ".$filename."\n");;
-		fwrite($file_handle,  serialize($this->COLOR_LIST));
-		fclose($file_handle);
-	}
-	*/
-	
+
 	private function dispatchAltitude(){
 	    static  $altitude = INITIAL_ALTITUDE;
 		$alt = $altitude; 
@@ -111,74 +90,81 @@ class kmlWriter
 	
 	private function parseXML()
 	{
-		
-		foreach($this->pop_xml->children() as $pop)
-		{
-		  	// generate map of PoP coordinates
-		    if(!array_key_exists((string)$pop->PoPID, $this->PLACEMARKS) 
-		    	|| !isset($this->PLACEMARKS[(string)$pop->PoPID]["lat"])
-				|| !isset($this->PLACEMARKS[(string)$pop->PoPID]["lng"])){
-		    	//$this->PLACEMARKS[(string)$pop->PoPID] = array("lat"=>floatval($pop->LAT2), "lng"=>floatval($pop->LNG2));
-		    	$this->PLACEMARKS[(string)$pop->PoPID]["lat"] = floatval($pop->LAT2);
-				$this->PLACEMARKS[(string)$pop->PoPID]["lng"] = floatval($pop->LNG2);
-			}
-			$asn = intval($pop->ASN);
-			if(!array_key_exists($asn, $this->ASN_LIST)) $this->ASN_LIST[$asn] = array(); 
-		}
-		
-		 
-		$edges = $this->edges_xml->children();	
-		foreach($edges as $edge)
-		{
-			$srcPOP = (string)$edge->Source_PoPID;
-			$dstPOP = (string)$edge->Dest_PoPID;
-			$srcAS = intval($edge->SourceAS);
-			$dstAS = intval($edge->DestAS);
-			
-			if($srcPOP!="NULL" && $dstPOP!="NULL" && $srcPOP!=$dstPOP)
+		while($this->pop_xml = $this->pop_xml_reader->loadNext()){
+			foreach($this->pop_xml->children() as $pop)
 			{
-				if((INTRA_CON && ($srcAS==$dstAS)) || (INTER_CON && ($srcAS!=$dstAS)))
+			  	// generate map of PoP coordinates
+			    if(!array_key_exists((string)$pop->PoPID, $this->PLACEMARKS) 
+			    	|| !isset($this->PLACEMARKS[(string)$pop->PoPID]["lat"])
+					|| !isset($this->PLACEMARKS[(string)$pop->PoPID]["lng"])){
+			    	//$this->PLACEMARKS[(string)$pop->PoPID] = array("lat"=>floatval($pop->LAT2), "lng"=>floatval($pop->LNG2));
+			    	$this->PLACEMARKS[(string)$pop->PoPID]["lat"] = floatval($pop->LAT2);
+					$this->PLACEMARKS[(string)$pop->PoPID]["lng"] = floatval($pop->LNG2);
+				}
+				$asn = intval($pop->ASN);
+				if(!array_key_exists($asn, $this->ASN_LIST)) $this->ASN_LIST[$asn] = array(); 
+			}
+			unset($this->pop_xml);
+		}
+		 
+		while($this->edges_xml = $this->edges_xml_reader->loadNext()){
+			$edges = $this->edges_xml->children();	
+			foreach($edges as $edge)
+			{
+				$srcPOP = (string)$edge->Source_PoPID;
+				$dstPOP = (string)$edge->Dest_PoPID;
+				$srcAS = intval($edge->SourceAS);
+				$dstAS = intval($edge->DestAS);
+				
+				if($srcPOP!="NULL" && $dstPOP!="NULL" && $srcPOP!=$dstPOP)
 				{
-					if(isset($this->PLACEMARKS[$srcPOP]["lat"]) &&
-					   isset($this->PLACEMARKS[$srcPOP]["lng"]) &&
-					   isset($this->PLACEMARKS[$dstPOP]["lat"]) &&
-					   isset($this->PLACEMARKS[$dstPOP]["lng"])) {
-							$src_lat = $this->PLACEMARKS[$srcPOP]["lat"];
-							$src_lng = $this->PLACEMARKS[$srcPOP]["lng"];
-							$dst_lat = $this->PLACEMARKS[$dstPOP]["lat"];
-							$dst_lng = $this->PLACEMARKS[$dstPOP]["lng"];
-					} else {
-						continue;
-					}
-					
-					if(($src_lat!=$dst_lat) || ($src_lng!=$dst_lng)){
-					    $edge_str = $edge->Source_PoPID.$edge->Dest_PoPID;
-						$this->PLACEMARKS[(string)($edge->Source_PoPID)]["connected"]=true;
-						$this->PLACEMARKS[(string)($edge->Dest_PoPID)]["connected"]=true;
-						$this->ASN_LIST[$srcAS]["connected"]=true;
-						$this->ASN_LIST[$dstAS]["connected"]=true;
+					if((INTRA_CON && ($srcAS==$dstAS)) || (INTER_CON && ($srcAS!=$dstAS)))
+					{
+						if(isset($this->PLACEMARKS[$srcPOP]["lat"]) &&
+						   isset($this->PLACEMARKS[$srcPOP]["lng"]) &&
+						   isset($this->PLACEMARKS[$dstPOP]["lat"]) &&
+						   isset($this->PLACEMARKS[$dstPOP]["lng"])) {
+								$src_lat = $this->PLACEMARKS[$srcPOP]["lat"];
+								$src_lng = $this->PLACEMARKS[$srcPOP]["lng"];
+								$dst_lat = $this->PLACEMARKS[$dstPOP]["lat"];
+								$dst_lng = $this->PLACEMARKS[$dstPOP]["lng"];
+						} else {
+							continue;
+						}
 						
-						$conType = ($srcAS == $dstAS)? 'intra':'inter';
-					    if(!array_key_exists($edge_str, $this->EDGES[$srcAS][$conType])){
-					     	$this->EDGES[$srcAS][$conType][$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
-					     							  "DestAS"=>intval($edge->DestAS),
-					     							  "SourcePoP"=>$srcPOP,
-					     							  "DestPoP"=>$dstPOP,
-					     							  "numOfEdges"=>1,
-					     							  "median_lst"=>array(floatval($edge->Median)),
-					     							  "edgeID_lst"=>array($edge->edgeid),
-					     							  "src_ip_lst"=>array($edge->SourceIP),
-					     							  "dest_ip_lst"=>array($edge->DestIP));
-					    } else {
-					    	$this->EDGES[$srcAS][$conType][$edge_str]["numOfEdges"]++;
-							$this->EDGES[$srcAS][$conType][$edge_str]["median_lst"][] = floatval($edge->Median);
-					    	$this->EDGES[$srcAS][$conType][$edge_str]["edgeID_lst"][] = $edge->edgeid;
-					    	$this->EDGES[$srcAS][$conType][$edge_str]["src_ip_lst"][] = $edge->SourceIP;
-					    	$this->EDGES[$srcAS][$conType][$edge_str]["dest_ip_lst"][] = $edge->DestIP;
-				    	}
-				    }
+						if(($src_lat!=$dst_lat) || ($src_lng!=$dst_lng)){
+						    $edge_str = $edge->Source_PoPID.$edge->Dest_PoPID;
+							$this->PLACEMARKS[(string)($edge->Source_PoPID)]["connected"]=true;
+							$this->PLACEMARKS[(string)($edge->Dest_PoPID)]["connected"]=true;
+							$this->ASN_LIST[$srcAS]["connected"]=true;
+							$this->ASN_LIST[$dstAS]["connected"]=true;
+							
+							$conType = ($srcAS == $dstAS)? 'intra':'inter';
+							if(!isset($this->EDGES[$srcAS][$conType]))
+								$this->EDGES[$srcAS][$conType] = array();
+							
+						    if(!array_key_exists($edge_str, $this->EDGES[$srcAS][$conType])){
+						     	$this->EDGES[$srcAS][$conType][$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
+						     							  "DestAS"=>intval($edge->DestAS),
+						     							  "SourcePoP"=>$srcPOP,
+						     							  "DestPoP"=>$dstPOP,
+						     							  "numOfEdges"=>1,
+						     							  "median_lst"=>array(floatval($edge->Median)),
+						     							  "edgeID_lst"=>array($edge->edgeid),
+						     							  "src_ip_lst"=>array($edge->SourceIP),
+						     							  "dest_ip_lst"=>array($edge->DestIP));
+						    } else {
+						    	$this->EDGES[$srcAS][$conType][$edge_str]["numOfEdges"]++;
+								$this->EDGES[$srcAS][$conType][$edge_str]["median_lst"][] = floatval($edge->Median);
+						    	$this->EDGES[$srcAS][$conType][$edge_str]["edgeID_lst"][] = $edge->edgeid;
+						    	$this->EDGES[$srcAS][$conType][$edge_str]["src_ip_lst"][] = $edge->SourceIP;
+						    	$this->EDGES[$srcAS][$conType][$edge_str]["dest_ip_lst"][] = $edge->DestIP;
+					    	}
+					    }
+					}
 				}
 			}
+			unset($this->edges_xml);
 		}
 		
 		//sort the multi-dimensional EDGES array
@@ -198,61 +184,64 @@ class kmlWriter
 		unset($this->ASN_LIST);
 		$this->ASN_LIST = array();
 		
-		if(USE_COLOR_PICKER)
-					$cp = new ColorPicker($this->num_of_asns);
+		if(USE_COLOR_PICKER) $cp = new ColorPicker($this->num_of_asns);
 		
-		foreach($this->pop_xml->children() as $pop)
-		  {
-		  	$asn = intval($pop->ASN);
-			$placemark =  $this->PLACEMARKS[(string)$pop->PoPID];
-		  	$pop_connected = (isset($placemark["connected"])) ? true : false;
-		  	if(!CONNECTED_POPS_ONLY || $pop_connected)
+		$this->pop_xml_reader->resetReader();
+		while($this->pop_xml = $this->pop_xml_reader->loadNext()){
+			foreach($this->pop_xml->children() as $pop)
 			{
-			  	$pop_str = $pop->ASN.$pop->LAT2.$pop->LNG2;
-				if(!array_key_exists($pop_str, $this->LOC_2_POP_MAP[$asn])){
-			  		$this->LOC_2_POP_MAP[$asn][$pop_str] = array("numOfPoPS"=>1,"asn"=>intval($pop->ASN),"lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"pop_id_lst"=>array($pop->PoPID));
-				} else {
-					$this->LOC_2_POP_MAP[$asn][$pop_str]["numOfPoPS"]++;
-					$this->LOC_2_POP_MAP[$asn][$pop_str]["pop_id_lst"][] = $pop->PoPID;
-				}
-				
-				if(!array_key_exists($asn,$this->ASN_LIST)){
-				  if(isset($this->USER_COLOR_LIST['asn'][$asn])){
-				  	$asn_color = $this->USER_COLOR_LIST['asn'][$asn];
-				  }elseif(isset($this->COLOR_LIST['asn'][$asn])){
-				  	$asn_color = $this->COLOR_LIST['asn'][$asn];
-				  } else {
-				  	do {
-				  		$asn_color = (USE_COLOR_PICKER)? $cp->getColor() : new Color();
-					} while(isset($this->COLOR_LIST['color'][$asn_color->web_format()]));
-					$asn_color->setTrans(255-TRANSPARENCY);
-					// TODO: add implementation of k-d-tree & k-nearest alg', making sure euclidean dist' of curr color from it's nearest neighbour is bigger than treshold...
-					// this will be an efficient method to enforce color diversity. 
-					$this->COLOR_LIST['color'][$asn_color->web_format()] = $asn;
-					$this->COLOR_LIST['asn'][$asn] = $asn_color;
-				  }
-				  $this->COLOR_LIST['asn'][$asn]->setTrans(255-TRANSPARENCY);
-				  
-				  
-				  $this->ASN_LIST[$asn]= array("color"=>$asn_color, "altitude"=>$this->dispatchAltitude());
-				  $asn_info = $this->asn_info_xml->xpath("/DATA/ROW[ASNumber=".$asn."]");
-				  if(!empty($asn_info))
-				  {
-				  	$this->ASN_LIST[$asn]["Country"] = $asn_info[0]->Country;
-					$this->ASN_LIST[$asn]["ISPName"] = $asn_info[0]->ISPName;
-				  }
+			  	$asn = intval($pop->ASN);
+				$placemark =  $this->PLACEMARKS[(string)$pop->PoPID];
+			  	$pop_connected = (isset($placemark["connected"])) ? true : false;
+			  	if(!CONNECTED_POPS_ONLY || $pop_connected)
+				{
+				  	$pop_str = $pop->ASN.$pop->LAT2.$pop->LNG2;
+					if(!array_key_exists($pop_str, $this->LOC_2_POP_MAP[$asn])){
+				  		$this->LOC_2_POP_MAP[$asn][$pop_str] = array("numOfPoPS"=>1,"asn"=>intval($pop->ASN),"lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"pop_id_lst"=>array($pop->PoPID));
+					} else {
+						$this->LOC_2_POP_MAP[$asn][$pop_str]["numOfPoPS"]++;
+						$this->LOC_2_POP_MAP[$asn][$pop_str]["pop_id_lst"][] = $pop->PoPID;
+					}
+					
+					if(!array_key_exists($asn,$this->ASN_LIST)){
+					  if(isset($this->USER_COLOR_LIST['asn'][$asn])){
+					  	$asn_color = $this->USER_COLOR_LIST['asn'][$asn];
+					  }elseif(isset($this->COLOR_LIST['asn'][$asn])){
+					  	$asn_color = $this->COLOR_LIST['asn'][$asn];
+					  } else {
+					  	do {
+					  		$asn_color = (USE_COLOR_PICKER)? $cp->getColor() : new Color();
+						} while(isset($this->COLOR_LIST['color'][$asn_color->web_format()]));
+						$asn_color->setTrans(255-TRANSPARENCY);
+						// TODO: add implementation of k-d-tree & k-nearest alg', making sure euclidean dist' of curr color from it's nearest neighbour is bigger than treshold...
+						// this will be an efficient method to enforce color diversity. 
+						$this->COLOR_LIST['color'][$asn_color->web_format()] = $asn;
+						$this->COLOR_LIST['asn'][$asn] = $asn_color;
+					  }
+					  $this->COLOR_LIST['asn'][$asn]->setTrans(255-TRANSPARENCY);
+					  
+					  
+					  $this->ASN_LIST[$asn]= array("color"=>$asn_color, "altitude"=>$this->dispatchAltitude());
+					  $asn_info = $this->asn_info_xml->xpath("/DATA/ROW[ASNumber=".$asn."]");
+					  if(!empty($asn_info))
+					  {
+					  	$this->ASN_LIST[$asn]["Country"] = $asn_info[0]->Country;
+						$this->ASN_LIST[$asn]["ISPName"] = $asn_info[0]->ISPName;
+					  }
+				  	}
 			  	}
-		  	}
-			
-			if(DRAW_CIRCLES && (!CONNECTED_POPS_ONLY || $pop_connected)){
-		    	//we only need LAT2,LNG2,Accuracy2
-		    	//radius = Accuracy2*110000 [in meters]
-		    	$this->CIRCLES[$asn][] = array("lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"radius"=>floatval($pop->Accuracy2)*110000,"asn"=>intval($pop->ASN),"popID"=>$pop->PoPID);
-			}	
+				
+				if(DRAW_CIRCLES && (!CONNECTED_POPS_ONLY || $pop_connected)){
+			    	//we only need LAT2,LNG2,Accuracy2
+			    	//radius = Accuracy2*110000 [in meters]
+			    	$this->CIRCLES[$asn][] = array("lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"radius"=>floatval($pop->Accuracy2)*110000,"asn"=>intval($pop->ASN),"popID"=>$pop->PoPID);
+				}	
 		  }
-
-		  ksort($this->LOC_2_POP_MAP);
-		  ksort($this->CIRCLES);  
+		  unset($this->pop_xml);
+	  }
+	
+	  ksort($this->LOC_2_POP_MAP);
+	  ksort($this->CIRCLES);  
 	}
 	
 	private function kmlPlaceMark($placeMark)

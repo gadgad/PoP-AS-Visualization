@@ -24,21 +24,17 @@
              	$.preLoadImages("images/icon_OK.png");
              	$("#testStatus").remove();
 				$('#blade').after('<img id="testStatus" class="validator" src="images/ajax-loader.gif"/>');
-             	$('#AS :input, #formButtons :input').not("#blade").prop('disabled',true);
-             	//$("#stage2,#stage3,#formButtons").addClass('formGrayOut');        	                
+             	$('#AS input').addClass('formGrayOut').attr('disabled','disabled');           	                
                 $.post("query_backend.php", { func: "testConnection", blade: $("#blade").val() },
                     function(data){
-                    		 $("#sendQueryDBStatus").remove();
-                    		 $("#testStatus").hide();
                              var result = data.result;
                              if(data!=null){
 	                             if (data.type =="ERROR"){
-	                             	//$('#AS #blade').removeClass('formGrayOut').prop('disabled',false);
-	                             	$("#resetForm").after('<p id="sendQueryDBStatus" class="sendQueryValidator" style="color:red">'+result+'</p>');
+	                             	$('#AS input#blade').removeClass('formGrayOut').removeAttr('disabled');
+	                             	alert(result);
 	                             } else {
 	                             	$("#testStatus").replaceWith('<img id="testStatus" class="validator" src="images/icon_OK.png"/>');
-	                             	$("#testStatus").show();
-	                             	$('#AS :input, #formButtons :input').prop('disabled',false);
+	                             	$('#AS input').removeClass('formGrayOut').removeAttr('disabled');
 	                             }
 	                          }                            
                     }, "json");	
@@ -46,57 +42,54 @@
              
              function getTables(){
              	if ($("#blade").val()!="" && $("#year").val()!="" && $("#week").val()!=""){
-             		$('#AS :input').prop('disabled',true);
              		
-					$('#button-wrap-1').html('<p><img src="images/ajax-loader.gif"/></p>');                                   
+             		//$.preLoadImages("images/ajax-loader.gif");
+					$('#button-wrap-t').html('<p><img src="images/ajax-loader.gif"/></p>');                                   
 					
                     $.post("query_backend.php", {func: "showTables", blade: $("#blade").val(),
                      year: $("#year").val(),week: $("#week").val()},
-                    function(data){
-                    	
-	                	$('#button-wrap-1').html('<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>');
-	                    $("#getTables").click(function() {
-		                	getTables();                    
-		                });                        			
+                    function(data){                        			
                          
-						 if (data.type=="GOOD"){  
-						 	
-						 	 $("#Edge").html("");
-							 $("#PoP").html("");
-							 $("#popIP").html("");                  	
-						 
-						     if (data.edge!= ""){
-						     	var allEdges = data.edge;	                                               
-						     	var edges = allEdges.split(" ");
-						     	for(i = 0; i < edges.length; i++){								
+                         if (data.type=="GOOD"){  
+                         	
+                         	 $("#Edge").html("");
+	                    	 $("#PoP").html("");
+	                    	 $("#popIP").html("");                  	
+                         
+	                         if (data.edge!= ""){
+	                         	var allEdges = data.edge;	                                               
+	                         	var edges = allEdges.split(" ");
+	                         	for(i = 0; i < edges.length; i++){								
 									$("#Edge").append("<option>" + edges[i] + "</option> "); 									
 								 }
-								 disableStage(2,false);
-								 $('#getTables').prop('disabled',true);
-						     }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                                                 
-						     
-						     if (data.pop!=""){
-						     	var allPops = data.pop;
-						     	var pops = allPops.split(" ");
-						     	for(i = 0; i < pops.length; i++){								
+	                         }else {$("#Edge").append("<option>No tables available</option> ");}	                         	                                                 
+	                         
+	                         if (data.pop!=""){
+	                         	var allPops = data.pop;
+	                         	var pops = allPops.split(" ");
+	                         	for(i = 0; i < pops.length; i++){								
 									$("#PoP").append("<option>" + pops[i] + "</option> ");
 								 }
-						     }else {$("#PoP").append("<option>No tables available</option> ");}
-						                              
-						     if (data.popIP!=""){
-						     	var allPops2 = data.popIP;
-						     	var pops2 = allPops2.split(" ");
-						     	for(i = 0; i < pops2.length; i++){								
+	                         }else {$("#PoP").append("<option>No tables available</option> ");}
+	                                                  
+	                         if (data.popIP!=""){
+	                         	var allPops2 = data.popIP;
+	                         	var pops2 = allPops2.split(" ");
+	                         	for(i = 0; i < pops2.length; i++){								
 									$("#popIP").append("<option>" + pops2[i] + "</option> ");
 								 }
-						     }else {$("#popIP").append("<option>No tables available</option> ");}	                        
-							
-						}else{
-							$("#Edge").html("<option>Connection error</option> ");
-							$("#PoP").html("<option>Connection error</option> ");
-							$("#popIP").html("<option>Connection error</option> ");
-						}
-					}, "json");	
+	                         }else {$("#popIP").append("<option>No tables available</option> ");}	                        
+	                    	
+	                    }else{
+	                    	$("#Edge").html("<option>Connection error</option> ");
+	                    	$("#PoP").html("<option>Connection error</option> ");
+	                    	$("#popIP").html("<option>Connection error</option> ");
+	                    }
+	                    $('#button-wrap-t').html('<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>');
+	                    $("#getTables").click(function() {
+		                	getTables();                    
+		                });
+	                    }, "json");	
                 }
              } 
              
@@ -111,13 +104,13 @@
          				var queryID = $(this).attr('id');
          				$("#"+queryID).html('<p class="blink">checking...</p>');
          			});
-         			globalData.pq_running=true;
-    				//pool_pq_status(data.pid);
-            		globalData.interval = setInterval( "pool_pq_status("+data.pid+")" , 5000 );  // pool with 5-sec intervals
+         			pool_pq_status(data.pid);
+            		globalData.interval = setInterval( "pool_pq_status("+data.pid+")" , 30000 );  // pool with 5-sec intervals
             	}); 
              }
             
              function updateTable(){
+             	//$("#My_queries").append("<p text-align:center>Query " + queryID + " is now running with pid: "+myNameSpace.processID+"</p>");
              	$('#queryTable').load('index.php #queryTable').fadeIn("slow");
              	myQueriesBindUpdateEvent();          		
              }
@@ -128,30 +121,28 @@
              	//$.preLoadImages("images/ajax-loader.gif");
              	$("#sendQueryStatus").remove();
              	if(!$("#searchable").val()){
-             		$("#resetForm").after('<p id="sendQueryStatus" class="sendQueryValidator" style="color:red">complete the form first!</p>');
+             		$("#sendQuery").after('<p id="sendQueryStatus" class="sendQueryValidator" style="color:red">complete the form first!</p>');
              		return;
              	}
-				$("#resetForm").after('<img id="sendQueryStatus" class="validator" src="images/ajax-loader.gif"/>');
+				$("#sendQuery").after('<img id="sendQueryStatus" class="validator" src="images/ajax-loader.gif"/>');
              	$.post("query_backend.php", {func: "sendQuery", stage:1, blade: $("#blade").val() ,
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(), week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
-                         		$("#My_queries_info").html('<p style="color:red">ERROR - The query did not run successfuly</p>');
+                         		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
                          		$("#sendQueryStatus").remove();
-                         		if(data!=null) $("#My_queries_info").append('<p style="color:red">'+data.result+'</p>');
+                         		if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
                          	}else if(data.type=="ALL_COMPLETE"){
-                         		$("#My_queries_info").html('<p style="color:red; text-align:center">'+data.result+'</p>');
+                         		$("#My_queries").append("<p text-align:center>"+data.result+"</p> ");
                          		$("#sendQueryStatus").remove();
                          	}else if(data.type=="GOOD"){
                          		queryID=data.queryID;
 	                     		$("#sendQueryStatus").remove();
-	                     		globalData.pq_running=false;
-								clearInterval(globalData.interval);
 	                     		updateTable();
 	                     		setTimeout("run_pq_script()",1000);
                          	} else {
                          		if(data.type!="STAGE1_COMPLETE"){
-                         			$("#My_queries_info").html('<p style="color:red; text-align:center">ASSERTION ERROR</p>');
+                         			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
                          			$("#sendQueryStatus").remove();
                          		} else {
                          			stageTwo();
@@ -166,12 +157,12 @@
                          edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(),week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() },
                          function(data){
                          	if (data==null || data.type=="ERROR"){
-                         		$("#My_queries_info").html('<p style="color:red">ERROR - The query did not run successfuly</p>');
-                         		if(data!=null) $("#My_queries_info").append('<p style="color:red">'+data.result+'</p>');
+                         		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
+                         		if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
                          		$("#sendQueryStatus").remove();
                          	} else {
                          		if(data.type!="STAGE2_COMPLETE"){
-                         			$("#My_queries_info").html('<p style="color:red">ASSERTION ERROR</p>');
+                         			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
                          			$("#sendQueryStatus").remove();
                          		} else {
 	                     			stageThree();
@@ -184,7 +175,7 @@
              function stageThree(resendQuery,queryID)
              {
              	if(error_counter>=3) {
-             		$("#My_queries_info").html('<p style="color:red">ERROR - The query did not run successfuly</p>');
+             		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
              		$("#sendQueryStatus").remove();
              		if(resendQuery) $('#queryTable').html('');
              		return;
@@ -195,19 +186,17 @@
              	$.post("query_backend.php", ((resendQuery)? properties1 : properties2) ,
                          function(data){
                          	if (data==null || data.type=="ERROR"){
-                         		//$("#My_queries_info").html('<p style="color:red">ERROR - The query did not run successfuly</p>');
-                         		//if(data!=null) $("#My_queries_info").append('<p style="color:red">'+data.result+'</p>');
+                         		//$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
+                         		//if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
                          		error_counter++;
                          		stageThree(resendQuery,queryID);
                          	} else {
                          		if(data.type!="GOOD"){
-                         			$("#My_queries_info").html('<p style="color:red">ASSERTION ERROR</p>');
+                         			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
                          			$("#sendQueryStatus").remove();
                          		} else {
                          			queryID=data.queryID;
 	                     			$("#sendQueryStatus").remove();
-	                     			globalData.pq_running=false;
-									clearInterval(globalData.interval);
 	                     			updateTable();
 	                     			setTimeout("run_pq_script()",1000);
                          		}
@@ -224,12 +213,12 @@
              	$.post("query_backend.php", {func: "resendQuery", query: queryID, stage:2,  username: <?php echo '"'.$username.'"'?> },
              	function(data){
 		     		if (data==null || data.type=="ERROR"){
-                 		$("#My_queries_info").html('<p style="color:red">ERROR - The query did not run successfuly</p>');
-                 		if(data!=null) $("#My_queries_info").append('<p style="color:red">'+data.result+'</p>');
+                 		$("#My_queries").append('<p style="color:red">ERROR - The query did not run successfuly</p>');
+                 		if(data!=null) $("#My_queries").append('<p style="color:red">'+data.result+'</p>');
                  		$("#sendQueryStatus").remove();
                  	} else {
                  		if(data.type!="STAGE2_COMPLETE"){
-                 			$("#My_queries_info").html('<p style="color:red">ASSERTION ERROR</p>');
+                 			$("#My_queries").append('<p style="color:red">ASSERTION ERROR</p>');
                  			$("#sendQueryStatus").remove();
                  		} else {
                  			stageThree(true,queryID);
@@ -262,11 +251,11 @@
 					function(data,textStatus){
 						if(data!=null) {
 							if(data.type == "ERROR"){
-								globalData.pq_running=false;
+								globalData.pq_running==false;
 								clearInterval(globalData.interval);
 								//alert(data.result);
 								console.log(data.result);
-								$("#My_queries_info").html('<p style="color:red;text-align:center;">ERROR - update-status procedure ended unexpectedly.</br>look in js console for details..</p>');
+								$("#My_queries").append('<p style="color:red;text-align:center;">ERROR - update-status procedure ended unexpectedly.</br>look in js console for details..</p>');
 								$(".checkStatus").each(function(index) {
 			         				var queryID = $(this).attr('id');
 			         				$("#"+queryID).html('error');
@@ -289,7 +278,7 @@
 								return;
 							}
 							if(data.type == "FINISHED"){
-								globalData.pq_running=false;
+								globalData.pq_running==false;
 								clearInterval(globalData.interval);
 								updateTable();
 								return;
@@ -299,96 +288,19 @@
             	} 	
             }
             
-            function getASList(){
-            	//$.preLoadImages("images/ajax-loader.gif");
-            	$('#AS :input').prop('disabled',true);
-            	
-				$('#button-wrap-2').html('<p><img src="images/ajax-loader.gif"/></p>');                                                           
-                $.post("query_backend.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
-                function(data){
-                	
-					$('#button-wrap-2').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
-					$("#getAS").click(function() {
-                    	getASList();         
-                    });
-                     
-					if (data.type=="GOOD"){
-						if (data.result==""){
-					 		$("#stage3").html('<p style="font-size: 12px; color: black">No AS to show for your query.</p>');
-						}else{
-							$("#stage3").html("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>");
-									                        	                        			
-	                        var allAS = data.result;
-							var AS = allAS.split("*");	
-							 							 	                         	                         
-	                        for(i = 0; i < AS.length; i++){
-	                         	var tmp = AS[i].split(" ");								
-								$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
-							}
-							
-							$('#searchable').multiselect2side({'search': 'Search: '});
-							
-							disableStage(3,false);
-							$('#getAS').prop('disabled',true);
-						}
-						
-					}else{                 	                        																	 
-						 $("#stage3").html('<p style="font-size: 12px; color: red">Connection error - can not reach server.</p>');
-					}	                         
-                }, "json");
-            }
-            
-            
-            function disableStage(stage,disable){
-            	$("#stage"+stage+" :input").prop('disabled',disable);
-            }
-            
-            function resetForm(){
-            	
- 				$('#AS :input').not("#stage1 :input").prop('disabled',true);
- 				disableStage(1,false); 				           
-     			
-     			$(':input','#AS')
-				 .not(':button, :submit, :reset, :hidden')
-				 .val('')
-				 .removeAttr('checked')
-				 .removeAttr('selected');
- 
-     			$("#week").html('<option selected="selected" value="">Select week</option>');
-     			
-     			$("#Edge").html('<option selected="selected" value="">Select edge table</option>');
-				$("#PoP").html('<option selected="selected" value="">Select PoP table</option>');
-				$("#popIP").html('<option selected="selected" value="">Select PoP IP table</option>');
-				
-				$("#stage3").html('<p style="font-size: 10px; color: gray">After clicking the list will apear.</p>');
-            	$(".sendQueryValidator").each(function(index) {
-     				$(this).remove();
-     			});   
-            }
-            
-            $(document).ready(function() {
-            	$('#AS :input').not("#stage1 :input").prop('disabled',true);
-			});
-			
-            
             $(document).ready(function() {
             	$("#My_queries").ready(function() {
             		myQueriesBindUpdateEvent();
             	});
 			});
-			
-			
-			/*                      
-            $(document).ready(function() {
-            		testConnection();                   
+			                      
+            $(document).ready(function() {                   
                     $("#blade").change(function() {
-                    	if ($("#blade").val() != ""){
-                       		testConnection();
+                    	if ($("#blade").val() != "Select blade"){
+                       		//testConnection();
                        	}
                     });
             });
-            */
-            
                                                           
             //get possible tables 
             $(document).ready(function() {              	 
@@ -403,13 +315,11 @@
                 	if ($("#year").val()!=""){
                 		$.post("query_backend.php", {func: "getWeeks", blade: $("#blade").val(),year: $("#year").val()},
                         function(data){
-                        	if (data.type=="GOOD"){
-                        		$("#week").html('');	
+                        	if (data.type=="GOOD"){	
 								var weeks = data.weeks;		            
 								if (weeks!=null){
-		                         	for(i = 1; i < weeks.length; i++){
-		                    			var selected_str = (i==weeks.length-1)? 'selected="selected"':''; 							
-										$("#week").append('<option '+selected_str+'>' + weeks[i] + '</option> '); 									
+		                         	for(i = 1; i < weeks.length; i++){								
+										$("#week").append("<option>" + weeks[i] + "</option> "); 									
 									 }
 	                         	}else {$("#week").append("<option>No weeks available</option> ");}
                          	}else {$("#week").html("<option>Connection error</option> ");}		                        	                        			
@@ -422,7 +332,36 @@
                                     
             $(document).ready(function() {
                     $("#getAS").click(function() {
-                    	getASList();         
+                    	//$.preLoadImages("images/ajax-loader.gif");
+  						$('#button-wrap').html('<p><img src="images/ajax-loader.gif"/></p>');                                                           
+                        $.post("query_backend.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
+                        function(data){
+							
+							if (data.type=="GOOD"){
+								if (data.result==""){
+									$('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+							 		$('#button-wrap').append('<p style="font-size: 12px; color: black">No AS to show for your query.</p>');
+								}else{
+															
+									$("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>").insertAfter('#button-wrap');
+											                        	                        			
+			                        var allAS = data.result;
+									var AS = allAS.split("*");	
+									 							 	                         	                         
+			                        for(i = 0; i < AS.length; i++){
+			                         	var tmp = AS[i].split(" ");								
+										$("#searchable").append('<option value="' + tmp[0] + '">' + AS[i] + "</option> "); 								
+									}
+									
+									$('#searchable').multiselect2side({'search': 'Search: '});
+									$('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+								}
+								
+							}else{ 		                        	                        																	 
+								 $('#button-wrap').html('<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>');
+								 $('#button-wrap').append('<p style="font-size: 12px; color: red">Connection error - can not reach server.</p>');
+							}	                         
+                        }, "json");	           
                     });                    
             });
             
@@ -439,12 +378,29 @@
                     });
             });
             
-            // send the query to server
+            
+            /*
+            // check status of running queries
             $(document).ready(function() {
-                    $("#resetForm").click(function() {                                                           
-                        resetForm();                                               
-                    });
+            	$(".checkStatus").ready(function() {
+             		$(".checkStatus").each(function(index) {
+         				var queryID = $(this).attr('id');
+         				$("#"+queryID).html('<p class="blink">checking status...</p>');
+         				$("#"+queryID+" .blink").blink();
+	            		$.post("user_query_managment.php", {func: "getRunningStatus", query: queryID, username: <?php echo '"'.$username.'"'?> },
+		             	function(data){
+		             		// COMPLETE , PROCESSING , RUNNING , READY , ERROR
+		             		if(data==null || data.type=="ERROR"){
+		             			$("#"+queryID).html('<p title="'+data.result+'" style="color:red">ERROR</p>');
+		             		} else  {
+		             			$("#"+queryID).html('<p title="'+data.result+'">'+data.type.toLowerCase()+'</p>');
+		             		}
+		             	}
+		             	,"json");	
+             		});
+            	});
             });
+            */
                                  
             </script>                  
     </head>
@@ -456,96 +412,87 @@
 			<?php include("header.php") ?>
 						                       
             <div id="user-select" class="user-select">          
-            	<h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Make a new query</h3>
+            <h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Make a new query</h3>
                                                                
                 <form id="AS" name="get AS list" style="font-size:14px;">                               
-                    <div id="stage1">
-	                    <p class="selection-header">Select blade</p>
-	                	<div align="left" class="selection-text">Blade:                    
-		                    <select id="blade">
-		                    	<option value="">Select blade</option>
-		                            <?php                                                          
-		                            foreach($Blades as $blade)
-	                                {
-	                                    $name = $blade["@attributes"]["name"];
-	                                    if($name!="" && $Blade_Map[$name]["db"]=="DIMES_DISTANCES"){
-											if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
-	                                            echo '<option selected="selected">'.$name.'</option>';
-											} else {
-												echo "<option>$name</option>";
-											}
-										}
-	                                }
-		                            ?>
-		                    </select>
-	                   </div>
-	                   
-	                    <p class="selection-header">Select date</p>       
-	                    <div align="left" class="selection-text">Year  :                       
-	                        <select id="year" >
-	                            <option value="">Select year</option>
-	                            <?php
-	                            
-	                            	$xml = simplexml_load_file("xml/weeks.xml");
-									$result = $xml->xpath('/DATA/YEAR/year');					
-									if($result!=FALSE)
-									{
-										var_dump($result);
-										foreach($result as $i=>$value){
-											echo "<option>".$value."</option>";
-										}					
-									}                                                   
-	                            ?>                            
-	                        </select>
-	                    </div>
-	
-	                     <div align="left" class="selection-text">Week:
-	                        <select id="week">                               
-	                            <option selected="selected" value="">Select week</option>                                                  
-	                        </select>
-	                    </div>
                     
-	                    <div id="button-wrap-1">
-	                    	<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>
-	                    </div>
+                    <p class="selection-header">Select blade</p>
+                	<div align="left" class="selection-text">Blade:                    
+	                    <select id="blade">
+	                    	<option value="">Select blade</option>
+	                            <?php                                                          
+	                            foreach($Blades as $blade)
+                                {
+                                    $name = $blade["@attributes"]["name"];
+                                    if($name!="" && $Blade_Map[$name]["db"]=="DIMES_DISTANCES"){
+										if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
+                                            echo '<option selected="selected">'.$name.'</option>';
+										} else {
+											echo "<option>$name</option>";
+										}
+									}
+                                }
+	                            ?>
+	                    </select>
+                   </div>
+                   
+                    <p class="selection-header">Select date</p>       
+                    <div align="left" class="selection-text">Year  :                       
+                        <select id="year" >
+                            <option value="">Select year</option>
+                            <?php
+                            
+                            	$xml = simplexml_load_file("xml/weeks.xml");
+								$result = $xml->xpath('/DATA/YEAR/year');					
+								if($result!=FALSE)
+								{
+									var_dump($result);
+									foreach($result as $i=>$value){
+										echo "<option>".$value."</option>";
+									}					
+								}                                                   
+                            ?>                            
+                        </select>
+                    </div>
+
+                     <div align="left" class="selection-text">Week:
+                        <select id="week">                               
+                            <option selected="selected" value="">Select week</option>                                                  
+                        </select>
+                    </div>
+                    <div id="button-wrap-t">
+                    	<input id="getTables" type="button" value="Get tables" style="margin-left: 20px; margin-top: 10px"/>
                     </div>
                                                            
                     <p class="selection-header">Select table</p>                                       
                		
-               		<div id="stage2">
-	               		<div align="left" class="selection-text">PoP IP:                       
-	                        <select id="popIP" >
-	                            <option value="">Select PoP IP table</option>                            
-	                        </select>
-	                    </div>
-	
-	               		<div align="left" class="selection-text">PoP  :                       
-	                        <select id="PoP" >
-	                            <option value="">Select PoP table</option>                            
-	                        </select>
-	                    </div>
-	
-	                     <div align="left" class="selection-text">Edge:
-	                        <select id="Edge">                               
-	                            <option selected="selected" value="">Select edge table</option>                            
-	                        </select>
-	                    </div>
+               		<div align="left" class="selection-text">PoP IP:                       
+                        <select id="popIP" >
+                            <option value="">Select PoP IP table</option>                            
+                        </select>
+                    </div>
+
+               		<div align="left" class="selection-text">PoP  :                       
+                        <select id="PoP" >
+                            <option value="">Select PoP table</option>                            
+                        </select>
+                    </div>
+
+                     <div align="left" class="selection-text">Edge:
+                        <select id="Edge">                               
+                            <option selected="selected" value="">Select edge table</option>                            
+                        </select>
+                    </div>
                		
-	               		
-	               		<div id="button-wrap-2">
-	                    	<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
-	                    </div>
-					</div>
-						                    
-                    <div id="stage3">
+               		<div id="button-wrap">
+                    	<input id="getAS" type="button" value="Get AS list!" style="margin-left: 20px; margin-top: 10px"/>
                     	<p style="font-size: 10px; color: gray">After clicking the list will apear.</p>
                     </div>
                                                            
                 </form>
-                <div id="formButtons">
-	                <input id="sendQuery" class="sendQuery" type="image" src="images/send-button.png"/>
-	                <input id="resetForm" class="resetForm" value="Reset Form" type="button"/></br>
-              	</div>
+                <input id="sendQuery" class="sendQuery" type="image" src="images/send-button.png"/>
+                 <br></br>
+              
             </div>
             
             <div id="My_queries">
@@ -587,8 +534,7 @@
 					}
 				?>																
 				
-				</table>
-				<div id="My_queries_info"></div>                
+				</table>                
             </div>
             
             <div class="footer">
