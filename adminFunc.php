@@ -57,9 +57,36 @@
 		return $res;        
 	}
 	
-	// recreating the AS_info.xml file from the specified parameters 
-	function generateASinfo($table,$schema,$blade){
-		// TODO: complete.. 
+	// recreating the ASN_info.xml file from the specified parameters 
+	function generateASinfo($table,$schema,$blade,$mysqli){
+		
+		// executing the query
+		$query = "SELECT * FROM ".$schema.".".$table.";";		
+		if ($result = $mysqli->query($query)){
+			
+			// deleting the old file.
+			$nameXML = "xml/ASN_info.xml";
+			if (file_exists($nameXML)){
+				unlink($nameXML);	
+			}		
+			// creating a new empty file.
+			$ourFileHandle = fopen($nameXML, "w+") or die("can't create ASN_info.xml");
+			fwrite($ourFileHandle,"<DATA></DATA>"); 
+			fclose($ourFileHandle);
+				
+			// processing the query result and writing it to file.	 
+			$xml = simplexml_load_file($nameXML);
+        	while ($row = $result->fetch_assoc()) {
+        		$newRow = $xml->addChild('ROW');
+		        foreach($row as $key => $value){
+					$newRow->addChild($key,$value);	
+				}	
+		    }
+	     	$xml->asXML($nameXML);
+			$result->close();
+			$mysqli->close();   
+        }else {ret_res("bad query result","ERROR");}
+		ret_res('done',"GOOD");
 	}
 	 
 	 // recreating the weeks.xml file
@@ -77,7 +104,7 @@
 		if (file_exists($nameXML)){
 			unlink($nameXML);	
 		}		
-		$ourFileHandle = fopen("xml/weeks.xml", "w+") or die("can't create weeks.xml");
+		$ourFileHandle = fopen($nameXML, "w+") or die("can't create weeks.xml");
 		fwrite($ourFileHandle,"<DATA></DATA>"); 
 		fclose($ourFileHandle);
 			
@@ -131,9 +158,21 @@
 	{
 		$table = $_POST["table"];
 		$schema = $DataTables["as-info"]["schema"];
-		$blade = $GLOBALS["AS_INFO_DEFAULT_BLADE"];
+		$blade = $Blade_Map[$GLOBALS["AS_INFO_DEFAULT_BLADE"]];		
+		$host = (string)$blade["host"];
+		$port = (int)$blade["port"];
+		$user = (string)$blade["user"];
+		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+		
+		// connecting to the DB						
+		$mysqli = new DBConnection($host,$user,$pass,$schema,$port,5);
+		if ($mysqli->connect_error) {
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error.' blade:'.$blade.' host:'.$host.' port:'.$port,"ERROR");
+ 		   die();
+		} 
+		
 		// generating the file by parameters
-		generateASinfo($table, $schema,$blade );
+		generateASinfo($table, $schema,$blade,$mysqli);
 	}
 	
 	// reciving freetext parameters to update AS_info.xml
@@ -141,9 +180,21 @@
 	{
 		$table = $_POST["table"];
 		$schema = $_POST["schema"];
-		$blade = $_POST["blade"];
+		$blade = $Blade_Map[$_POST["blade"]];
+		$host = (string)$blade["host"];
+		$port = (int)$blade["port"];
+		$user = (string)$blade["user"];
+		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+		
+		// connecting to the DB						
+		$mysqli = new DBConnection($host,$user,$pass,$schema,$port,5);
+		if ($mysqli->connect_error) {
+ 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+ 		   die();
+		} 
+		
 		// generating the file by parameters
-		generateASinfo($table, $schema,$blade );
+		generateASinfo($table, $schema,$blade,$mysqli);
 	}
 	
 	// accepting a user's request to login the site
