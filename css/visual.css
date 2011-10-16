@@ -55,10 +55,12 @@
 	float: right;
 	clear: right;
 	text-align: center;
+	padding: 8px;
 }
 #My_queries p {
 	text-align: left;
 }
+
 #My_queries_info p {
 	text-align: center;
 }
