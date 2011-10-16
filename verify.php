@@ -1,4 +1,10 @@
 <?php
+
+	/*
+	 * this file prevents unauthorized users to enter internal pages. 
+	 * a non-logged user could only reach welcome.php
+	 */
+
 	$valid_requests = array('index.php','admin.php','visual_frontend.php');
 	session_start();
 	$username = isset($_COOKIE['username'])? $_COOKIE['username'] : $_SESSION['username'];
