@@ -63,7 +63,7 @@
 			$pageSize = 1000; // Records
 			
 			$bufferSize = 4096; // Bytes	
-			$xmlChunkSize = 10; // in MB
+			$xmlChunkSize = 50; // in MB
 			$bytesLimit = $xmlChunkSize*1048576; // in Bytes...
 			
 			$bytesWritten = 0;

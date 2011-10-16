@@ -45,6 +45,10 @@
 			return $sxe;
 		}
 		
+		public function isDivided2Chunks(){
+			return $this->isDivided;
+		}
+		
 		public function resetReader(){
 			$this->init();
 		}
