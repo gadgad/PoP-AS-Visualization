@@ -146,7 +146,9 @@
              	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
              	$('#queryTable').load('admin.php?viewBlades=true #queryTable').fadeIn("slow");
-             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Add a new blade </u></p><p style="text-align:center">blade <input type="text" name="bladeA" id="bladeA" size="18"/>  host <input type="text" name="host" id="host" size="18"/>  port <input type="text" name="port" id="port" size="18"/></p><p style="text-align:center">user <input type="text" name="user" id="user" size="18"/>  password <input type="text" name="pass" id="pass" size="18"/></p><p style="text-align:center">DB <input type="text" name="db" id="db" size="18"/>  write DB <input type="text" name="write-db" id="write-db" size="18"/></p><input type="button" onclick="addBlade()" value="Add"/></br><p style="color: navy;text-align:center"><u> Remove blade </u></p><p style="text-align:center">blade <input type="text" name="bladeR" id="bladeR" size="18"/>   <input type="button" onclick="removeBlade()" value="Remove"/></p>');    
+             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Add a new blade </u></p><p style="text-align:center">blade <input type="text" name="bladeA" id="bladeA" size="18"/>  host <input type="text" name="host" id="host" size="18"/>  port <input type="text" name="port" id="port" size="18"/></p><p style="text-align:center">user <input type="text" name="user" id="user" size="18"/>  password <input type="text" name="pass" id="pass" size="18"/></p><p style="text-align:center">DB <input type="text" name="db" id="db" size="18"/>  write DB <input type="text" name="write-db" id="write-db" size="18"/></p><input type="button" onclick="addBlade()" value="Add"/>');
+             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Remove blade </u></p><p style="text-align:center">blade <input type="text" name="bladeR" id="bladeR" size="18"/>   <input type="button" onclick="removeBlade()" value="Remove"/></p>');
+             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Change default blade </u></p><p style="text-align:center">new default blade <input type="text" id="defaultBlade" size="18"/>   <input type="button" onclick="changeDefaultBlade()" value="Change"/></p>');             	                 
              }
              
              function addBlade(){
@@ -155,7 +157,10 @@
         			if (data!=null){
         				if (data.type=="ERROR"){
                  			alert("Error while adding blade: " + data.result);
-                 		}else $('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>');
+                 		}else {
+                 			blades();
+                 			$('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>');                 			
+                 		}
         			}else alert("data is null");
                 }
         		,"json");        		
@@ -167,10 +172,28 @@
         			if (data!=null){
         				if (data.type=="ERROR"){
                  			alert("Error while removing blade: " + data.result);
-                 		}else $('#My_queries').append('<p style="color:navy">The Blade was removed from config.xml.</p>'); 
+                 		}else {
+                 			blades();
+                 			$('#My_queries').append('<p style="color:navy">The Blade was removed from config.xml.</p>');                 			
+                 		} 
         			}else alert("data is null");
-                }
+                }                
         		,"json");        		
+             }
+             
+             function changeDefaultBlade(){				
+				$.post("adminFunc.php", {func: "changeDefaultBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#defaultBlade").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert("Error while changing blade: " + data.result);
+                 		}else {
+                 			blades();
+                 			$('#My_queries').append('<p style="color:navy">The default blade was changed.</p>');                 			
+                 		} 
+        			}else alert("data is null");
+                }                
+        		,"json");             	
              }
              
              function dataTables(){
@@ -326,9 +349,14 @@
 	}
 	
 	if(isset($_REQUEST["viewBlades"])){
+			
+		$xml = simplexml_load_file('config/config.xml');
+		$res = $xml->xpath('/config/blades/blade[@default="true"]'); 
+		$defaultBlade = (string)$res[0]->attributes()->name;	
+			
 		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
 		echo "<tr>";
-		echo "<th>Blade</th><th>host</th><th>port</th><th>user</th><th>password</th><th>DB</th><th>write DB</th>";
+		echo "<th>Blade</th><th>host</th><th>port</th><th>user</th><th>password</th><th>DB</th><th>write DB</th><th>deault</th>";
 		echo "</tr>";									
 		foreach ($Blades as $blade) {
 																
@@ -339,7 +367,11 @@
 			echo "<td>".$blade["user"]."</td>";
 			echo "<td>".(is_array($blade["pass"])? '':$blade["pass"])."</td>";
 			echo "<td>".$blade["db"]."</td>";
-			echo "<td>".$blade["write-db"]."</td>";														
+			echo "<td>".$blade["write-db"]."</td><td>";
+			if ($defaultBlade==$blade["@attributes"]["name"]){
+				echo "yes";
+			}										
+			echo "</td>";				
 			echo "</tr>";		
 		}
 		echo '</table>';
