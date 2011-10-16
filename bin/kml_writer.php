@@ -79,6 +79,8 @@ class kmlWriter
 		$this->USER_COLOR_LIST = $this->cm->getColorList();
 		$this->parseXML();
 		$this->cm->save_global_color_list();
+		
+		$this->round = 0;
 	}
 
 	private function dispatchAltitude(){
@@ -108,7 +110,8 @@ class kmlWriter
 		}
 		 
 		while($this->edges_xml = $this->edges_xml_reader->loadNext()){
-			$edges = $this->edges_xml->children();	
+			echo 'round: '.$this->round++."\n";
+			$edges = $this->edges_xml->children();
 			foreach($edges as $edge)
 			{
 				$srcPOP = (string)$edge->Source_PoPID;
@@ -116,7 +119,11 @@ class kmlWriter
 				$srcAS = intval($edge->SourceAS);
 				$dstAS = intval($edge->DestAS);
 				
-				if($srcPOP!="NULL" && $dstPOP!="NULL" && $srcPOP!=$dstPOP)
+				if($srcPOP!="NULL" && $dstPOP!="NULL" && $srcPOP!=$dstPOP
+				&& array_key_exists($srcAS, $this->ASN_LIST)
+				&& array_key_exists($dstAS, $this->ASN_LIST)
+				&& array_key_exists($srcPOP, $this->PLACEMARKS) 
+				&& array_key_exists($dstPOP, $this->PLACEMARKS))
 				{
 					if((INTRA_CON && ($srcAS==$dstAS)) || (INTER_CON && ($srcAS!=$dstAS)))
 					{
@@ -145,25 +152,26 @@ class kmlWriter
 							
 						    if(!array_key_exists($edge_str, $this->EDGES[$srcAS][$conType])){
 						     	$this->EDGES[$srcAS][$conType][$edge_str] = array("SourceAS"=>intval($edge->SourceAS),
-						     							  "DestAS"=>intval($edge->DestAS),
-						     							  "SourcePoP"=>$srcPOP,
-						     							  "DestPoP"=>$dstPOP,
-						     							  "numOfEdges"=>1,
-						     							  "median_lst"=>array(floatval($edge->Median)),
-						     							  "edgeID_lst"=>array($edge->edgeid),
-						     							  "src_ip_lst"=>array($edge->SourceIP),
-						     							  "dest_ip_lst"=>array($edge->DestIP));
+												     							  "DestAS"=>intval($edge->DestAS),
+												     							  "SourcePoP"=>$srcPOP,
+												     							  "DestPoP"=>$dstPOP,
+												     							  "numOfEdges"=>1
+												     							  //"median_lst"=>array(floatval($edge->Median)),
+												     							  //"edgeID_lst"=>array($edge->edgeid),
+												     							  //"src_ip_lst"=>array($edge->SourceIP),
+												     							  //"dest_ip_lst"=>array($edge->DestIP)
+												     							  );
 						    } else {
 						    	$this->EDGES[$srcAS][$conType][$edge_str]["numOfEdges"]++;
-								$this->EDGES[$srcAS][$conType][$edge_str]["median_lst"][] = floatval($edge->Median);
-						    	$this->EDGES[$srcAS][$conType][$edge_str]["edgeID_lst"][] = $edge->edgeid;
-						    	$this->EDGES[$srcAS][$conType][$edge_str]["src_ip_lst"][] = $edge->SourceIP;
-						    	$this->EDGES[$srcAS][$conType][$edge_str]["dest_ip_lst"][] = $edge->DestIP;
+								//$this->EDGES[$srcAS][$conType][$edge_str]["median_lst"][] = floatval($edge->Median);
+						    	//$this->EDGES[$srcAS][$conType][$edge_str]["edgeID_lst"][] = $edge->edgeid;
+						    	//$this->EDGES[$srcAS][$conType][$edge_str]["src_ip_lst"][] = $edge->SourceIP;
+						    	//$this->EDGES[$srcAS][$conType][$edge_str]["dest_ip_lst"][] = $edge->DestIP;
 					    	}
 					    }
 					}
 				}
-			}
+			} // end of edges loop
 			unset($this->edges_xml);
 		}
 		
