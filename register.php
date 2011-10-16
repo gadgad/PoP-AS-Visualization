@@ -1,36 +1,43 @@
+<!--
+	this page is loaded when a user registers to the system. 
+-->
+
 <?php
-$errors = array();
-if(isset($_POST['login'])){
-	$username = preg_replace('/[^A-Za-z]/', '', $_POST['username']);
-	$email = $_POST['email'];
-	$password = $_POST['password'];
-	$c_password = $_POST['c_password'];
-	
-	if(file_exists('users/' . $username . '.xml')){
-		$errors[] = 'Username already exists';
+/*
+ *  input validation
+ */
+	$errors = array();
+	if(isset($_POST['login'])){
+		$username = preg_replace('/[^A-Za-z]/', '', $_POST['username']);
+		$email = $_POST['email'];
+		$password = $_POST['password'];
+		$c_password = $_POST['c_password'];
+		
+		if(file_exists('users/' . $username . '.xml')){
+			$errors[] = 'Username already exists';
+		}
+		if($username == ''){
+			$errors[] = 'Username is blank';
+		}	
+		if($email == ''){
+			$errors[] = 'Email is blank';
+		}
+		if($password == '' || $c_password == ''){
+			$errors[] = 'Passwords are blank';
+		}
+		if($password != $c_password){
+			$errors[] = 'Passwords do not match';
+		}
+		if(count($errors) == 0){
+			$xml = new SimpleXMLElement('<user></user>');
+			$xml->addChild('password', hash("sha256",$password));
+			$xml->addChild('email', $email);
+			$xml->addChild('status', 'pending');
+			$xml->asXML('users/' . $username . '.xml');
+			header('Location: welcome.php?formComplete=true');
+			die();
+		}
 	}
-	if($username == ''){
-		$errors[] = 'Username is blank';
-	}	
-	if($email == ''){
-		$errors[] = 'Email is blank';
-	}
-	if($password == '' || $c_password == ''){
-		$errors[] = 'Passwords are blank';
-	}
-	if($password != $c_password){
-		$errors[] = 'Passwords do not match';
-	}
-	if(count($errors) == 0){
-		$xml = new SimpleXMLElement('<user></user>');
-		$xml->addChild('password', hash("sha256",$password));
-		$xml->addChild('email', $email);
-		$xml->addChild('status', 'pending');
-		$xml->asXML('users/' . $username . '.xml');
-		header('Location: welcome.php?formComplete=true');
-		die();
-	}
-}
 ?>
 
 <html>
@@ -80,7 +87,7 @@ if(isset($_POST['login'])){
 												                          
 		            </div>
 		            <div style="text-align:center; padding-top:20px;">
-		            	<img src="images/DIMES.gif">	
+		            	<img src="images/DIMES.gif" style="margin-top: 20px">	
 		            </div>
 	            </div>
 	            
@@ -89,8 +96,14 @@ if(isset($_POST['login'])){
 		    		<p>Dear user, please complete the following form.</br>
 		    		After an aproval of your request by the system admin,
 		    		you'll be able to login into the system using the security credentials provided here.</p>
-				    		
-				</div>	           
+		    		<p>An example of the result file:</p>
+		    		
+		    		<div align="center">
+				    	<img src="images/earth_example.jpg">	
+				    </div>				    		
+				</div>
+				
+					           
 	            <div class="footer">
                 	Copyright © 2011 <a href="http://www.netdimes.org/new/">DIMES</a>
             	</div>

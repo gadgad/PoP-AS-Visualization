@@ -1,3 +1,6 @@
+<!--
+	this page is loaded when a user was registered and denied access by the admin. 
+-->
 <html>
 	<head>
 		<title>Request denied</title>
@@ -25,7 +28,7 @@
 		            </div>
 		            
 		            <div style="text-align:center; padding-top:20px;">
-		            	<img src="images/DIMES.gif">	
+		            	<img src="images/DIMES.gif" style="margin-top: 20px">	
 		            </div>
 		            
 	            </div>
