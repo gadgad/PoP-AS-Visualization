@@ -65,7 +65,7 @@
         	
         	function updateAS(){
         		option = 2;
-        		$('#My_queries').html('<h3><b>Update AS_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</BR>If new ASs were added, select a table to update from and click the update button to update the file.</BR></BR><select id="tbl"><option>ASInfoTbl</option><option>ASInfoTbl_16bit_2009</option><option>ASInfoTbl_16bit_March_2009</option></select>  <input type="button" onclick="updateASB()" value="Update"/></br></br>Or enter your own table:</BR></BR>Blade: <input type="text" name="blade" id="blade" size="18"/> Schema: <input type="text" name="schema" id="schema" size="18"/> table: <input type="text" name="freetable" id="freetable" size="18"/> <input type="button" onclick="updateASBfree()" value="Update"/></p>');
+        		$('#My_queries').html('<h3><b>Update AS_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</BR>If new ASs were added, select a table to update from and click the update button to update the file. pay attention - the new file will include all table attributes as is.</BR></BR><select id="tbl"><option>ASInfoTbl</option><option>ASInfoTbl_16bit_2009</option><option>ASInfoTbl_16bit_March_2009</option></select>  <input type="button" onclick="updateASB()" value="Update"/></br></br>Or enter your own table:</BR></BR>Blade: <input type="text" name="blade" id="blade" size="18"/> Schema: <input type="text" name="schema" id="schema" size="18"/> table: <input type="text" name="freetable" id="freetable" size="18"/> <input type="button" onclick="updateASBfree()" value="Update"/></p>');
         	}
         	
         	function updateASB(){
