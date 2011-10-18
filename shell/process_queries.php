@@ -1,6 +1,6 @@
 <?php
-	error_reporting(E_ERROR);
-	
+	//error_reporting(E_ERROR);
+
     require_once("bin/xml_writer.php");
     require_once("bin/kml_writer.php");
 	require_once("bin/query_status.php");
@@ -38,6 +38,12 @@
 		fclose($ourFileHandle);
 	}
 	
+	function clean_log(){
+		$filename = "shell/log/process_queries.log";
+		if(file_exists($filename))
+			unlink($filename);
+	}
+	
 	function clean_query_log(){
 		$filename = "shell/log/queries.log";
 		if(file_exists($filename))
@@ -49,6 +55,7 @@
 	//echo getcwd() . "\n";
 	
 	remove_ok_sig();
+	clean_log();
 	clean_query_log();
 	$queries = simplexml_load_file("xml\query.xml");
 	$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');
@@ -68,12 +75,15 @@
 	$all_ok = true;
 	foreach($running_blade_map as $blade => $rq_lst) {
 		//$qm = new QueryManager($blade);
-		$qm = QueryManager::load($blade);
-		if($qm==null){
-			die("QueryManager init fail: can't connect to db!\n");
-		}
+		$qm = new QueryManager($blade);
 		foreach($rq_lst as $queryID) {
-			$qs = $qm->getQueryStatus($queryID);
+			
+			try {
+				$qs = $qm->getQueryStatus($queryID);
+			} catch(DBConnectionError $e){
+				die("getQueryStatus: can't connect to db!\n");
+			} 
+			
 			echo "$queryID status: ".$qm->getStatusMsg($qs)."\n";
 			// 0 - error , 1 - running , 2 - db-ready, 3 - fetching-xml,  4 - xml-ready, 5 - kml-ready
 			if($qs == 2 || $qs == 3) // db-tables are ready, but no xml file..
