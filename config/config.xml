@@ -32,6 +32,12 @@
 			<units>MB's</units>
 			<value>50</value>
 		</parameter>
+		<parameter>
+			<name>EdgeDetailsNumOfRecords</name>
+			<description>The number of records presented at the link table.</description>
+			<units>records</units>
+			<value>100</value>
+		</parameter>
 	</config-parameters>
 	
 	<ge-api-keys>
