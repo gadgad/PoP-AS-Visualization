@@ -5,7 +5,6 @@ class Backgrounder
 	private $isWin;
 	private $cmd;
 	private $id;
-	private $qid;
 	
 	private $basedir;
 	private $shelldir;
@@ -23,7 +22,6 @@ class Backgrounder
 	public function __construct($cmd,$id,$qid)
 	{
 		$this->id = $id;
-		$this->qid = $qid;
 		
 		chdir( dirname ( __FILE__ ) );
 	    chdir ('../');

@@ -103,7 +103,7 @@
 				deleteUser($username,$queryID);				
 			} else { // only one user has this query in his query list...
 			
-				if($lastKnownStatus!="runnning"){ // query status is either 'complete' or 'error'
+				if($lastKnownStatus!="running"){ // query status is either 'complete' or 'error'
 					
 					// Remove the query folder & files
 					$dir = getcwd()."/queries/".$queryID; 
@@ -115,12 +115,13 @@
 					deleteQuery($queryID);
 					
 				} else { // query is running
-					//$qm = new QueryManager($selected_blade);
-					$qm = QueryManager::load($selected_blade);
-					if($qm==null)
-						ret_res("can't connect to db!","ERROR");
+					$qm = new QueryManager($selected_blade);
 					
-					$query_status = $qm->getQueryStatus($queryID);
+					try {
+						$query_status = $qm->getQueryStatus($queryID);
+					} catch(DBConnectionError $e){
+						ret_res("can't connect to db!","ERROR");
+					}
 					
 					if($query_status==1){ // query is still running on the DB
 						
@@ -166,7 +167,7 @@
 				} 
 			}
 
-			ret_res("","GOOD");	
+			ret_res("abort func finished successfully","GOOD");	
 		}
 	}
 

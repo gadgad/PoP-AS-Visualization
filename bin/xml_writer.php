@@ -26,7 +26,7 @@
 			$this->schema = $GLOBALS["Blade_Map"][$this->blade]["write-db"];
 			
 			$this->retries = 0;
-			$this->limit = 10;
+			$this->limit = DBMaxConnctionAttempts;
 			
 			$sx = simplexml_load_file("xml/query.xml");
 			$res = $sx->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
@@ -56,14 +56,15 @@
 		}
 		
 		private function getPoPQuery(){return "select * from `".$this->schema."`.`".$this->idg->getPoPTblName()."` where ASN in(".$this->asList.")";}
-		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.")";}
+		//private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.")";}
+		private function getEdgeQuery(){return "SELECT SourceAS,DestAS,Source_PoPID,Dest_PoPID,count(edgeid) as NumOfEdges FROM `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.") group by concat(Source_PoPID,Dest_PoPID)";}
 		
 		private function sql2xml($sql,$dir)
 		{
-			$pageSize = 1000; // Records
+			$pageSize = fetchXMLRecordsPagingBufferSize; // Records
 			
-			$bufferSize = 4096; // Bytes	
-			$xmlChunkSize = 50; // in MB
+			$bufferSize = fetchXMLMemoryBufferSize; // Bytes	
+			$xmlChunkSize = fetchXMLChunkSize; // in MB
 			$bytesLimit = $xmlChunkSize*1048576; // in Bytes...
 			
 			$bytesWritten = 0;
@@ -82,7 +83,10 @@
 				return false;
 			$mysqli = $this->mysqli;
 			
-			$query = str_replace("*", "count(*)", $sql);
+			$pattern = '/(^select) (.*) (from)(.*)/i';
+			$replacement = '$1 COUNT(*) $3$4';
+			$query = preg_replace($pattern, $replacement, $sql);
+
 			$result = $mysqli->query($query) or die("SQL Query Failed.");
 			$row = $result->fetch_row();
 			$num = (int)$row[0];
@@ -93,6 +97,7 @@
 				// parse 'pageSize' records from DB
 				$pageOffset = $currPage*$pageSize;
 				$query = $sql." limit $pageOffset,$pageSize";
+				//echo $query."\n";
 				$result = $mysqli->query($query) or die("SQL Query Failed.");
 				$numOfRecords = $result->num_rows;
 				for($x = 0 ; $x < $numOfRecords ; $x++){
