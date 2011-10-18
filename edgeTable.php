@@ -50,7 +50,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Edge Info</title>
-        <link rel="stylesheet" href="css/tablesort/blue/style.css" type="text/css" media="print, projection, screen" /> 
+        <!-- <link rel="stylesheet" href="css/tablesort/blue/style.css" type="text/css" media="print, projection, screen" /> 
         <script src="http://code.jquery.com/jquery-latest.js"></script>
 		<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
 		<script type="text/javascript" src="js/jquery.blockUI.js"></script>
@@ -61,7 +61,7 @@
 				    $("#myTable3").tablesorter();			   
 			    } 
 			); 
-		</script>
+		</script> -->
     </head>
     <body>
 

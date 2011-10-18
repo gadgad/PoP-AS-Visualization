@@ -79,7 +79,7 @@
 			    	$('#tblContainer').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
 			    	$('#tblContainer').load('edgeTable.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID; ?>&numOfEdges=<?php echo $numOfEdges; ?> #myTable3').fadeIn("fast");
 				    $('#tblContainer').ajaxComplete(function() {
-				    	$('#myTable3').addClass('tablesorter');
+				    	//$('#myTable3').addClass('tablesorter');
 				    	$('#myTable3').tablesorter();
 				    });			   
 			    } 
@@ -89,9 +89,15 @@
 				var page = parseInt(currPage);
 				if (page>0){
 					page--;
-					$('#navigate').html('<button type="submit" onclick="prevPage(this.value)" value="'+page+'">prev</button> '+page+' <button type="submit" onclick="nextPage(this.value)" value="'+page+'">next</button>');
-					$('#myTable3').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
-				    $('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("slow");	
+					$('#navigate').html('<button type="submit" onclick="prevPage(this.value)" value="'+page+'">prev</button> page '+page+' of <?php echo $numOfPages?> <button type="submit" onclick="nextPage(this.value)" value="'+page+'">next</button>');
+					$('#tblContainer').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
+			    	$('#tblContainer').load('edgeTable.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID; ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("fast");
+				    $('#tblContainer').ajaxComplete(function() {
+				    	//$('#myTable3').addClass('tablesorter');
+				    	$('#myTable3').tablesorter();
+				    });			   
+					//$('#myTable3').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
+				    //$('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("slow");	
 				}
 			}
 			
@@ -99,9 +105,15 @@
 				var page = parseInt(currPage);
 				if (page<<?php echo $numOfPages?>){
 					page++;
-					$('#navigate').html('<button type="submit" onclick="prevPage(this.value)" value="'+page+'">prev</button> '+page+' <button type="submit" onclick="nextPage(this.value)" value="'+page+'">next</button>');
-					$('#myTable3').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
-				    $('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("slow");	
+					$('#navigate').html('<button type="submit" onclick="prevPage(this.value)" value="'+page+'">prev</button> page '+page+' of <?php echo $numOfPages?> <button type="submit" onclick="nextPage(this.value)" value="'+page+'">next</button>');
+					$('#tblContainer').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
+			    	$('#tblContainer').load('edgeTable.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID; ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("fast");
+				    $('#tblContainer').ajaxComplete(function() {
+				    	//$('#myTable3').addClass('tablesorter');
+				    	$('#myTable3').tablesorter();
+				    });	
+					//$('#myTable3').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
+				    //$('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("slow");	
 				}				
 			}
 			
