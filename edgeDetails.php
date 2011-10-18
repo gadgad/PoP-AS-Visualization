@@ -10,6 +10,7 @@
 	if(!isset($_REQUEST["src_pop"]) || 
 		!isset($_REQUEST["dst_pop"]) ||
 		!isset($_REQUEST["currPage"]) ||
+		!isset($_REQUEST['numOfEdges']) ||
 		!isset($_REQUEST["QID"])) {
 			echo "missing parameters!";
 			die();
@@ -19,6 +20,7 @@
 	$dst = $_REQUEST["dst_pop"];
 	$queryID = $_REQUEST["QID"];
 	$currPage = $_REQUEST["currPage"];
+	$numOfEdges = $_REQUEST['numOfEdges'];
 	
 	$idg = new idGen($queryID);
 	$queries = simplexml_load_file('xml/query.xml');
@@ -41,13 +43,9 @@
 	$srcAS = intval(substr($src, 0,strrpos($src, '.')));
 	$dstAS = intval(substr($dst, 0,strrpos($dst, '.')));
 		
-	// connecting to the DB						
-	$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
-	if ($mysqli->connect_error) {
-	   echo 'Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error;
-	   die();
-	}
+	// connecting to the DB
 	
+	/*
 	$query = "select count(*) from `".$database."`.`".$idg->getEdgeTblName()."` where Source_PoPID=".$src." and Dest_PoPID=".$dst;
 	if ($resulti = $mysqli->query($query)){
 		// getting the number of edges. 	 
@@ -57,6 +55,7 @@
 		}   
 		$resulti->close();	   
     }else echo 'bad query result';
+    */
     
     $pageSize = 100; // TODO : get page size from globals
 	$numOfPages = ceil($numOfEdges/$pageSize); 
@@ -181,6 +180,13 @@
 		<thead> 
 			<tr> 
 				<?php
+				
+				if(isset($_REQUEST["loadTable"])){					
+					$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
+					if ($mysqli->connect_error) {
+					   echo 'Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error;
+					   die();
+					}
 					// getting the attributes of the table
 					$sql = "select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_name='".$idg->getEdgeTblName()."' and table_schema='".$database."'";
 					if ($result = $mysqli->query($sql)){		
@@ -191,7 +197,8 @@
 						}	
 				    }	     		     		     		    
 					$result->close();	   
-			    }else echo 'bad query result';				
+			    }else echo 'bad query result';
+			    }				
 				?>
 			</tr> 
 			</thead> 
