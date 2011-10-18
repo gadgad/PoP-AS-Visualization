@@ -1,5 +1,6 @@
 <?php
-require_once("verify.php");	
+require_once('verify.php');
+require_once('bin/load_config.php');	
 require_once("bin/idgen.php");
 require_once('bin/userData.php');
 require_once('bin/color.php');
@@ -20,8 +21,7 @@ $base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']).($i
 $full_url = $base_url.$filename."?".rand(0,10000000000);
 $full_user_url = $base_url.$userFilename."?".rand(0,10000000000);
 
-$key = (stristr(PHP_OS, 'WIN'))? "ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A": 
-								 "ABQIAAAAMYziiEA_p76rk0jQj-KuSxTK177e1Gh7BX1loiUPYBjodQ7UWxSIUu5oSnvILbkBqQVNC8wU7PkpqQ";
+$key = $API_KEY;
 
 $cm = new colorManager($username,$queryID);								 
 $COLOR_LIST = $cm->getColorList();
@@ -69,7 +69,7 @@ $COLOR_LIST = $cm->getColorList();
     	
     	var ge;
     	var QID = '<?php echo $queryID; ?>';
-    	var as_list = eval('<?php echo json_encode($cm->getASList()); ?>');
+    	//var as_list = eval('<?php //echo json_encode($cm->getASList()); ?>');
 
         google.load("earth", "1");
         google.load("maps", "2.xx");
@@ -142,23 +142,30 @@ $COLOR_LIST = $cm->getColorList();
 
 				var myData = [
 					<?php
+						$as_list = $cm->getASList();
 						$as_info_xml = simplexml_load_file('xml/ASN_info.xml');
-						foreach($COLOR_LIST['asn'] as $asn=>$color){
+						foreach($as_list as $asn){
 							$as_info = $as_info_xml->xpath("/DATA/ROW[ASNumber=".$asn."]");
-							$isp_name = (string)$as_info[0]->ISPName;
-							$country = (string)$as_info[0]->Country;
-							echo "[".$asn.",'".$isp_name."','".$country."','#".$color->web_format()."'],";
+							if(!empty($as_info)){
+								$isp_name = (string)$as_info[0]->ISPName;
+								$country = (string)$as_info[0]->Country;
+							} else {
+								$isp_name = 'unknown';
+								$country = 'unknown';
+							}
+							echo "[".$asn.",'".$isp_name."','".$country."','#".$COLOR_LIST['asn'][$asn]->web_format()."'],";
 						}
 					?>
-			        //['174','#0A9F50'],
 			    ];
 			    
+			    /*
 			    var myShortData = [];
 			    for(var i=0; i<myData.length; i++){
 			    	if($.inArray(myData[i][0],as_list)!=-1){
 			    		myShortData.push(myData[i]);
 			    	}
 			    }
+			    */
 				
 				var createWidget = function(val, id, r) {
 			        var cpf = new Ext.ux.ColorPickerField({
@@ -179,7 +186,7 @@ $COLOR_LIST = $cm->getColorList();
 			   
 			   // create the Data Store
 				var store = new Ext.data.Store({
-					proxy: new Ext.ux.data.PagingMemoryProxy(myShortData),
+					proxy: new Ext.ux.data.PagingMemoryProxy(myData),
 					reader: new Ext.data.ArrayReader({id:0}, [
 						{name: 'asn', type: 'int'},
 						{name: 'isp'},
@@ -267,7 +274,7 @@ $COLOR_LIST = $cm->getColorList();
     			}, this, {single:true});
 			    
 			    // trigger the data store load
-    			store.loadData(myShortData);
+    			store.loadData(myData);
     			
     			
     			//////////////////////////////////////////////////

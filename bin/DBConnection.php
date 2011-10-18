@@ -1,4 +1,5 @@
 <?php
+	require_once('bin/load_config.php');
 	
 	class DBConnection extends mysqli {
 		
@@ -11,7 +12,7 @@
 	        parent::init();
 			
 			$this->retries = 0;
-			$this->limit = isset($limit)? $limit : 10;
+			$this->limit = isset($limit)? $limit : DBMaxConnctionAttempts;
 			$this->sleep_time = 3;
 			$this->err_lst = array(2006,2013);
 			

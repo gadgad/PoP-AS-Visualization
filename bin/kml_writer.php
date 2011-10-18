@@ -110,7 +110,6 @@ class kmlWriter
 		}
 		 
 		while($this->edges_xml = $this->edges_xml_reader->loadNext()){
-			echo 'round: '.$this->round++."\n";
 			$edges = $this->edges_xml->children();
 			foreach($edges as $edge)
 			{
@@ -155,19 +154,8 @@ class kmlWriter
 												     							  "DestAS"=>intval($edge->DestAS),
 												     							  "SourcePoP"=>$srcPOP,
 												     							  "DestPoP"=>$dstPOP,
-												     							  "numOfEdges"=>1
-												     							  //"median_lst"=>array(floatval($edge->Median)),
-												     							  //"edgeID_lst"=>array($edge->edgeid),
-												     							  //"src_ip_lst"=>array($edge->SourceIP),
-												     							  //"dest_ip_lst"=>array($edge->DestIP)
-												     							  );
-						    } else {
-						    	$this->EDGES[$srcAS][$conType][$edge_str]["numOfEdges"]++;
-								//$this->EDGES[$srcAS][$conType][$edge_str]["median_lst"][] = floatval($edge->Median);
-						    	//$this->EDGES[$srcAS][$conType][$edge_str]["edgeID_lst"][] = $edge->edgeid;
-						    	//$this->EDGES[$srcAS][$conType][$edge_str]["src_ip_lst"][] = $edge->SourceIP;
-						    	//$this->EDGES[$srcAS][$conType][$edge_str]["dest_ip_lst"][] = $edge->DestIP;
-					    	}
+												     							  "numOfEdges"=>intval($edge->NumOfEdges));
+							}						 
 					    }
 					}
 				}
