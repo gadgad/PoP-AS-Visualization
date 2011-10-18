@@ -45,6 +45,7 @@
              }
              
              function getTables(){
+             	
              	if ($("#blade").val()!="" && $("#year").val()!="" && $("#week").val()!=""){
              		$('#AS :input').prop('disabled',true);
              		
@@ -97,7 +98,9 @@
 							$("#popIP").html("<option>Connection error</option> ");
 						}
 					}, "json");	
-                }
+               } else {
+               		// TODO: add validator span with remark: pls choose blade,year,week etc..
+               }
              } 
              
              
@@ -189,9 +192,8 @@
              		if(resendQuery) $('#queryTable').html('');
              		return;
              	}
-             	var properties1 =  {func: "resendQuery", query: queryID, stage:3,  username: <?php echo '"'.$username.'"'?> };
-             	var properties2 = {func: "sendQuery", stage:3, blade: $("#blade").val() ,
-                         edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(),week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() };
+             	var properties1 = {func: "sendQuery", resend: 'true', query: queryID, stage: 3,  username: <?php echo '"'.$username.'"'?> };
+             	var properties2 = {func: "sendQuery", stage: 3, blade: $("#blade").val() ,edge: $("#Edge").val(), pop: $("#PoP").val(), popIP: $("#popIP").val(), year: $("#year").val(),week: $("#week").val(), username: <?php echo '"'.$username.'"'?>, as: $("#searchable").val() };
              	$.post("query_backend.php", ((resendQuery)? properties1 : properties2) ,
                          function(data){
                          	if (data==null || data.type=="ERROR"){
@@ -221,7 +223,7 @@
 				error_counter = 0;
 				//$.preLoadImages("images/ajax-loader.gif");
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
-             	$.post("query_backend.php", {func: "resendQuery", query: queryID, stage:2,  username: <?php echo '"'.$username.'"'?> },
+             	$.post("query_backend.php", {func: "sendQuery", resend: 'true', query: queryID, stage:2,  username: <?php echo '"'.$username.'"'?> },
              	function(data){
 		     		if (data==null || data.type=="ERROR"){
                  		$("#My_queries_info").html('<p style="color:red">ERROR - The query did not run successfuly</p>');
@@ -258,7 +260,7 @@
             
             function pool_pq_status(pid){
             	if(globalData.pq_running==true){
-            		$.post("query_backend.php", { func: "pq-status", blade: globalData.blade },
+            		$.post("query_backend.php", { func: "pq-status", log_lines:15 },
 					function(data,textStatus){
 						if(data!=null) {
 							if(data.type == "ERROR"){
@@ -269,7 +271,7 @@
 								$("#My_queries_info").html('<p style="color:red;text-align:center;">ERROR - update-status procedure ended unexpectedly.</br>look in js console for details..</p>');
 								$(".checkStatus").each(function(index) {
 			         				var queryID = $(this).attr('id');
-			         				$("#"+queryID).html('error');
+			         				$("#"+queryID).html('unknown');
 			         			});
 								return;
 							}
@@ -456,7 +458,7 @@
 			<?php include("header.php") ?>
 						                       
             <div id="user-select" class="user-select">          
-            	<h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Make a new query</h3>
+            	<h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Generate a new query</h3>
                                                                
                 <form id="AS" name="get AS list" style="font-size:14px;">                               
                     <div id="stage1">
