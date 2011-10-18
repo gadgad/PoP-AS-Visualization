@@ -42,7 +42,7 @@
 	$srcAS = intval(substr($src, 0,strrpos($src, '.')));
 	$dstAS = intval(substr($dst, 0,strrpos($dst, '.')));
 		
-    $pageSize = 100; // TODO : get page size from globals
+    $pageSize = EdgeDetailsNumOfRecords;
 	$numOfPages = ceil($numOfEdges/$pageSize); 
 	
 ?>
