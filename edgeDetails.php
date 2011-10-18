@@ -75,8 +75,11 @@
 			
 			$(document).ready(function() 
 			    { 	
-			    	$('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID; ?>&numOfEdges=<?php echo $numOfEdges; ?> #myTable3').fadeIn("fast");
-				    $("#myTable3").tablesorter();   
+			    	$('#tblContainer').load('edgeTable.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID; ?>&numOfEdges=<?php echo $numOfEdges; ?> #myTable3').fadeIn("fast");
+				    $('#tblContainer').ajaxComplete(function() {
+				    	$('#myTable3').addClass('tablesorter');
+				    	$('#myTable3').tablesorter();
+				    });			   
 			    } 
 			); 
 			
@@ -160,59 +163,10 @@
 				} 			
 			?>
 		</div>
-
-	<table id="myTable3" class="tablesorter"> 
-		<thead> 
-			<tr> 
-				<?php
-				
-				if(isset($_REQUEST["loadTable"])){
-					// connecting to the DB					
-					$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
-					if ($mysqli->connect_error) {
-					   echo 'Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error;
-					   die();
-					}
-					// getting the attributes of the table
-					$sql = "select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_name='".$idg->getEdgeTblName()."' and table_schema='".$database."'";
-					if ($result = $mysqli->query($sql)){		
-					// processing the query result 
-			    	while ($row = $result->fetch_assoc()) {	
-				        foreach($row as $key => $value){
-							echo '<th>'.$value.'</th>';	
-						}	
-				    }	     		     		     		    
-					$result->close();	   
-			    }else echo 'bad query result';
-			    }				
-				?>
-			</tr> 
-			</thead> 
-			<tbody> 
-		<?php
-		   	if(isset($_REQUEST["loadTable"])){
-				// when the next/prev button is pressed, this code generates the table content again.
-				$pageSize = 100; // TODO : get page size from globals
-				$numOfPages = ceil($numOfEdges/$pageSize);
-				$sql = "select * from `".$database."`.`".$idg->getEdgeTblName()."` where Source_PoPID=".$src." and Dest_PoPID=".$dst;
-					
-				// parse 'pageSize' records from DB
-				$pageOffset = $currPage*$pageSize;
-				$query = $sql." limit $pageOffset,$pageSize";
-				$result = $mysqli->query($query) or die("SQL Query Failed.");
-				$numOfRecords = $result->num_rows;
-				for($x = 0 ; $x < $numOfRecords ; $x++){
-				    $row = $result->fetch_assoc();
-				    echo '<tr>';
-			        foreach($row as $key => $value){
-						echo '<td>'.$value.'</td>';	
-					}
-					echo '</tr>';
-				}	
-			    $mysqli->close();
-			}
-	    ?>
-	    </tbody>
-	</table>
+		
+		<div id="tblContainer">
+			
+		</div>
+	
     </body>
 </html>
