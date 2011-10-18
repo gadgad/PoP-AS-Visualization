@@ -7,7 +7,6 @@ require_once('bin/colorManager.php');
 require_once('bin/xml_chunk_reader.php');
 
 // global constants
-//define('MAX_EDGES_RESULTS',10);
 define("PRECISION",4); //precision of floating point calculations
 define("EARTH_RADIUS",6371); // earth raius in km
 
@@ -371,23 +370,8 @@ class kmlWriter
 			$dstAS = $link["DestAS"];
 			$srcPOP = $link["SourcePoP"];
 			$dstPOP = $link["DestPoP"];
-				
-			/*
 			$numOfEdges = $link["numOfEdges"];
-			$edge_lst_str = "<P>#Edges: ".$numOfEdges."</BR>";
-			for($i=0;$i<min($numOfEdges,MAX_EDGES_RESULTS); $i++)
-			{
-				$edge_lst_str.="EdgeID: ".$link["edgeID_lst"][$i]."\nSourceIP: ".$link["src_ip_lst"][$i]."\nDestIP: ".$link["dest_ip_lst"][$i]."\nMedian: ".$link["median_lst"][$i]."</BR>\n";
-			}
-			$edge_lst_str.="</P>";
-			if($numOfEdges>MAX_EDGES_RESULTS)
-			{
-				$edge_lst_str.="<P>And there are ".($numOfEdges-MAX_EDGES_RESULTS)." <A href=\"more_info.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&threshold=".STDEV_THRESHOLD."\"  rel=\"popup console 400 400\" target=\"_blank\">more</A>...</P>\n";
-			}
-			* 
-			*/
 			
-			// \n<P>Source AS: ".$srcAS."</BR>Dest AS: ".$dstAS."</BR>Source PoP: ".$srcPOP."</BR>Dest PoP: ".$dstPOP."</P>".$edge_lst_str."\n
 			//EDGES_COLORING_SCHEME
 			$src_color = $this->ASN_LIST[$srcAS]["color"];
 			$static_color = (($srcAS == $dstAS)? new Color(EDGES_INTRA_COLOR) : new Color(EDGES_INTER_COLOR));
@@ -396,7 +380,7 @@ class kmlWriter
 			if(!is_object($linkColor))
 				$linkColor = $src_color;
 			
-	        $kmlString.="<Placemark>\n<name>Edge#".$counter++."</name>\n<description>\n<![CDATA[<A href=\"more_info.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&threshold=".STDEV_THRESHOLD."&inter_con=".INTER_CON."&intra_con=".INTRA_CON."&QID=".$this->queryID."\" target=\"_blank\">Open in new window</A></BR><div class=\"ifrm\"><iframe name=\"ifrm\" id=\"ifrm\" src=\"more_info.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&threshold=".STDEV_THRESHOLD."&inter_con=".INTER_CON."&intra_con=".INTRA_CON."&QID=".$this->queryID."\" frameborder=\"0\" width=\"100%\" height=\"90%\">Your browser doesn't support iframes.</iframe></div>]]>\n</description>\n<visibility>1</visibility>\n<Style>\n<LineStyle>\n<color>".($linkColor->gm_format())."</color>\n<width>".max(MIN_LINE_WIDTH,min($link["numOfEdges"],MAX_LINE_WIDTH))."</width>\n</LineStyle>\n<PolyStyle>\n<color>".($linkColor->gm_format())."</color>\n</PolyStyle>\n</Style>\n<LineString>\n<tessellate>1</tessellate>\n<altitudeMode>relativeToGround</altitudeMode>\n<coordinates>\n";
+	        $kmlString.="<Placemark>\n<name>Edge#".$counter++."</name>\n<description>\n<![CDATA[<A href=\"edgeDetails.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&QID=".$this->queryID."&numOfEdges=".$numOfEdges."\" target=\"_blank\">Open in new window</A></BR><div class=\"ifrm\"><iframe name=\"ifrm\" id=\"ifrm\" src=\"edgeDetails.php?src_pop=".$srcPOP."&dst_pop=".$dstPOP."&QID=".$this->queryID."&numOfEdges=".$numOfEdges."\" frameborder=\"0\" width=\"100%\" height=\"90%\">Your browser doesn't support iframes.</iframe></div>]]>\n</description>\n<visibility>1</visibility>\n<Style>\n<LineStyle>\n<color>".($linkColor->gm_format())."</color>\n<width>".max(MIN_LINE_WIDTH,min($link["numOfEdges"],MAX_LINE_WIDTH))."</width>\n</LineStyle>\n<PolyStyle>\n<color>".($linkColor->gm_format())."</color>\n</PolyStyle>\n</Style>\n<LineString>\n<tessellate>1</tessellate>\n<altitudeMode>relativeToGround</altitudeMode>\n<coordinates>\n";
 	        $kmlString.=$srcLNG.",".$srcLAT.",".$this->ASN_LIST[$srcAS]["altitude"]."\n"; //first coordinate
 	        $dist = $this->calcDist($srcLAT, $dstLAT,$srcLNG, $dstLNG);
 	        $brng = $this->calcBearing($srcLAT, $dstLAT,$srcLNG, $dstLNG);

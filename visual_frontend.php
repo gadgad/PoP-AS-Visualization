@@ -369,6 +369,7 @@ $COLOR_LIST = $cm->getColorList();
 							                        	params: {queryID: QID, func: 'renderKML', panel: 'edges', submitted: 'yes', global: edgesPanel.saveToGlobals},
 							                        	waitMsg: 'rendering kml...',
 							                        	waitTitle: 'kml-render-engine',
+							                        	timeout:30000,
 							                            success: function(form, action) {
 							                               reloadKML();
 							                            },
@@ -475,6 +476,7 @@ $COLOR_LIST = $cm->getColorList();
 												params: {queryID: QID, submitted: 'yes', global: globalsPanel.saveToGlobals ,func: 'renderKML', panel: 'default' },
 												waitMsg: 'rendering kml...',
 												waitTitle: 'kml-render-engine',
+												timeout:30000,
 												success: function(form, action) {
 												   reloadKML();
 												},
