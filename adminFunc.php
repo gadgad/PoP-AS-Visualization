@@ -82,7 +82,14 @@
 					$newRow->addChild($key,$value);	
 				}	
 		    }
-	     	$xml->asXML($nameXML);
+	     	//$xml->asXML($nameXML);
+	     	
+	     	$dom = new DOMDocument('1.0');
+			$dom->preserveWhiteSpace = false;
+			$dom->formatOutput = true;
+			$dom->loadXML($xml->asXML());
+			$dom->save($nameXML);
+			     		     		     		    
 			$result->close();
 			$mysqli->close();   
         }else {ret_res("bad query result","ERROR");}
@@ -148,7 +155,14 @@
 			unset($weeks);
 		}
 		// saving the file, closing connection to DB.
-		$xml->asXML($nameXML);
+		//$xml->asXML($nameXML);
+		
+		$dom = new DOMDocument('1.0');
+		$dom->preserveWhiteSpace = false;
+		$dom->formatOutput = true;
+		$dom->loadXML($xml->asXML());
+		$dom->save($nameXML);
+		
 		$mysqli->close();
 		ret_res('done',"GOOD");
 	}
@@ -376,8 +390,20 @@
 		$res[0]->addChild($SP,$paramValue);
 								
 		$xml->asXML('config/config.xml');		
-		ret_res('done',"GOOD");
-	
+		ret_res('done',"GOOD");	
 	}
+	
+	$to = "gadsirot@post.tau.ac.il";
+	$subject = "PoP-AS visualization";
+	$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website was accepted.".PHP_EOL."Login to start!";
+	$header = "From: kerenbe4@post.tau.ac.il";
+	$header.=PHP_EOL."Return-Path:<kerenbe4@post.tau.ac.il>";
+	if (mail($to, $subject, $body,$header)) {
+	   echo "GOOD - mail was sent";
+	} else {
+	   echo 'mail delivery failed.';
+	}
+
+	
 	
 ?>
