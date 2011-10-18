@@ -1,7 +1,7 @@
 <?php
 
 // http://localhost/PoPVisualizer/edgeDetails.php?src_pop=000209.1066447842&dst_pop=000209.1066564486&QID=0b6f948d14f516e52dbe6f469a8dbbaf
-// http://10.0.0.14/edgeDetails.php?src_pop=003356.0068768294&dst_pop=003356.0068768294&QID=0b6f948d14f516e52dbe6f469a8dbbaf&currPage=0
+// http://10.0.0.14/edgeDetails.php?src_pop=003356.0068768294&dst_pop=003356.0068768294&QID=0b6f948d14f516e52dbe6f469a8dbbaf&numOfEdges=60712
 	require_once("verify.php");
 	require_once("bin/load_config.php");
 	require_once("bin/idgen.php");
@@ -9,7 +9,6 @@
 		
 	if(!isset($_REQUEST["src_pop"]) || 
 		!isset($_REQUEST["dst_pop"]) ||
-		!isset($_REQUEST["currPage"]) ||
 		!isset($_REQUEST['numOfEdges']) ||
 		!isset($_REQUEST["QID"])) {
 			echo "missing parameters!";
@@ -19,8 +18,8 @@
 	$src = $_REQUEST["src_pop"];
 	$dst = $_REQUEST["dst_pop"];
 	$queryID = $_REQUEST["QID"];
-	$currPage = $_REQUEST["currPage"];
 	$numOfEdges = $_REQUEST['numOfEdges'];
+	if (isset($_REQUEST["currPage"])){$currPage = $_REQUEST["currPage"]; }else $currPage = 0;
 	
 	$idg = new idGen($queryID);
 	$queries = simplexml_load_file('xml/query.xml');
@@ -43,20 +42,6 @@
 	$srcAS = intval(substr($src, 0,strrpos($src, '.')));
 	$dstAS = intval(substr($dst, 0,strrpos($dst, '.')));
 		
-	// connecting to the DB
-	
-	/*
-	$query = "select count(*) from `".$database."`.`".$idg->getEdgeTblName()."` where Source_PoPID=".$src." and Dest_PoPID=".$dst;
-	if ($resulti = $mysqli->query($query)){
-		// getting the number of edges. 	 
-    	$row = $resulti->fetch_assoc(); 
-        foreach($row as $key => $value){
-			$numOfEdges = $value;	
-		}   
-		$resulti->close();	   
-    }else echo 'bad query result';
-    */
-    
     $pageSize = 100; // TODO : get page size from globals
 	$numOfPages = ceil($numOfEdges/$pageSize); 
 	
@@ -90,7 +75,7 @@
 			
 			$(document).ready(function() 
 			    { 	
-			    	$('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&currPage=0 #myTable3').fadeIn("fast");
+			    	$('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID; ?>&numOfEdges=<?php echo $numOfEdges; ?> #myTable3').fadeIn("fast");
 				    $("#myTable3").tablesorter();   
 			    } 
 			); 
@@ -101,7 +86,7 @@
 					page-=1;
 					$('#navigate').html('<button type="submit" onclick="prevPage(this.value)" value="'+page+'">prev</button> '+page+' <button type="submit" onclick="nextPage(this.value)" value="'+page+'">next</button>');
 					$('#myTable3').html('<p><img src="images/ajax-loader.gif"/></p>');
-				    $('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&currPage='+page+' #myTable3').fadeIn("slow");	
+				    $('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("slow");	
 				}
 			}
 			
@@ -111,7 +96,7 @@
 					page+=1;
 					$('#navigate').html('<button type="submit" onclick="prevPage(this.value)" value="'+page+'">prev</button> '+page+' <button type="submit" onclick="nextPage(this.value)" value="'+page+'">next</button>');
 					$('#myTable3').html('<p><img src="images/ajax-loader.gif"/></p>');
-				    $('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&currPage='+page+' #myTable3').fadeIn("slow");	
+				    $('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("slow");	
 				}				
 			}
 			
@@ -181,7 +166,8 @@
 			<tr> 
 				<?php
 				
-				if(isset($_REQUEST["loadTable"])){					
+				if(isset($_REQUEST["loadTable"])){
+					// connecting to the DB					
 					$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 					if ($mysqli->connect_error) {
 					   echo 'Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error;
