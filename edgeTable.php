@@ -75,30 +75,26 @@
 						   echo 'Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error;
 						   die();
 						}
+							
+						// parse 'pageSize' records from DB
+						$numOfPages = ceil($numOfEdges/$pageSize);
+						$sql = "select AutoIndex,edgeid,SourceIP,DestIP,step,count,Median from `".$database."`.`".$idg->getEdgeTblName()."` where Source_PoPID=".$src." and Dest_PoPID=".$dst;
+						$pageOffset = $currPage*$pageSize;
+						$query = $sql." limit $pageOffset,$pageSize";
+						$result = $mysqli->query($query) or die("SQL Query Failed.");
+						
 						// getting the attributes of the table
-						$sql = "select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where table_name='".$idg->getEdgeTblName()."' and table_schema='".$database."'";
-						if ($result = $mysqli->query($sql)){		
-							// processing the query result 
-					    	while ($row = $result->fetch_assoc()) {	
-						        foreach($row as $key => $value){
-									echo '<th>'.$value.'</th>';	
-								}	
-						    }	     		     		     		    
-							$result->close();	   
-					    }else echo 'bad query result';			
+						$finfo = $result->fetch_fields();
+						 foreach ($finfo as $val) {
+						 	echo '<th>'.$val->name.'</th>';	
+        				}
+        						
 					?>
 				</tr> 
 				</thead> 
 				<tbody> 
 			<?php
-					// when the next/prev button is pressed, this code generates the table content again.
-					$numOfPages = ceil($numOfEdges/$pageSize);
-					$sql = "select * from `".$database."`.`".$idg->getEdgeTblName()."` where Source_PoPID=".$src." and Dest_PoPID=".$dst;
-						
-					// parse 'pageSize' records from DB
-					$pageOffset = $currPage*$pageSize;
-					$query = $sql." limit $pageOffset,$pageSize";
-					$result = $mysqli->query($query) or die("SQL Query Failed.");
+					// render table content
 					$numOfRecords = $result->num_rows;
 					for($x = 0 ; $x < $numOfRecords ; $x++){
 					    $row = $result->fetch_assoc();

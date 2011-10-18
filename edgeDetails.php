@@ -52,6 +52,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Edge Info</title>
+        <link rel="stylesheet" href="css/visual.css" type="text/css" />
         <link rel="stylesheet" href="css/tablesort/blue/style.css" type="text/css" media="print, projection, screen" /> 
         <script src="http://code.jquery.com/jquery-latest.js"></script>
 		<script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
@@ -71,10 +72,11 @@
 					  }
 			})(jQuery)
 
-			$.preLoadImages("images/ajax-loader.gif");
+			$.preLoadImages("images/ajax-bar.gif");
 			
 			$(document).ready(function() 
 			    { 	
+			    	$('#tblContainer').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
 			    	$('#tblContainer').load('edgeTable.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID; ?>&numOfEdges=<?php echo $numOfEdges; ?> #myTable3').fadeIn("fast");
 				    $('#tblContainer').ajaxComplete(function() {
 				    	$('#myTable3').addClass('tablesorter');
@@ -86,9 +88,9 @@
 			function prevPage(currPage){
 				var page = parseInt(currPage);
 				if (page>0){
-					page-=1;
+					page--;
 					$('#navigate').html('<button type="submit" onclick="prevPage(this.value)" value="'+page+'">prev</button> '+page+' <button type="submit" onclick="nextPage(this.value)" value="'+page+'">next</button>');
-					$('#myTable3').html('<p><img src="images/ajax-loader.gif"/></p>');
+					$('#myTable3').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
 				    $('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("slow");	
 				}
 			}
@@ -96,9 +98,9 @@
 			function nextPage(currPage){
 				var page = parseInt(currPage);
 				if (page<<?php echo $numOfPages?>){
-					page+=1;
+					page++;
 					$('#navigate').html('<button type="submit" onclick="prevPage(this.value)" value="'+page+'">prev</button> '+page+' <button type="submit" onclick="nextPage(this.value)" value="'+page+'">next</button>');
-					$('#myTable3').html('<p><img src="images/ajax-loader.gif"/></p>');
+					$('#myTable3').html('<p><img class="ajaxLoader" src="images/ajax-bar.gif"/></p>');
 				    $('#myTable3').load('edgeDetails.php?loadTable=true&src_pop=<?php echo $src?>&dst_pop=<?php echo $dst?>&QID=<?php echo $queryID ?>&numOfEdges=<?php echo $numOfEdges; ?>&currPage='+page+' #myTable3').fadeIn("slow");	
 				}				
 			}
