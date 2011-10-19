@@ -214,6 +214,34 @@
                 }
         		,"json");        		
              }
+             
+             // loads the parameters info and change options.
+             function parameters(){
+             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
+             	$('#queryTable').load('admin.php?viewParameters=true #queryTable').fadeIn("slow");
+             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Change parameter </u></p><select id="configParameter"><?php 
+             		$xml = simplexml_load_file("config/config.xml");
+					$result = $xml->xpath('/config/config-parameters/parameter');							
+						if($result!=FALSE){
+							 foreach ($result as $i => $value) {
+								echo"<option>".$value->name."</option>";
+							 }
+					} ?></select> <select id="paramAttribute"><option>description</option><option>value</option><option>units</option></select> <p style="text-align:center">new value <input type="text" id="paramVal" size="18"/>   <input type="button" onclick="changeParamVal()" value="Change"/></p>');
+             }
+             
+             // sends the new value of the parameter to the server to change
+             function changeParamVal(){
+             	$.post("adminFunc.php", {func: "changeParamVal", user: <?php echo '"'.$username.'"'?>,param : $("#configParameter").val(), attribute : $("#paramAttribute").val(), value : $("#paramVal").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert("Error while changing parameter: " + data.result);
+                 		}else $('#My_queries').append('<p style="color:navy">The parameter was changed.</p>'); 
+        			}else alert("data is null");
+                }
+        		,"json");             	
+             }
             
               
             function pool_pq_status(pid){
@@ -290,7 +318,7 @@
 					echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
 					echo "</tr>";		
 				} 
-			}
+			}else echo 'Error while retrieving data from XML.';
 		echo '</table>';
 		die();
 	}
@@ -340,7 +368,7 @@
 						echo"<td>".(string)$result[0]->email."</td>";													
 						echo"<td>".(string)$result[0]->status."</td>";							
 						echo "</tr>";																	
-					}	
+					}else echo 'Error while retrieving data from '.$file.'.';	
 				}												
 			}
 		}else { echo "<tr><td>ERROR</td></tr>";}		
@@ -351,8 +379,14 @@
 	if(isset($_REQUEST["viewBlades"])){
 			
 		$xml = simplexml_load_file('config/config.xml');
-		$res = $xml->xpath('/config/blades/blade[@default="true"]'); 
-		$defaultBlade = (string)$res[0]->attributes()->name;	
+		$res = $xml->xpath('/config/blades/blade[@default="true"]');
+		if($res!=FALSE)
+		{ 
+			$defaultBlade = (string)$res[0]->attributes()->name;
+		}else {
+			echo 'Error while retrieving data from XML.';
+			die();
+			}
 			
 		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
 		echo "<tr>";
@@ -401,7 +435,32 @@
 				echo "</tr>";						
 			} 
  			echo '</table>';	
-		}		
+		}else echo 'Error while retrieving data from XML.';		
+		die();
+	}
+
+	if(isset($_REQUEST["viewParameters"])){
+													
+		$xml = simplexml_load_file("config/config.xml");
+		$result = $xml->xpath('/config/config-parameters/parameter');
+							
+		if($result!=FALSE)
+		{
+			echo '</br><p style="color: navy;text-align:center"><u> bla </u></p></br>';
+			echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
+			echo "<tr>";
+			echo "<th>Name</th><th>Description</th><th>Value</th><th>Units</th>";
+			echo "</tr>";				
+			foreach ($result as $i => $value) {																
+				echo "<tr>";
+				echo"<td>".$value->name."</td>";
+				echo"<td>".$value->description."</td>";
+				echo"<td>".$value->value."</td>";
+				echo"<td>".$value->units."</td>";
+				echo "</tr>";						
+			} 
+ 			echo '</table>';	
+		}else echo 'Error while retrieving data from XML.';		
 		die();
 	}
 	
@@ -415,12 +474,13 @@
             	<h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Admin actions</h3>
 	            <div id="adminActions">
 	            	<p onclick="updateWeeks()"><u>Update weeks.xml</u></p>
-	            	<p onclick="updateAS()"><u>Update AS_info.xml</u></p>
+	            	<p onclick="updateAS()"><u>Update ASN_info.xml</u></p>
 	            	<p onclick="showQueries()"><u>View running queries</u></p>
 	            	<p onclick="viewUsers()"><u>View system users</u></p>
 	            	<p onclick="handleRequests()"><u>Accept/Deny pending user requests</u></p>
 	            	<p onclick="blades()"><u>Configure blades (config.xml)</u></p>
 	            	<p onclick="dataTables()"><u>Configure data tables (config.xml)</u></p>
+	            	<p onclick="parameters()"><u>Configure parameters (config.xml)</u></p>
 	            </div>
             </div>
             
