@@ -322,7 +322,7 @@
 				$theNodeToBeDeleted = $res[$key];								
 				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 				if (!$oNode) {
-				    echo 'Error while converting SimpleXMLelement to DOM';
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
 				}		
 				$oNode->parentNode->removeChild($oNode); 							
 			}	
@@ -351,7 +351,7 @@
 					$theNodeToBeDeleted = $res[$key];								
 					$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 					if (!$oNode) {
-					    echo 'Error while converting SimpleXMLelement to DOM';
+					    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
 					}		
 					$oNode->removeAttribute('default');				 							
 				}
@@ -363,7 +363,7 @@
 		ret_res('done',"GOOD");
 	 }
 	
-	// chanchig a parameter at config/config.xml
+	// chanchig a data-table parameter at config/config.xml
 	if($_POST["func"]=="changeParam")
 	{
 		$dataTable = $_POST["dataTable"];
@@ -379,7 +379,7 @@
 				$theNodeToBeDeleted = $res[$key];								
 				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 				if (!$oNode) {
-				    echo 'Error while converting SimpleXMLelement to DOM';
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
 				}		
 				$oNode->parentNode->removeChild($oNode); 							
 			}	
@@ -391,7 +391,41 @@
 								
 		$xml->asXML('config/config.xml');		
 		ret_res('done',"GOOD");	
+	}	
+
+	// chanchig a parameter from the paramters at config/config.xml
+	if($_POST["func"]=="changeParamVal")
+	{
+		$parameter = $_POST["param"];
+		$attribute = $_POST["attribute"];
+		$newValue = $_POST["value"];
+		
+		$xml = simplexml_load_file('config/config.xml');
+		$res = $xml->xpath('/config/config-parameters/parameter[name="'.$parameter.'"]/'.$attribute);
+		// removing the old parameter
+		if($res!=FALSE){
+			foreach ($res as $key => $value){						  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
+				}		
+				$oNode->parentNode->removeChild($oNode); 							
+			}	
+		}else ret_res('The specified parameter wasnt found',"ERROR");
+		
+		// inserting the new parameter
+		$res = $xml->xpath('/config/config-parameters/parameter[name="'.$parameter.'"]');
+		if($res!=FALSE){
+			$res[0]->addChild($attribute,$newValue);
+		}else ret_res('The specified parameter wasnt found',"ERROR");						
+		$xml->asXML('config/config.xml');		
+		ret_res('done',"GOOD");	
 	}
+
+
+
+
 	
 	$to = "gadsirot@post.tau.ac.il";
 	$subject = "PoP-AS visualization";
