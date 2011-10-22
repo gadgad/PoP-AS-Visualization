@@ -1,4 +1,8 @@
 <?php
+
+/*
+ * the admin page. 
+ */
 	include_once("bin/load_config.php");
 
 	session_start();
