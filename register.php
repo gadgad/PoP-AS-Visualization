@@ -1,5 +1,6 @@
 <!--
-	this page is loaded when a user registers to the system. 
+	this page is loaded when a user registers to the system.
+	it recives the info and checks for errors. if all info is ok the user is redirected to welcome.php 
 -->
 
 <?php

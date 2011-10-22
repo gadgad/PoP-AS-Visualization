@@ -1,4 +1,7 @@
 <?php
+/*
+ * the server-side for the admin functions 
+ */
 	include_once("bin/load_config.php");
 	include_once("bin/idgen.php");
 	include_once("bin/writeToXML.php");
