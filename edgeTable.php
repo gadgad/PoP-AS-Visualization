@@ -1,4 +1,8 @@
 <?php
+/*
+ * shows info from DB for a specific edge (src_pop+dst_pop). is called by edgeDetails 
+ */
+
 
 // http://localhost/PoPVisualizer/edgeDetails.php?src_pop=000209.1066447842&dst_pop=000209.1066564486&QID=0b6f948d14f516e52dbe6f469a8dbbaf
 // http://10.0.0.14/edgeDetails.php?src_pop=003356.0068768294&dst_pop=003356.0068768294&QID=0b6f948d14f516e52dbe6f469a8dbbaf&numOfEdges=60712

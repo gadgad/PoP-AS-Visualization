@@ -1,4 +1,10 @@
 <?php
+
+/*
+ *  this file handles a query deletion by the user
+ *  if there is only one user that generated this query - it is deleted. 
+ * 	if there several users that view this query - only the username is being removed from the users list.
+ */
 	require_once("bin/load_config.php");
 	require_once("bin/idgen.php");
 	require_once("bin/query_status.php");
@@ -15,7 +21,8 @@
 	if(isset($_REQUEST["username"])){
 		$username = $_REQUEST["username"];
 	}
-		
+	
+	// setting connection variables		
 	$queries = simplexml_load_file("xml/query.xml");
 	$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/blade');
 	$selected_blade = (string)$res[0];
@@ -39,6 +46,7 @@
 		die();	
 	}
 	
+	// deleting the user from the users list
 	function deleteUser($username,$queryID){
 		
 		$queries = simplexml_load_file("xml/query.xml");
@@ -57,6 +65,7 @@
 		$queries->asXML("xml/query.xml");			
 	}
 	
+	// deleting the query from query.xml
 	function deleteQuery($queryID){
 		
 		$queries = simplexml_load_file("xml/query.xml");
@@ -71,6 +80,7 @@
 		
 	}
 	
+	// a function that recursivly removes a directory
 	 function rrmdir($dir) { 
 	   if (is_dir($dir)) { 
 	     $objects = scandir($dir); 
@@ -84,7 +94,7 @@
 	   } 
 	 }
 	
-		
+	// handling a query removal	
 	if($_REQUEST["func"]=="abort")
 	{
 		
