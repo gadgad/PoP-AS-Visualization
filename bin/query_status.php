@@ -93,9 +93,13 @@
 			$mysqli->close();
 		}
 
-		public function setQueryStatus($qid,$new_status,$allQIDS)
+		public function setQueryStatus()
 		{
-			$queryID = $qid;
+			$allQIDS = false;
+			$queryID = func_get_arg(0);
+			$new_status = func_get_arg(1);
+			if(func_num_args()==3) $allQIDS = func_get_arg(2);
+			
 			$this->queryXML = simplexml_load_file($this->queryFilename);	
 			$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 			if($allQIDS){
@@ -110,9 +114,13 @@
 			$this->queryXML->asXML($this->queryFilename);
 		}
 		
-		public function setQueryRunningStatus($qid,$new_status_id,$allQIDS)
+		public function setQueryRunningStatus()
 		{
-			$queryID = $qid;
+			$allQIDS = false;
+			$queryID = func_get_arg(0);
+			$new_status_id = func_get_arg(1);
+			if(func_num_args()==3) $allQIDS = func_get_arg(2);
+			
 			$this->queryXML = simplexml_load_file($this->queryFilename);	
 			$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 			if($allQIDS && $new_status_id<=2){
