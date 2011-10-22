@@ -1,3 +1,4 @@
+<!-- shows the PoP/AS visualizaiton header, welcome msg and logout option -->
 <div id="header">
 	<p>
         <h5 style="text-align: left; margin-left: 5px">Welcome <?php echo $username; ?>,                	
