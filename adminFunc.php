@@ -1,4 +1,7 @@
 <?php
+/*
+ * the server-side for the admin functions 
+ */
 	include_once("bin/load_config.php");
 	include_once("bin/idgen.php");
 	include_once("bin/writeToXML.php");
@@ -237,8 +240,10 @@
 		
 		// sending an email to the user
 		$subject = "PoP-AS visualization";
-		$body = "Hi ".$username.",\n\nYour request for the PoP-AS visualization website was accepted.\n\nLogin to start!";
-		if (mail($to, $subject, $body)) {
+		$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website was accepted.".PHP_EOL."Login to start!";
+		// $header = "From: popas4@post.tau.ac.il";
+		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
+		if (mail($to, $subject, $body, $header)) {
 		   ret_res('done',"GOOD");
 		} else {
 		   ret_res('user authorized, mail delivery failed.',"ERROR");
@@ -271,8 +276,10 @@
 		
 		// sending an email to the user
 		$subject = "PoP-AS visualization";
-		$body = "Hi ".$username.",\n\nYour request for the PoP-AS visualization website denied.";
-		if (mail($to, $subject, $body)) {
+		$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website denied.";
+		// $header = "From: popas4@post.tau.ac.il";
+		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
+		if (mail($to, $subject, $body, $header)) {
 		   ret_res('done',"GOOD");
 		} else {
 		   ret_res('user denied, mail delivery failed.',"ERROR");
@@ -322,7 +329,7 @@
 				$theNodeToBeDeleted = $res[$key];								
 				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 				if (!$oNode) {
-				    echo 'Error while converting SimpleXMLelement to DOM';
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
 				}		
 				$oNode->parentNode->removeChild($oNode); 							
 			}	
@@ -351,7 +358,7 @@
 					$theNodeToBeDeleted = $res[$key];								
 					$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 					if (!$oNode) {
-					    echo 'Error while converting SimpleXMLelement to DOM';
+					    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
 					}		
 					$oNode->removeAttribute('default');				 							
 				}
@@ -363,7 +370,7 @@
 		ret_res('done',"GOOD");
 	 }
 	
-	// chanchig a parameter at config/config.xml
+	// chanchig a data-table parameter at config/config.xml
 	if($_POST["func"]=="changeParam")
 	{
 		$dataTable = $_POST["dataTable"];
@@ -379,7 +386,7 @@
 				$theNodeToBeDeleted = $res[$key];								
 				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 				if (!$oNode) {
-				    echo 'Error while converting SimpleXMLelement to DOM';
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
 				}		
 				$oNode->parentNode->removeChild($oNode); 							
 			}	
@@ -391,19 +398,35 @@
 								
 		$xml->asXML('config/config.xml');		
 		ret_res('done',"GOOD");	
-	}
-	
-	$to = "gadsirot@post.tau.ac.il";
-	$subject = "PoP-AS visualization";
-	$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website was accepted.".PHP_EOL."Login to start!";
-	$header = "From: kerenbe4@post.tau.ac.il";
-	$header.=PHP_EOL."Return-Path:<kerenbe4@post.tau.ac.il>";
-	if (mail($to, $subject, $body,$header)) {
-	   echo "GOOD - mail was sent";
-	} else {
-	   echo 'mail delivery failed.';
-	}
+	}	
 
-	
-	
+	// chanchig a parameter from the paramters at config/config.xml
+	if($_POST["func"]=="changeParamVal")
+	{
+		$parameter = $_POST["param"];
+		$attribute = $_POST["attribute"];
+		$newValue = $_POST["value"];
+		
+		$xml = simplexml_load_file('config/config.xml');
+		$res = $xml->xpath('/config/config-parameters/parameter[name="'.$parameter.'"]/'.$attribute);
+		// removing the old parameter
+		if($res!=FALSE){
+			foreach ($res as $key => $value){						  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
+				}		
+				$oNode->parentNode->removeChild($oNode); 							
+			}	
+		}else ret_res('The specified parameter wasnt found',"ERROR");
+		
+		// inserting the new parameter
+		$res = $xml->xpath('/config/config-parameters/parameter[name="'.$parameter.'"]');
+		if($res!=FALSE){
+			$res[0]->addChild($attribute,$newValue);
+		}else ret_res('The specified parameter wasnt found',"ERROR");						
+		$xml->asXML('config/config.xml');		
+		ret_res('done',"GOOD");	
+	}
 ?>

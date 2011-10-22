@@ -1,4 +1,11 @@
 <?php
+
+/*
+ * this file is the 'server-side' of the 'generating new query' section, 
+ * and responsible of fetching the relevant data 
+ */
+
+
 	require_once("bin/load_config.php");
 	require_once("bin/idgen.php");
 	require_once("bin/writeToXML.php");
@@ -30,6 +37,7 @@
 		$selected_blade = isset($_POST["blade"])? $_POST["blade"] : $GLOBALS['DEFAULT_BLADE'];	
 	}
 	
+	// setting connection parameters
 	$blade = $Blade_Map[$selected_blade];
 	$host = (string)$blade["host"];
 	$port = (int)$blade["port"];
@@ -46,6 +54,7 @@
 		die();	
 	}
 	
+	// executs the query and parses the result to a string with a ' ' (space) delimiter 
 	function parse($mysqli,$query){
 		$res = "";			
 		if ($result = $mysqli->query($query)){
@@ -62,6 +71,7 @@
 		return $res;
 	}
 	
+	// getting the available tables from the DB that match one of the formats (by week and year) 
 	function getTblFromDB($mysqli,$table,$year,$week){
 					
 		$query1 = "'".$table."\_".$year."\_week_".$week."'";		
@@ -97,7 +107,8 @@
 		$this->queryXML->asXML($this->queryFilename);
 	}
 	*/
-
+	
+	// tests the connection to the DB
 	if($_POST["func"]=="testConnection")
 	{ 
 		if(isset($pass) && $pass!=""){
@@ -112,11 +123,13 @@
         
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
     
+    // acording to the blade and year selected , retrives the available weeks
     if($_POST["func"]=="getWeeks")
 	{
 		$blade = $_POST["blade"];
 		$year = $_POST["year"];
 		
+		// first - searching the info in weeks.xml
 		$weeks[] = array();
 		$xml = simplexml_load_file("xml/weeks.xml");
 		$result = $xml->xpath('/DATA/YEAR[year="'.$year.'"]/WEEK');					
@@ -126,7 +139,7 @@
 				$weeks[] = (string)$result[$index];					
 			}								
 		}
-		else{
+		else{ // if the info isnt found at the file we connect to the DB to find available weks.
 			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 			if ($mysqli->connect_error) {
 	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
@@ -154,7 +167,8 @@
     	echo json_encode(array("weeks"=>$weeks,"type"=>"GOOD"));     
 		
 	}
-			
+	
+	// according to the blade,year and week finds the available tables (allways from DB).		
 	if($_POST["func"]=="showTables")
 	{
 		$blade = $_POST["blade"];		 
@@ -180,11 +194,9 @@
         echo json_encode(array("edge"=>$edges,"pop"=>$pops,"popIP"=>$popsIP,"type"=>"GOOD"));                                    		
 	}
 	
-	
+	// according to te tables chosen - fetching the ASN list.
 	if($_POST["func"]=="getASlist")
-	{
-			
-			
+	{		
 		$blade = $_POST["blade"];
 		$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 		if ($mysqli->connect_error) {
@@ -202,7 +214,8 @@
 		if ($result = $mysqli->query($query)){			
 	    	 while ($row = $result->fetch_assoc()) {
 		        foreach($row as $key => $value){
-					$AS .= $value . " ";											 									
+					$AS .= $value . " ";	
+					// fetching additional info from ASN_info.xml										 									
 					$res = $ASinfo->xpath('/DATA/ROW[ASNumber="'.$value.'"]');		
 					if($res!=FALSE)
 					{
