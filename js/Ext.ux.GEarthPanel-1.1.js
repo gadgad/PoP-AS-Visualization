@@ -62,6 +62,10 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
         // Create TreePanel to show KML documents
         this.kmlTreePanel = new Ext.tree.TreePanel({
         	xtype: 'treepanel',
+        	autoScroll: true,
+        	//containerScroll: true,
+        	//ddScroll: true,
+        	height: 400,
             border: false,
             bodyStyle: 'padding-bottom: 15px',
         	root: new Ext.tree.TreeNode({
@@ -72,6 +76,7 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
             rootVisible: false,
             listeners: {checkchange: {fn: function(node, checked){
             	node.attributes.kml.setVisibility(checked);
+            	
     			node.bubble(function(n){  // If a child node is checked, check all the ancestors
     				if (node.getUI().isChecked()) {
     			        if (!node.parentNode.getUI().isChecked()) {
@@ -79,6 +84,8 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
     			        }
     			    }
     			})
+    			
+
             }}}
         });
 

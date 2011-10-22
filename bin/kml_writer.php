@@ -28,6 +28,9 @@ class kmlWriter
 	
 	private $kmlString;
 	private $filename;
+	private $bufferSize;
+	private $tempFileName;
+	private $fileWrite;
 	
 	private $pop_xml;
 	private $edges_xml;
@@ -48,7 +51,6 @@ class kmlWriter
 	
 	private $cm;
 	
-	
 	public function __construct($queryID)
 	{
 		
@@ -56,9 +58,12 @@ class kmlWriter
 		
 		$this->queryID = $queryID;
 		$this->idg = new idGen($queryID);
-		$this->xml_src_dir = $this->kml_dst_dir = $xml_src_dir = 'queries/'.$this->idg->getDirName();
 		
+		$this->xml_src_dir = $this->kml_dst_dir = 'queries/'.$this->idg->getDirName();
+		$this->bufferSize = renderKMLMemoryBufferSize; // Bytes
+		$this->tempFileName = $this->kml_dst_dir.'/result.kml';
 		$this->kmlString = '';
+		
 		$this->num_of_asns = 0;
 		
 		$this->asn_info_xml = simplexml_load_file('xml/ASN_info.xml');
@@ -190,6 +195,7 @@ class kmlWriter
 			  	$pop_connected = (isset($placemark["connected"])) ? true : false;
 			  	if(!CONNECTED_POPS_ONLY || $pop_connected)
 				{
+					if(!array_key_exists($asn, $this->LOC_2_POP_MAP)) $this->LOC_2_POP_MAP[$asn] = array();
 				  	$pop_str = $pop->ASN.$pop->LAT2.$pop->LNG2;
 					if(!array_key_exists($pop_str, $this->LOC_2_POP_MAP[$asn])){
 				  		$this->LOC_2_POP_MAP[$asn][$pop_str] = array("numOfPoPS"=>1,"asn"=>intval($pop->ASN),"lat"=>floatval($pop->LAT2),"lng"=>floatval($pop->LNG2),"pop_id_lst"=>array($pop->PoPID));
@@ -222,6 +228,9 @@ class kmlWriter
 					  {
 					  	$this->ASN_LIST[$asn]["Country"] = $asn_info[0]->Country;
 						$this->ASN_LIST[$asn]["ISPName"] = $asn_info[0]->ISPName;
+					  } else {
+					  	$this->ASN_LIST[$asn]["Country"] = "unknown";
+						$this->ASN_LIST[$asn]["ISPName"] = "unknown";
 					  }
 				  	}
 			  	}
@@ -397,71 +406,81 @@ class kmlWriter
 	}
   
  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	private function flushToDisk($force)
+	{
+		// flush generated XML to disk , if current output buffer is bigger than 'bufferSize'				
+		if(strlen($this->kmlString)>=$this->bufferSize || $force){
+			if($fwrite = fwrite($this->fileWrite, $this->kmlString)){
+				//$bytesWritten+=$fwrite;
+				unset($this->kmlString);
+				$this->kmlString = '';
+			} else {
+				return false;
+			}
+		}
+		return true;	
+	}
+	
 	private function generateKML()
 	{
+		$this->fileWrite = fopen($this->tempFileName, "w");
+			
 		$kml_header = '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>PoP Map</name>'."\n";
 		$kml_footer = '</Document></kml>';
-		$kml_body = '';
+		$this->kmlString = $kml_header;
 	  	if(DRAW_CIRCLES)
 	  	{
-	  		$kml_body.="<Folder><name>PoP Location Convergence Radiuses</name>";
+	  		$this->kmlString.="<Folder><name>PoP Location Convergence Radiuses</name>";
 			foreach($this->CIRCLES as $as=>$arr)
 			{
-				$kml_body.="<Folder>\n<name>ASN: ".$as."</name>\n";
+				$this->kmlString.="<Folder>\n<name>ASN: ".$as."</name>\n";
 				foreach($arr as $circle){
-					$kml_body.=$this->kmlCircle($circle);
+					$this->kmlString.=$this->kmlCircle($circle);
 				}
-				$kml_body.="</Folder>\n";	
+				$this->kmlString.="</Folder>\n";
+				$this->flushToDisk(false);	
 			}
-			$kml_body.="</Folder>\n\n";
+			$this->kmlString.="</Folder>\n\n";
 	  	}
 		
-		$kml_body.="<Folder><name>PoP Edges</name>";
+		$this->kmlString.="<Folder><name>PoP Edges</name>";
 		foreach($this->EDGES as $as=>$arr1){
-			$kml_body.="<Folder>\n<name>ASN: ".$as."</name>\n";
+			$this->kmlString.="<Folder>\n<name>ASN: ".$as."</name>\n";
 			foreach($arr1 as $type=>$arr2){
-				$kml_body.="<Folder>\n<name>".$type."-connectivity</name>\n";
+				$this->kmlString.="<Folder>\n<name>".$type."-connectivity</name>\n";
 				foreach($arr2 as $link){
-					$kml_body.=$this->kmlLink($link);
+					$this->kmlString.=$this->kmlLink($link);
 				}
-				$kml_body.="</Folder>\n";	
+				$this->kmlString.="</Folder>\n";
+				$this->flushToDisk(false);	
 			}
-			$kml_body.="</Folder>\n";
+			$this->kmlString.="</Folder>\n";
 		}
-		$kml_body.="</Folder>\n\n";
+		$this->kmlString.="</Folder>\n\n";
 		
-		$kml_body.="<Folder><name>PoP Location PlaceMarks</name>";
+		$this->kmlString.="<Folder><name>PoP Location PlaceMarks</name>";
 		foreach($this->LOC_2_POP_MAP as $as=>$arr)
 		{
-			$kml_body.="<Folder>\n<name>ASN: ".$as."</name>\n";
+			$this->kmlString.="<Folder>\n<name>ASN: ".$as."</name>\n";
 			foreach($arr as $placeMark){
-				$kml_body.=$this->kmlPlaceMark($placeMark);
+				$this->kmlString.=$this->kmlPlaceMark($placeMark);
 			}
-			$kml_body.="</Folder>\n";	
+			$this->kmlString.="</Folder>\n";
+			$this->flushToDisk(false);	
 		}
-		$kml_body.="</Folder>\n\n";
+		$this->kmlString.="</Folder>\n\n";
 		
-		//$kml_body.=(!BLACK_BACKGROUND)? '':"<Folder><name>Black Background</name>\n<GroundOverlay>\n<name>Blank Earth</name>\n<Icon>\n<href>files\untitled.bmp</href>\n<viewBoundScale>0.75</viewBoundScale>\n</Icon>\n<LatLonBox>\n<north>90</north>\n<south>-90</south>\n<east>180</east>\n<west>-180</west>\n</LatLonBox>\n</GroundOverlay>\n</Folder>\n";
+		//$this->kmlString.=(!BLACK_BACKGROUND)? '':"<Folder><name>Black Background</name>\n<GroundOverlay>\n<name>Blank Earth</name>\n<Icon>\n<href>files\untitled.bmp</href>\n<viewBoundScale>0.75</viewBoundScale>\n</Icon>\n<LatLonBox>\n<north>90</north>\n<south>-90</south>\n<east>180</east>\n<west>-180</west>\n</LatLonBox>\n</GroundOverlay>\n</Folder>\n";
 	
-		$this->kmlString = $kml_header.$kml_body.$kml_footer;
+		$this->kmlString .= $kml_footer;
+		$this->flushToDisk(true);
+		fclose($this->fileWrite);
 	}
 	
 	public function writeKMZ($userSpecific)
 	{
 		
 		$this->generateKML();
-		
-		//write generated KML file to disk
-		$filename = ($this->kml_dst_dir.'/result.kml');
-		
-		// define initial write and appends
-		$filewrite = fopen($filename, "w");
-		//$fileappend = fopen($filename, "a");
-		
-		// open file and write header:
-		fwrite($filewrite, $this->kmlString);
-		fclose($filewrite);
 		
 		// generate the .kmz file
 		$zip = new ZipArchive();
@@ -471,12 +490,12 @@ class kmlWriter
 		if ($zip->open($zip_filename, ZIPARCHIVE::CREATE)!==TRUE) {
 		   exit("cannot open <$zip_filename>\n");
 		}
-		$zip->addFile($filename,"doc.kml");
+		$zip->addFile($this->tempFileName,"doc.kml");
 		//if(BLACK_BACKGROUND) $zip->addFile('images/black.bmp','files/untitled.bmp');
 		//echo "numfiles: " . $zip->numFiles . "\n";
 		$zip->close();
 		// finally, delete the original .kml file
-		unlink($filename);
+		unlink($this->tempFileName);
 		return true;
 	}
 

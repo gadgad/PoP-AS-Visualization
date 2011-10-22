@@ -49,15 +49,23 @@
 			$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
 			$database = (string)$blade["db"];
 			
-			
 			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 			if($mysqli->connect_error) return NULL;
 			return $mysqli;
 		}
 		
+		private function create_links_table(){
+			if(($this->mysqli = $this->get_connection()) == NULL)
+				return false;
+			$mysqli = $this->mysqli;
+			
+			$query = "create table if not exists `".$this->schema."`.`".$this->idg->getLinksTblName()."` (SELECT SourceAS,DestAS,Source_PoPID,Dest_PoPID,count(edgeid) as NumOfEdges FROM `".$this->schema."`.`".$this->idg->getEdgeTblName()."` group by concat(Source_PoPID,Dest_PoPID))";
+			$result = $mysqli->real_query($query) or die("SQL Query Failed.");
+			return true;
+		}
+		
 		private function getPoPQuery(){return "select * from `".$this->schema."`.`".$this->idg->getPoPTblName()."` where ASN in(".$this->asList.")";}
-		//private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.")";}
-		private function getEdgeQuery(){return "SELECT SourceAS,DestAS,Source_PoPID,Dest_PoPID,count(edgeid) as NumOfEdges FROM `".$this->schema."`.`".$this->idg->getEdgeTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.") group by concat(Source_PoPID,Dest_PoPID)";}
+		private function getEdgeQuery(){return "select * from `".$this->schema."`.`".$this->idg->getLinksTblName()."` where SourceAS in (".$this->asList.") AND DestAS in (".$this->asList.")";}
 		
 		private function sql2xml($sql,$dir)
 		{
@@ -83,9 +91,11 @@
 				return false;
 			$mysqli = $this->mysqli;
 			
-			$pattern = '/(^select) (.*) (from)(.*)/i';
-			$replacement = '$1 COUNT(*) $3$4';
-			$query = preg_replace($pattern, $replacement, $sql);
+			//$pattern = '/(^select) (.*) (from)(.*)/i';
+			//$replacement = '$1 COUNT(*) $3$4';
+			//$query = preg_replace($pattern, $replacement, $sql);
+			
+			$query = "select count(*) from (".$sql.") as temp;";
 
 			$result = $mysqli->query($query) or die("SQL Query Failed.");
 			$row = $result->fetch_row();
@@ -219,7 +229,11 @@
 			 * 
 			 */
 			
-			return $this->sql2xml($this->getEdgeQuery(), 'edges');
+			if($this->create_links_table())
+				if($this->sql2xml($this->getEdgeQuery(), 'edges'))
+					return true;
+				
+			return false;
 		}
 		
 		private function createDir($path)

@@ -1,5 +1,5 @@
 <?php
-	//error_reporting(E_ERROR);
+	error_reporting(E_ERROR);
 
     require_once("bin/xml_writer.php");
     require_once("bin/kml_writer.php");
@@ -38,24 +38,13 @@
 		fclose($ourFileHandle);
 	}
 	
-	function clean_log(){
-		$filename = "shell/log/process_queries.log";
-		if(file_exists($filename))
-			unlink($filename);
-	}
-	
 	function clean_query_log(){
 		$filename = "shell/log/queries.log";
 		if(file_exists($filename))
 			unlink($filename);
 	}
 	
-	//$args = parseArgs($argv);
-	//$foo = $args['foo'];
-	//echo getcwd() . "\n";
-	
 	remove_ok_sig();
-	clean_log();
 	clean_query_log();
 	$queries = simplexml_load_file("xml\query.xml");
 	$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');

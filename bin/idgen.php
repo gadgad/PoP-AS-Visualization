@@ -45,6 +45,7 @@
     	
     	public function getEdgeTblName() { return "DPV_EDGE_".$this->year."_".$this->week."_".$this->tableID; }
     	public function getPoPTblName() { return "DPV_POP_".$this->year."_".$this->week."_".$this->tableID; }
+		public function getLinksTblName() {return "DPV_LINKS_".$this->year."_".$this->week."_".$this->tableID; }
     	public function getDirName() { return $this->queryID; }	
 		public function getqueryID() { return $this->queryID; }
 		public function getTableID() { return $this->tableID; }

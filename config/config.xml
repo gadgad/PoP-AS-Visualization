@@ -21,6 +21,12 @@
 			<value>1000</value>
 		</parameter>
 		<parameter>
+			<name>renderKMLMemoryBufferSize</name>
+			<description>max number of Bytes of the generated KML string, that will be held in memory on any given moment, during the 'render kml' stage.\n when this limit is reached, kml string is dumped to disk.</description>
+			<units>Bytes</units>
+			<value>4096</value>
+		</parameter>
+		<parameter>
 			<name>fetchXMLMemoryBufferSize</name>
 			<description>max number of Bytes of the generated XML string, that will be held in memory on any given moment, during the 'fetch xml' stage.\n when this limit is reached, xml string is dumped to disk.</description>
 			<units>Bytes</units>
@@ -48,6 +54,10 @@
 		<key>
 			<domain>10.0.0.10</domain>
 			<string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxTK177e1Gh7BX1loiUPYBjodQ7UWxSIUu5oSnvILbkBqQVNC8wU7PkpqQ</string>
+		</key>
+		<key>
+			<domain>10.0.0.14</domain>
+			<string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxQMlAk7izWs7Gz4j6VEOV14rIZA2hS4RwoenUa42jySLh66pNFku5DaLQ</string>
 		</key>
 	</ge-api-keys>
 	
