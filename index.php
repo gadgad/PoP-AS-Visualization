@@ -1,4 +1,8 @@
 <?php
+
+/*
+ *  the personalized user page. contains 'generating a new query' and 'my queries'.
+ */
 	include_once("bin/load_config.php");
 	include_once("verify.php");	
 ?>
@@ -44,6 +48,7 @@
                     }, "json");	
              }
              
+             // getting the relevant tables from server and presenting it in dropdown list.
              function getTables(){
              	
              	if ($("#blade").val()!="" && $("#year").val()!="" && $("#week").val()!=""){
@@ -120,6 +125,7 @@
             	}); 
              }
             
+            // update the table of queries.
              function updateTable(){
              	$('#queryTable').load('index.php #queryTable').fadeIn("slow");
              	myQueriesBindUpdateEvent();          		
@@ -241,7 +247,7 @@
              	,"json");
 			}
 			
-			
+			// sends a comand to the server to delete the query
             function abort(queryID){             	
              	//$('#queryTable').fadeOut('fast');
              	//$.preLoadImages("images/ajax-loader.gif");
@@ -301,6 +307,7 @@
             	} 	
             }
             
+            // getting AS list and info from the server, parsing and presenting it.
             function getASList(){
             	//$.preLoadImages("images/ajax-loader.gif");
             	$('#AS :input').prop('disabled',true);
@@ -399,7 +406,7 @@
                 });              
             });
             
-          
+          	// when a year is chosen - retrievs available weeks from server
             $(document).ready(function() {              	 
                 $("#year").change(function() {                	
                 	if ($("#year").val()!=""){

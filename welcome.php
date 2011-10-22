@@ -4,7 +4,7 @@
 <?php
 	//include_once("bin/load_config.php");
 	/*
-	 * after the user enters his login details, we check for correctness and cookie
+	 * after the user enters his login details, we check for correctness, user status and cookie
 	 */
 	
 	$error = false;
