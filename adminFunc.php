@@ -429,4 +429,48 @@
 		$xml->asXML('config/config.xml');		
 		ret_res('done',"GOOD");	
 	}
+
+	if($_POST["func"]=="changePassword")
+	{
+		$oldPass = $_POST["oldPass"];
+		$newPass = $_POST["newPass"];
+		$confirmPass = $_POST["confirmPass"];
+		
+		$xml = simplexml_load_file('users/admin.xml');
+		$res = $xml->xpath('/user/password');
+		
+		if($res!=FALSE){
+			
+			//checking that new password and confirm password are the same
+			if($newPass!=$confirmPass){
+				ret_res('new password does not match confirm password',"ERROR");
+			}
+			
+			//checking that old password is the same as in file			
+			if(hash("sha256",$oldPass)!=$res[0]){
+				ret_res('old password is incorrect',"ERROR");
+			}			
+			
+			// removing the old password
+			foreach ($res as $key => $value){						  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
+				}		
+				$oNode->parentNode->removeChild($oNode); 							
+			}	
+		}else ret_res('old password was not found',"ERROR");
+		
+		// inserting the new parameter
+		$res = $xml->xpath('/user');
+		if($res!=FALSE){
+			$res[0]->addChild('password', hash("sha256",$newPass));
+		}else ret_res('Error while searching file',"ERROR");						
+		$xml->asXML('users/admin.xml');		
+		ret_res('done',"GOOD");	
+	}
+	
+	
+	
 ?>

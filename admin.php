@@ -246,6 +246,23 @@
                 }
         		,"json");             	
              }
+             
+             // change admin password
+             function password(){
+             	$('#My_queries').html('</br><p style="color: navy;text-align:center"><u> Change password </u></p><p style="text-align:center">old password <input type="text" id="oldPass" size="18"/><p style="text-align:center">new password <input type="text" id="newPass" size="18"/><p style="text-align:center">confirm password <input type="text" id="confirmPass" size="18"/></p> <p style="color: navy;text-align:center"><input type="button" onclick="changePassword()" value="Change"/></p>');            	
+             }
+             
+             function changePassword(){
+             	$.post("adminFunc.php", {func: "changePassword", user: <?php echo '"'.$username.'"'?>,oldPass : $("#oldPass").val(), newPass : $("#newPass").val(), confirmPass : $("#confirmPass").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert(data.result);
+                 		}else $('#My_queries').append('<p style="color:navy">Password updated.</p>'); 
+        			}else alert("data is null");
+                }
+        		,"json");
+             }
             
               
             function pool_pq_status(pid){
@@ -485,6 +502,7 @@
 	            	<p onclick="blades()"><u>Configure blades (config.xml)</u></p>
 	            	<p onclick="dataTables()"><u>Configure data tables (config.xml)</u></p>
 	            	<p onclick="parameters()"><u>Configure parameters (config.xml)</u></p>
+	            	<p onclick="password()"><u>Change password</u></p>
 	            </div>
             </div>
             
