@@ -249,7 +249,7 @@
              
              // change admin password
              function password(){
-             	$('#My_queries').html('</br><p style="color: navy;text-align:center"><u> Change password </u></p><p style="text-align:center">old password <input type="text" id="oldPass" size="18"/><p style="text-align:center">new password <input type="text" id="newPass" size="18"/><p style="text-align:center">confirm password <input type="text" id="confirmPass" size="18"/></p> <p style="color: navy;text-align:center"><input type="button" onclick="changePassword()" value="Change"/></p>');            	
+             	$('#My_queries').html('</br><p style="color: navy;text-align:center"><form><u> Change password </u></p><p style="text-align:center">old password <input type="text" id="oldPass" size="18"/><p style="text-align:center">new password <input type="text" id="newPass" size="18"/><p style="text-align:center">confirm password <input type="text" id="confirmPass" size="18"/></p> <p style="color: navy;text-align:center"><input type="button" onclick="changePassword()" value="Change"/> <input type="reset"/></p></form>');            	
              }
              
              function changePassword(){
@@ -475,7 +475,7 @@
 			foreach ($result as $i => $value) {																
 				echo "<tr>";
 				echo"<td>".$value->name."</td>";
-				echo"<td>".$value->description."</td>";
+				echo"<td>".wordwrap(str_replace('\n', "</br>", $value->description),50, "</br>")."</td>";
 				echo"<td>".$value->value."</td>";
 				echo"<td>".$value->units."</td>";
 				echo "</tr>";						
@@ -494,6 +494,7 @@
             <div class="user-select">
             	<h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Admin actions</h3>
 	            <div id="adminActions">
+	            	<p onclick="password()"><u>Change password</u></p>
 	            	<p onclick="updateWeeks()"><u>Update weeks.xml</u></p>
 	            	<p onclick="updateAS()"><u>Update ASN_info.xml</u></p>
 	            	<p onclick="showQueries()"><u>View running queries</u></p>
@@ -502,7 +503,6 @@
 	            	<p onclick="blades()"><u>Configure blades (config.xml)</u></p>
 	            	<p onclick="dataTables()"><u>Configure data tables (config.xml)</u></p>
 	            	<p onclick="parameters()"><u>Configure parameters (config.xml)</u></p>
-	            	<p onclick="password()"><u>Change password</u></p>
 	            </div>
             </div>
             
