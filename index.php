@@ -565,7 +565,7 @@
 				
 				<?php
 					echo "<tr>";
-					echo "<th>QID</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Delete</th>";
+					echo "<th>QID</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>KML File</th><th>Delete</th>";
 					echo "</tr>";
 					$queries = simplexml_load_file("xml/query.xml");
 					$result = $queries->xpath('/DATA/QUERY[users/user="'.$username.'"]');					
@@ -582,14 +582,16 @@
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
-								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Complete"/></form>';
+								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"/></form>';
 							}elseif ($result[$i]->lastKnownStatus=="error"){
 								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';
 								//echo 'error';													
 							}else {
 								echo 'unknown status';
 							}
-							echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
+							echo "</td>";
+							echo "<td>".(($result[$i]->lastKnownStatus=="completed")?'<FORM><INPUT TYPE="BUTTON" VALUE="download" ONCLICK="window.location.href=\'queries/'.$result[$i]->queryID.'/result.kmz\'"></FORM>':'')."</td>";
+							echo '<td><button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
 							// reload the page? if changing to "submit",  add: onsubmit="return false;" ?
 							echo "</tr>";
 						} 

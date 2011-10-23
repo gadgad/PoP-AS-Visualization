@@ -30,8 +30,27 @@
 	       
 	if ($res!=FALSE){
 		$queryBlade = (string)$res[0]->blade;
-		//$tableID = (string)$res[0]->tableID;		
+		$tableID = (string)$res[0]->tableID;		
 	}else echo 'cant find the query in query.xml';
+	
+	if(array_key_exists("links", $GLOBALS["DataTables"])){
+		$linksTable = $GLOBALS["DataTables"]["links"]; 
+		if(isset($linksTable)){
+			
+			if(isset($linksTable["blade"]))
+				$queryBlade = $linksTable["blade"];
+			
+			$schema = $linksTable["schema"];
+			$links_prefix = $linksTable["prefix"];
+			$year = (string)$res[0]->year;
+			$week = (string)$res[0]->week;
+			$linksTblName = $links_prefix.'_'.$year.'_'.$week.'_'.$tableID;
+			$fields = implode(',',$linksTable["field"]);
+			trim($fields,",");
+			$sql = $sql = "select ".$fields." from `".$schema."`.`".$linksTblName."` where Source_PoPID=".$src." and Dest_PoPID=".$dst;
+		}
+	}
+	
 	
 	// getting parameters for connection
 	$bladei = $GLOBALS["Blade_Map"][$queryBlade];
@@ -40,6 +59,8 @@
 	$user = (string)$bladei["user"];
 	$database = (string)$bladei["write-db"];
 	$pass = is_array($bladei["pass"])?"":(string)$bladei["pass"];
+	 
+	 
 	
 	// getting the AS of the src pop.
 	$srcAS = intval(substr($src, 0,strrpos($src, '.')));
@@ -129,8 +150,8 @@
 		<tr> 
 		    <th>Src/Dest</th> 
 		    <th>ASN</th> 
-		    <th>ISP Name</th> 
 		    <th>Country</th> 
+		    <th>ISP Name</th> 
 		    <th>PoPID</th> 
 		</tr> 
 		</thead> 
@@ -169,6 +190,42 @@
 		</tr>
 		</tbody> 
 		</table>
+		
+		<?php
+			if(isset($linksTable)){
+				echo '<table id="myTable2" class="tablesorter"><thead><tr>\n';
+				// connecting to the DB					
+				$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
+				if ($mysqli->connect_error) {
+				   echo 'Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error;
+				   die();
+				}
+					
+				// execute the query
+				$result = $mysqli->query($sql) or die("SQL Query Failed.");
+				
+				// getting the attributes of the table
+				$finfo = $result->fetch_fields();
+				 foreach ($finfo as $val) {
+				 	echo '<th>'.$val->name.'</th>';	
+				}
+				echo "</tr></thead></tbody>\n";	
+		
+				// render table content
+				$numOfRecords = $result->num_rows;
+				for($x = 0 ; $x < $numOfRecords ; $x++){
+				    $row = $result->fetch_assoc();
+				    echo '<tr>';
+			        foreach($row as $key => $value){
+						echo '<td>'.$value.'</td>';	
+					}
+					echo '</tr>';
+				}
+				echo "</tbody></table>\n";	
+			    $mysqli->close();
+		    }
+		?>
+		
 		<h3>Links Associated With This Edge:</h3>
 		<p># of Logical Links:<?php echo $numOfEdges; ?></p>
 		
