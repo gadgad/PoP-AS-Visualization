@@ -263,6 +263,23 @@
                 }
         		,"json");
              }
+             
+             function invite(){
+             	$('#My_queries').html('</br><p style="color: navy;text-align:center"><u> Invite others to join </u></p><p style="text-align:center">Enter an email address of someone you want to invite to use the site. After his registration this user will be automatically authorized.<p style="text-align:center">Email <input type="text" id="email" size="18"/> <input type="button" onclick="inviteUser()" value="Invite"/> </p>');
+             }
+             
+             function inviteUser(){
+             	$.post("adminFunc.php", {func: "inviteUser", user: <?php echo '"'.$username.'"'?>,email : $("#email").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert(data.result);
+                 		}else $('#My_queries').append('<p style="color:navy">Invitation sent.</p>'); 
+        			}else alert("data is null");
+                }
+        		,"json");
+             }
+             
             
               
             function pool_pq_status(pid){
@@ -503,6 +520,7 @@
 	            	<p onclick="blades()"><u>Configure blades (config.xml)</u></p>
 	            	<p onclick="dataTables()"><u>Configure data tables (config.xml)</u></p>
 	            	<p onclick="parameters()"><u>Configure parameters (config.xml)</u></p>
+	            	<p onclick="invite()"><u>Invite others to join</u></p>
 	            </div>
             </div>
             
