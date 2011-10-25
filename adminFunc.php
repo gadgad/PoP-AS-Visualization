@@ -471,6 +471,28 @@
 		ret_res('done',"GOOD");	
 	}
 	
-	
+	// inviting new users to the site
+	if($_POST["func"]=="inviteUser")
+	{
+		$to = $_POST["email"];
+		
+		// adding the user to the invited users list.			
+		$xml = simplexml_load_file('users/invited_users.xml');
+		$xml->addChild('email',$to);
+		$xml->asXML('users/invited_users.xml');
+		
+		// sending an email to the user
+		$subject = "PoP-AS visualization invitation";
+		$body = "You are invited to the PoP-AS visualization website! visit us at ... ";
+		// $header = "From: popas4@post.tau.ac.il";
+		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
+		if (mail($to, $subject, $body, $header)) {
+		   //ret_res('done',"GOOD");
+		} else {
+		   ret_res('mail delivery failed.',"ERROR");
+		}
+		
+		ret_res('done',"GOOD");		
+	}
 	
 ?>
