@@ -33,9 +33,27 @@
 			$xml = new SimpleXMLElement('<user></user>');
 			$xml->addChild('password', hash("sha256",$password));
 			$xml->addChild('email', $email);
-			$xml->addChild('status', 'pending');
+			
+			//checking if the user was invited
+			$invited = simplexml_load_file('users/invited_users.xml');
+			$res = $invited->xpath('/DATA/email');
+			if (in_array($email,$res)){
+				$xml->addChild('status', 'authorized');		
+				foreach ($res as $key => $value){
+					if (strcmp($value,$email) == 0 ){
+						echo $value;
+						$theNodeToBeDeleted = $res[$key];								
+						$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+						if (!$oNode) {
+						    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
+						}		
+						$oNode->parentNode->removeChild($oNode);	
+					}						  					 							
+				}
+			}else {$xml->addChild('status', 'pending'); } 
+	
 			$xml->asXML('users/' . $username . '.xml');
-			header('Location: welcome.php?formComplete=true');
+			//header('Location: welcome.php?formComplete=true');
 			die();
 		}
 	}
