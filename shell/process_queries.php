@@ -46,7 +46,7 @@
 	
 	remove_ok_sig();
 	clean_query_log();
-	$queries = simplexml_load_file("xml\query.xml");
+	$queries = simplexml_load_file("xml/query.xml");
 	$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');
 	if(empty($result)){
 		sleep(3);

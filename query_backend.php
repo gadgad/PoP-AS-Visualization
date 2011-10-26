@@ -26,7 +26,7 @@
 	// globals
 	if(isset($_POST['query'])){
 		$queryID = $_POST['query'];
-		$queries = simplexml_load_file('xml\query.xml');							
+		$queries = simplexml_load_file('xml/query.xml');							
 		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 		if(empty($result)){
 			ret_res("query doesn't exists!","ERROR");
