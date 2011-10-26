@@ -230,7 +230,7 @@
 		
 		// add user's email to authorized_users.xml
 		$registered = simplexml_load_file('xml/authorized_users.xml');
-		$registered->addChild('email',$to);
+		$registered->addChild('email',md5($to));
 		//$registered->asXML('xml/authorized_users.xml');
 		save_xml_file($registered->asXML(),'xml/authorized_users.xml');			
 		
@@ -471,19 +471,20 @@
 	if($_POST["func"]=="inviteUser")
 	{
 		$to = $_POST["email"];
+		$hashed_email = md5($to);
 		if(!check_email_address($to)){
 			ret_res('inavalid email address',"ERROR");
 		}
 		
 		$registered = simplexml_load_file('xml/authorized_users.xml');
-		$res = $registered->xpath('/DATA[email="'.$to.'"]');
+		$res = $registered->xpath('/DATA[email="'.$hashed_email.'"]');
 		if(!empty($res)){
 			ret_res('user already registered in the system.',"ERROR");
 		}
 		
 		// adding the user to the invited users list.			
 		$xml = simplexml_load_file('xml/invited_users.xml');
-		$xml->addChild('email',$to);
+		$xml->addChild('email',$hashed_email);
 		//$xml->asXML('xml/invited_users.xml');
 		save_xml_file($xml->asXML(),'xml/invited_users.xml');
 		

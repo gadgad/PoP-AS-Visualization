@@ -53,8 +53,8 @@ require_once('bin/save_xml.php');
 			//checking if the user was invited
 			$invited = false;
 			$invites = simplexml_load_file('xml/invited_users.xml');
-			
-			$res = $invites->xpath('/DATA[email="'.$email.'"]');
+			$hashed_email = md5($email);
+			$res = $invites->xpath('/DATA[email="'.$hashed_email.'"]');
 			if (!empty($res)){ // user has an 'invite'
 				$invited = true;
 			
@@ -62,13 +62,13 @@ require_once('bin/save_xml.php');
 				$xml->addChild('status', 'authorized');
 				
 				// add user to authorized_users.xml
-				$registered->addChild('email',$email);
+				$registered->addChild('email',$hashed_email);
 				save_xml_file($registered->asXML(),'xml/authorized_users.xml');
 				
 				// remove email from invties list...		
 				$res = $invites->xpath('/DATA/email');
 				foreach ($res as $key => $value){
-					if (strcmp($value,$email)==0){	
+					if (strcmp($value,$hashed_email)==0){	
 						$theNodeToBeDeleted = $res[$key];								
 						$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 						if (!$oNode) {
