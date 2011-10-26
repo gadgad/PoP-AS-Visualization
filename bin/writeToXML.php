@@ -1,5 +1,5 @@
 <?php 
- 
+require_once('bin/save_xml.php');
 function AddQuery($queryID,$tableID,$year,$week,$usertoadd,$EdgeTbl,$PopTbl,$PopLocTbl,$ASnum,$allAS,$blade) 
 {
 	 $nameXML = "xml/query.xml";	 
@@ -23,13 +23,7 @@ function AddQuery($queryID,$tableID,$year,$week,$usertoadd,$EdgeTbl,$PopTbl,$Pop
 	 $users->addChild('user', $usertoadd);
 	 
 	 //$xml->asXML($nameXML);
-	 
-	 $dom = new DOMDocument('1.0');
-	 $dom->preserveWhiteSpace = false;
-	 $dom->formatOutput = true;
-	 $dom->loadXML($xml->asXML());
-	 $dom->save($nameXML);
-
+	 save_xml_file($xml->asXML(),$nameXML);
 } 
 
 ?>

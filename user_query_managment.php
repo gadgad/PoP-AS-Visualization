@@ -57,12 +57,15 @@
 				$theNodeToBeDeleted = $res[$key];								
 				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 				if (!$oNode) {
-				    echo 'Error while converting SimpleXMLelement to DOM';
+				    //echo 'Error while converting SimpleXMLelement to DOM';
+				    return false;
 				}		
 				$oNode->parentNode->removeChild($oNode); 				
 			}
 		}		
-		$queries->asXML("xml/query.xml");			
+		$queries->asXML("xml/query.xml");
+		
+		return true;			
 	}
 	
 	// deleting the query from query.xml
@@ -73,10 +76,13 @@
 		$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');							
 		$oNode = dom_import_simplexml($res[0]);				
 		if (!$oNode) {
-		    echo 'Error while converting SimpleXMLelement to DOM';
+		    //echo 'Error while converting SimpleXMLelement to DOM';
+		    return false;
 		}		
 		$oNode->parentNode->removeChild($oNode); 						
 		$queries->asXML("xml/query.xml");
+		
+		return true;
 		
 	}
 	
@@ -110,7 +116,9 @@
 			$allUsers = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users/user');
 			$allQIDs = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
 			if (count($allUsers)>1){					
-				deleteUser($username,$queryID);				
+				if(!deleteUser($username,$queryID)){
+					ret_res("error deleting user...","ERROR");
+				}				
 			} else { // only one user has this query in his query list...
 			
 				if($lastKnownStatus!="running"){ // query status is either 'complete' or 'error'
@@ -122,7 +130,8 @@
 					}
 					
 					// Erase the process from query.XML 
-					deleteQuery($queryID);
+					if(!deleteQuery($queryID))
+						ret_res("error deleting query","ERROR");
 					
 				} else { // query is running
 					$qm = new QueryManager($selected_blade);
@@ -136,7 +145,9 @@
 					if($query_status==1){ // query is still running on the DB
 						
 						if (count($allQIDs)>1){ // there are more queries relying on current tableID
-							deleteQuery($queryID); // remove this query only...
+							// remove this query only...
+							if(!deleteQuery($queryID)) 
+								ret_res("error deleting query","ERROR"); 
 						} else {	// Kill the process that is ccreating the tables on the DB-side
 							$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 							if($mysqli->connect_error) {
@@ -156,7 +167,8 @@
 							$mysqli->close();
 							
 							// Erase the process from query.XML 
-							deleteQuery($queryID);
+							if(!deleteQuery($queryID))
+								ret_res("error deleting query","ERROR");
 						}					
 					} elseif($query_status>=3) { // files & folders have been created for this query..we need to delete them
 					
@@ -171,7 +183,8 @@
 						}
 						
 						// Erase the process from query.XML 
-						deleteQuery($queryID);
+						if(!deleteQuery($queryID))
+								ret_res("error deleting query","ERROR");
 	
 					}
 				} 
