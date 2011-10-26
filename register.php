@@ -4,6 +4,10 @@
 -->
 
 <?php
+
+require_once('bin/email_validator.php');
+require_once('bin/save_xml.php');
+
 /*
  *  input validation
  */
@@ -23,37 +27,64 @@
 		if($email == ''){
 			$errors[] = 'Email is blank';
 		}
+		
+		if(!check_email_address($email)){
+			$error[] = 'Invalid email address';	
+		}
+		
 		if($password == '' || $c_password == ''){
 			$errors[] = 'Passwords are blank';
 		}
 		if($password != $c_password){
 			$errors[] = 'Passwords do not match';
 		}
+		
+		$registered = simplexml_load_file('xml/authorized_users.xml');
+		$res = $registered->xpath('/DATA[email="'.$email.'"]');
+		if(!empty($res)){
+			$errors[] = 'Email already exists!';
+		}
+		
 		if(count($errors) == 0){
 			$xml = new SimpleXMLElement('<user></user>');
 			$xml->addChild('password', hash("sha256",$password));
 			$xml->addChild('email', $email);
 			
 			//checking if the user was invited
-			$invited = simplexml_load_file('users/invited_users.xml');
-			$res = $invited->xpath('/DATA/email');
-			if (in_array($email,$res)){
-				$xml->addChild('status', 'authorized');		
+			$invited = false;
+			$invites = simplexml_load_file('xml/invited_users.xml');
+			
+			$res = $invites->xpath('/DATA[email="'.$email.'"]');
+			if (!empty($res)){ // user has an 'invite'
+				$invited = true;
+			
+				// change status to authorized immediatly
+				$xml->addChild('status', 'authorized');
+				
+				// add user to authorized_users.xml
+				$registered->addChild('email',$email);
+				save_xml_file($registered->asXML(),'xml/authorized_users.xml');
+				
+				// remove email from invties list...		
+				$res = $invites->xpath('/DATA/email');
 				foreach ($res as $key => $value){
-					if (strcmp($value,$email) == 0 ){
-						echo $value;
+					if (strcmp($value,$email)==0){	
 						$theNodeToBeDeleted = $res[$key];								
 						$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 						if (!$oNode) {
-						    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
+						    die('Error while converting SimpleXMLelement to DOM');
 						}		
-						$oNode->parentNode->removeChild($oNode);	
-					}						  					 							
+						$oNode->parentNode->removeChild($oNode); 				
+					}
 				}
-			}else {$xml->addChild('status', 'pending'); } 
+				save_xml_file($invites->asXML(),'xml/invited_users.xml');	
+				
+			} else {
+				$xml->addChild('status', 'pending'); 
+			} 
 	
 			$xml->asXML('users/' . $username . '.xml');
-			//header('Location: welcome.php?formComplete=true');
+			header('Location: welcome.php?formComplete=true&invited='.(($invited)?'true':'false'));
 			die();
 		}
 	}

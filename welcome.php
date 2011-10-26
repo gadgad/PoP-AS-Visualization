@@ -87,13 +87,21 @@
             </div>
             
             <?php
-	    		if(isset($_REQUEST["formComplete"])) echo
-		    		"<div class=\"about\">
-		    		<h3>Thank you! </h3>   
-		    		<p>Dear user, your registration request was sent to the site admin successfully.</br>
-		    		We we'll let you know as soon as your request is approved.</p>
-		    		</div>";
-		    		
+	    		if(isset($_REQUEST["formComplete"])){
+					if($_REQUEST["invited"]=='true'){
+						echo "<div class=\"about\">
+			    		<h3>Thank you! </h3>   
+			    		<p>Dear user, your registration completed successfully.</br>
+			    		</div>";
+					} else {
+					 echo
+			    		"<div class=\"about\">
+			    		<h3>Thank you! </h3>   
+			    		<p>Dear user, your registration request was sent to the site admin successfully.</br>
+			    		We we'll let you know as soon as your request is approved.</p>
+			    		</div>";
+					}
+		    	}
 				else include("info.php")
               ?>
             

@@ -8,6 +8,8 @@
 	include_once("bin/backgrounder.php");
 	require_once("bin/DBConnection.php");
 	require_once("bin/query_status.php");
+	require_once("bin/email_validator.php");
+	require_once("bin/save_xml.php");
 	include("verify.php");
 				
 	// Turn off all error reporting
@@ -85,13 +87,8 @@
 					$newRow->addChild($key,$value);	
 				}	
 		    }
-	     	//$xml->asXML($nameXML);
-	     	
-	     	$dom = new DOMDocument('1.0');
-			$dom->preserveWhiteSpace = false;
-			$dom->formatOutput = true;
-			$dom->loadXML($xml->asXML());
-			$dom->save($nameXML);
+
+			save_xml_file($xml->asXML(),$nameXML);
 			     		     		     		    
 			$result->close();
 			$mysqli->close();   
@@ -158,14 +155,7 @@
 			unset($weeks);
 		}
 		// saving the file, closing connection to DB.
-		//$xml->asXML($nameXML);
-		
-		$dom = new DOMDocument('1.0');
-		$dom->preserveWhiteSpace = false;
-		$dom->formatOutput = true;
-		$dom->loadXML($xml->asXML());
-		$dom->save($nameXML);
-		
+		save_xml_file($xml->asXML(),$nameXML);
 		$mysqli->close();
 		ret_res('done',"GOOD");
 	}
@@ -229,14 +219,20 @@
 				$theNodeToBeDeleted = $res[$key];								
 				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
 				if (!$oNode) {
-				    echo 'Error while converting SimpleXMLelement to DOM';
+				    //echo 'Error while converting SimpleXMLelement to DOM';
 					ret_res('Error while accepting request.',"ERROR");
 				}		
 				$oNode->parentNode->removeChild($oNode); 				
 			}
 		}		
 		$userData->addChild('status',"authorized");		
-		$userData->asXML($path);			
+		$userData->asXML($path);
+		
+		// add user's email to authorized_users.xml
+		$registered = simplexml_load_file('xml/authorized_users.xml');
+		$registered->addChild('email',$to);
+		//$registered->asXML('xml/authorized_users.xml');
+		save_xml_file($registered->asXML(),'xml/authorized_users.xml');			
 		
 		// sending an email to the user
 		$subject = "PoP-AS visualization";
@@ -475,20 +471,28 @@
 	if($_POST["func"]=="inviteUser")
 	{
 		$to = $_POST["email"];
+		if(!check_email_address($to)){
+			ret_res('inavalid email address',"ERROR");
+		}
+		
+		$registered = simplexml_load_file('xml/authorized_users.xml');
+		$res = $registered->xpath('/DATA[email="'.$to.'"]');
+		if(!empty($res)){
+			ret_res('user already registered in the system.',"ERROR");
+		}
 		
 		// adding the user to the invited users list.			
-		$xml = simplexml_load_file('users/invited_users.xml');
+		$xml = simplexml_load_file('xml/invited_users.xml');
 		$xml->addChild('email',$to);
-		$xml->asXML('users/invited_users.xml');
+		//$xml->asXML('xml/invited_users.xml');
+		save_xml_file($xml->asXML(),'xml/invited_users.xml');
 		
 		// sending an email to the user
 		$subject = "PoP-AS visualization invitation";
 		$body = "You are invited to the PoP-AS visualization website! visit us at ... ";
-		// $header = "From: popas4@post.tau.ac.il";
-		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
-		if (mail($to, $subject, $body, $header)) {
-		   //ret_res('done',"GOOD");
-		} else {
+		$header = "From: do_not_reply@post.tau.ac.il";
+		//$header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
+		if (!mail($to, $subject, $body, $header)) {
 		   ret_res('mail delivery failed.',"ERROR");
 		}
 		
