@@ -331,7 +331,7 @@
 			echo "<tr>";
 			echo "<th>QID</th><th>User</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Cancel</th>";
 			echo "</tr>";
-			$queries = simplexml_load_file("xml\query.xml");
+			$queries = simplexml_load_file("xml/query.xml");
 			$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');					
 			if($result!=FALSE)
 			{						
@@ -454,7 +454,7 @@
 	
 	if(isset($_REQUEST["viewDataTables"])){
 													
-		$xml = simplexml_load_file("config\config.xml");
+		$xml = simplexml_load_file("config/config.xml");
 		$result = $xml->xpath('/config/data-tables');
 							
 		if($result!=FALSE)
