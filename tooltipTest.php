@@ -18,11 +18,12 @@
 	<title>jQuery Tools standalone demo</title>
 
 	<!-- include the Tools -->
-	<script src="http://cdn.jquerytools.org/1.2.6/full/jquery.tools.min.js"></script>
-	 
+	<script src="js/jquery.tools.min.js"></script>
+	
+	<script src = "js/jquery-1.6.2.min.js"></script> 
 
-	<!-- standalone page styling (can be removed) -->
-	<link rel="stylesheet" type="text/css" href="http://static.flowplayer.org/tools/css/standalone.css"/>	
+	<!-- standalone page styling (can be removed)  -->
+	<link rel="stylesheet" type="text/css" href="http://static.flowplayer.org/tools/css/standalone.css"/> 	
 
 
 
@@ -33,7 +34,7 @@
 /* tooltip styling. by default the element to be styled is .tooltip  */
 .tooltip {
 	display:none;
-	background:transparent url(/images/tooltips/black_arrow.png);
+	background:transparent url('/images/tooltips/black_arrow.png');
 	font-size:12px;
 	height:70px;
 	width:160px;
@@ -80,10 +81,7 @@
 
 
 <script>
-
-
-
-$("#demo img[title]").tooltip();
+	$("#demo img[title]").tooltip();
 </script>
 
 

@@ -1,6 +1,6 @@
 .tooltip {
 	display:none;
-	background:transparent url(/images/tooltips/black_arrow.png);
+	background:transparent url('../images/tooltips/black_arrow.png');
 	font-size:12px;
 	height:70px;
 	width:160px;
