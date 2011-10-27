@@ -16,8 +16,8 @@ $userFilename = 'queries/'.$idg->getDirName().'/'.$GLOBALS["username"].'-result.
 if(file_exists($userFilename))
 	$filename = $userFilename;
 
-$isWin = stristr(PHP_OS, 'WIN');
-$base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']).($isWin?'/':'');
+//$isWin = stristr(PHP_OS, 'WIN');
+$base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']).'/';
 $full_url = $base_url.$filename."?".rand(0,10000000000);
 $full_user_url = $base_url.$userFilename."?".rand(0,10000000000);
 
