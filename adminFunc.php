@@ -237,7 +237,7 @@
 		// sending an email to the user
 		$subject = "PoP-AS visualization";
 		$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website was accepted.".PHP_EOL."Login to start!";
-		// $header = "From: popas4@post.tau.ac.il";
+		$header = "From: do_not_reply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (mail($to, $subject, $body, $header)) {
 		   ret_res('done',"GOOD");
@@ -273,7 +273,7 @@
 		// sending an email to the user
 		$subject = "PoP-AS visualization";
 		$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website denied.";
-		// $header = "From: popas4@post.tau.ac.il";
+		$header = "From: do_not_reply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (mail($to, $subject, $body, $header)) {
 		   ret_res('done',"GOOD");
