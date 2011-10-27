@@ -14,11 +14,12 @@
         <title>Pop/AS Visualizer</title>
         <!-- <script src="http://code.jquery.com/jquery-latest.js"></script> -->
         <script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
-        <script type="text/javascript" src="js/loadData.js"></script>
-        <link rel="stylesheet" href="css/jquery.multiselect2side.css" type="text/css" media="screen" />
+        <script src="js/jquery.tools.min.js" type="text/javascript"></script>
+        <script src="js/loadData.js" type="text/javascript"></script>
+		<script src="js/jquery.multiselect2side.js" type="text/javascript"></script>
+		<script src="js/jquery-blink.js" type="text/javascript" ></script>
+		<link rel="stylesheet" href="css/jquery.multiselect2side.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
-		<script type="text/javascript" src="js/jquery.multiselect2side.js" ></script>
-		<script type="text/javascript" src="js/jquery-blink.js" ></script>
           
           <script type="text/javascript">
 			
@@ -460,6 +461,8 @@
     
     <body>        
         
+        <script> $("#QstatusC").tooltip(); </script>
+        
         <div id="container">
 			
 			<?php include("header.php") ?>
@@ -574,15 +577,15 @@
 						foreach ($result as $i => $value) {												
 							echo "<tr>";							
 							echo "<td>".substr($result[$i]->queryID,-4)."</td>";
-							echo"<td>".$result[$i]->year."</td>";
-							echo"<td>".$result[$i]->week."</td>";
-							echo"<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
-							echo"<td>".$result[$i]->ASnum."</td>";
+							echo "<td>".$result[$i]->year."</td>";
+							echo "<td>".$result[$i]->week."</td>";
+							echo "<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
+							echo '<td><div id="ASnum" title="'.$result[$i]->allAS.'">'.$result[$i]->ASnum.'</div></td>';
 							echo "<td>";
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
-								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"/></form>';
+								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed" title="For a large query it is recomended to download the file"/></form>';
 							}elseif ($result[$i]->lastKnownStatus=="error"){
 								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';
 								//echo 'error';													
