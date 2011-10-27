@@ -473,7 +473,7 @@
 				echo "</tr>";						
 			} 
  			echo '</table>';	
-		}else echo 'Error while retrieving data from XML.';		
+		} else echo 'Error while retrieving data from XML.';		
 		die();
 	}
 

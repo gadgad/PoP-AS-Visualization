@@ -130,7 +130,7 @@ require_once('bin/save_xml.php');
 							  }
 							 				
 							?>
-							<input type="image" value="Register" src="images/Register.png" name="login" alt="Submit" style="margin-left: 50px"/>
+							<input type="image" value="Register" src="images/register.png" name="login" alt="Submit" style="margin-left: 50px"/>
 					
 							<br></br>							
 						</form>
