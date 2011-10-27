@@ -363,7 +363,7 @@
 		
     if(isset($_REQUEST['viewPendingUsers'])){
 		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central"><tr><th>Username</th><th>email</th><th>Accept</th><th>Deny</th></tr>';					
-		$files = scandir(getcwd().'\users');
+		$files = scandir(getcwd().'/users');
 		if ($files!=FALSE){
 			foreach ($files as $file){							
 				if (substr($file, 0,1)!="."){						
