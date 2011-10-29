@@ -21,24 +21,6 @@
   </QUERY>
   
   <QUERY>
-    <queryID>9236ac50e77e5cff454523da5fb51f88</queryID>
-    <tableID>20c568677896d0c189056d921021b146</tableID>
-    <year>2010</year>
-    <week>31</week>
-    <lastKnownStatus>completed</lastKnownStatus>
-    <lastRunningState>kml-ready</lastRunningState>
-    <blade>B4</blade>
-    <EdgeTbl>IPEdgesMedianTbl_2010_31</EdgeTbl>
-    <PopTbl>PoPLocationTbl_2010_week_31</PopTbl>
-    <PopLocTbl>PoPIPTbl_2010_week_31</PopLocTbl>
-    <ASnum>7</ASnum>
-    <allAS>'209','3320','701','3356','23304','23342','23393'</allAS>
-    <users>
-      <user>gadi</user>
-    </users>
-  </QUERY>
-  
-  <QUERY>
     <queryID>f077a5dbde67f9c767aec636fdf1de45</queryID>
     <tableID>565ffab353dfe1a826e1f25d9bccefd8</tableID>
     <year>2010</year>

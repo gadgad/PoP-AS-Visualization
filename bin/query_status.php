@@ -10,10 +10,10 @@
 	{
 		private $PID_MAP;
 		private $TABLES_MAP;
-		private $Status_MAP;
-		private $queryXML;
-		private $queryFilename;
+		private static $Status_MAP;
+		private static $queryFilename;
 		private $blade;
+		private $queryXML;
 		
 		public static function load($blade){
 			try {
@@ -28,16 +28,16 @@
 			$this->blade = $blade;
 			$this->PID_MAP = array();
 			$this->TABLES_MAP = array();
-			$this->Status_MAP = array(-1=>"started",
+			self::$Status_MAP = array(-1=>"started",
 									   0=>"error", // db-error
-									   1=>"running", // db-running
+									   1=>"db-build",
 									   2=>"db-ready",
 									   3=>"fetching-xml",
 									   4=>"xml-ready",
 									   5=>"kml-ready");
 			
-			$this->queryFilename = "xml/query.xml";
-			$this->queryXML = simplexml_load_file($this->queryFilename);	
+			self::$queryFilename = "xml/query.xml";
+			$this->queryXML = simplexml_load_file(self::$queryFilename);	
 		}
 		
 		private function getStatusFromDB()
@@ -92,47 +92,39 @@
 			
 			$mysqli->close();
 		}
-
-		public function setQueryStatus()
-		{
-			$allQIDS = false;
-			$queryID = func_get_arg(0);
-			$new_status = func_get_arg(1);
-			if(func_num_args()==3) $allQIDS = func_get_arg(2);
-			
-			$this->queryXML = simplexml_load_file($this->queryFilename);	
+		
+		// TODO: possibly need to add critical-section protection (flock/semaphore) here
+		public static function setQueryStatus($queryID,$new_status,$allQIDS = false)
+		{	
+			$queryXML = simplexml_load_file(self::$queryFilename);	
 			$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 			if($allQIDS){
 				$tableID = (string)$result[0]->tableID;
-				$result = $this->queryXML->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
+				$result = $queryXML->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
 				foreach($result as $rs){
 					$rs->lastKnownStatus=$new_status;
 				}
 			} else {
 				$result[0]->lastKnownStatus=$new_status;
 			}
-			$this->queryXML->asXML($this->queryFilename);
+			$queryXML->asXML(self::$queryFilename);
 		}
 		
-		public function setQueryRunningStatus()
+		// TODO: possibly need to add critical-section protection (flock/semaphore) here
+		public static function setQueryRunningStatus($queryID,$new_status_id,$allQIDS = false)
 		{
-			$allQIDS = false;
-			$queryID = func_get_arg(0);
-			$new_status_id = func_get_arg(1);
-			if(func_num_args()==3) $allQIDS = func_get_arg(2);
-			
-			$this->queryXML = simplexml_load_file($this->queryFilename);	
-			$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
+			$queryXML = simplexml_load_file(self::$queryFilename);	
+			$result = $queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 			if($allQIDS && $new_status_id<=2){
 				$tableID = (string)$result[0]->tableID;
-				$result = $this->queryXML->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
+				$result = $queryXML->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
 				foreach($result as $rs){
-					$rs->lastRunningState=$this->getStatusMsg($new_status_id);
+					$rs->lastRunningState=self::getStatusMsg($new_status_id);
 				}
 			} else {
-				$result[0]->lastRunningState=$this->getStatusMsg($new_status_id);
+				$result[0]->lastRunningState=self::getStatusMsg($new_status_id);
 			}
-			$this->queryXML->asXML($this->queryFilename);
+			$queryXML->asXML(self::$queryFilename);
 		}
 	
 		// 0 - error , 1 - running , 2 - db-ready, 3 - fetching-xml,  4 - xml-ready, 5 - kml-ready
@@ -152,7 +144,7 @@
 			$queryID = $QID;
 			$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 			$lastRunningState = (string)$result[0]->lastRunningState;
-			$stateID = array_search($lastRunningState, $this->Status_MAP);
+			$stateID = array_search($lastRunningState, self::$Status_MAP);
 		
 			if($stateID>=2){
 				return $stateID;
@@ -166,7 +158,7 @@
 			
 			if(array_key_exists($tableID, $this->PID_MAP))
 				if(isset($this->PID_MAP[$tableID]["POP"]) || isset($this->PID_MAP[$tableID]["EDGE"])){
-					if($lastRunningState == 'started') $this->setQueryRunningStatus($queryID, 1,true);
+					if($lastRunningState == 'started') self::setQueryRunningStatus($queryID, 1,true);
 					return 1;	
 				}
 
@@ -174,21 +166,21 @@
 	            $this->TABLES_MAP[$tableID]["POP"] == true &&
 	            isset($this->TABLES_MAP[$tableID]["EDGE"]) && 
 	            $this->TABLES_MAP[$tableID]["EDGE"] == true){
-	            	if($lastRunningState == 'running') $this->setQueryRunningStatus($queryID, 2,true);
+	            	if($lastRunningState == 'running') self::setQueryRunningStatus($queryID, 2,true);
                     return 2;
 				}
 				
 			return 0; // the 'error' state
 		}
 		
-		public function getStatusMsg($status_code){
-			if (!isset($this->Status_MAP[$status_code]))
+		public static function getStatusMsg($status_code){
+			if (!isset(self::$Status_MAP[$status_code]))
 				return "unknown status";
-			return $this->Status_MAP[$status_code];
+			return self::$Status_MAP[$status_code];
 		}
 		
-		public function getStateIDFromRunningStatus($status){
-			return array_search($status, $this->Status_MAP);
+		public static function getStateIDFromRunningStatus($status){
+			return array_search($status, self::$Status_MAP);
 		}
 		
 		public function getPIDS($QID)

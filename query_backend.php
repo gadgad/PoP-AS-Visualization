@@ -84,30 +84,6 @@
 		return $res;        
 	}
 	
-	/*
-	function xml_change_status($qid,$new_status)
-	{
-		$queryID = $qid;
-		$filename = "xml/query.xml";
-		$queries = simplexml_load_file($filename);
-		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
-		$tableID = (string)$result[0]->tableID;
-		$result2 = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
-		foreach($result2 as $rs){
-			$rs->lastKnownStatus=$new_status;
-		}
-		$queries->asXML($filename);
-	}
-	
-	function xml_change_RunningStatus($qid,$new_status_id)
-	{
-		$queryID = $qid;
-		$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
-		$result[0]->lastRunningState=$this->getStatusMsg($new_status_id);
-		$this->queryXML->asXML($this->queryFilename);
-	}
-	*/
-	
 	// tests the connection to the DB
 	if($_POST["func"]=="testConnection")
 	{ 
@@ -304,53 +280,6 @@
 		ret_res("last invokation is still valid, time interval is set to ".$time_interval." minutes","GOOD");
 	}
 	
-	/*
-	if($_POST["func"]=="resendQuery")
-	{	     		
-		$username = $_POST["username"];
-		$stage = intval($_POST["stage"]);			
-		
-		$pop = (string)$result->PopTbl;
-		$popIP =(string)$result->PopLocTbl;
-		$edge = (string)$result->EdgeTbl;
-		$as = (string)$result->allAS;
-		$idg = new idGen($queryID);
-		$tableID = $idg->getTableID();
-		
-		if($stage==2)
-		{
-			$cmd = "send_query.php --host=".$host." --user=".$user." --pass=".$pass." --database=".$database."  --writedb=".$write_db." --port=".$port." --PoPTblName=".$idg->getPoPTblName()." --pop=".$pop." --as=".$as." --EdgeTblName=".$idg->getEdgeTblName()." --edge=".$edge." --popIP=".$popIP." --query=";
-			$cmd1 = new Backgrounder($cmd."1",'query1',$queryID);
-			$cmd1->run();
-			$cmd2 = new Backgrounder($cmd."2",'query2',$queryID);
-			$cmd2->run();
-			ret_res("stage2 complete","STAGE2_COMPLETE");
-		}
-		
-		// check if present in 'SHOW PROCESSLIST' and/or table exist
-		if($stage==3)
-		{
-			$qm =  new QueryManager($selected_blade);
-			
-			try {
-				$query_status = $qm->getQueryStatus($queryID,$tableID);
-			} catch(DBConnectionError $e){
-				ret_res("can't connect to db!","ERROR");
-			}
-			
-			if($query_status == 0){
-				ret_res("sql query failed to execute properly...</BR>","ERROR");
-			} else {
-				$qm->setQueryStatus($queryID, 'running');
-				header('Content-type: application/json');
-				echo json_encode(array("result"=>"query is now running..." ,"type"=>"GOOD","queryID"=>$queryID));
-				die();
-			}
-		}						
-		
-	}
-	*/
-	
 	if($_POST["func"]=="sendQuery")
 	{       		
 		$username = $_POST["username"];
@@ -409,22 +338,22 @@
 			}
 			
 			AddQuery($queryID,$tableID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
-			$qm->setQueryStatus($queryID,'unknown');
+			QueryManager::setQueryStatus($queryID,'unknown');
 			
 			$result = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
 			if(!empty($result)){ // a query with the same tableID exists
-				$qm->setQueryStatus($queryID,'running');
+				QueryManager::setQueryStatus($queryID,'running');
 				$max_stateID = -1; // -1 == init state
 				foreach($result as $query){
 					//$curr_status = (string)$query->lastKnownStatus;
 			    	$curr_running_status = (string)$query->lastRunningState;
-					$curr_stateID = $qm->getStateIDFromRunningStatus($curr_running_status);
+					$curr_stateID = QueryManager::getStateIDFromRunningStatus($curr_running_status);
 					$max_stateID = ($max_stateID < $curr_stateID) ? $curr_stateID : $max_stateID;
 				}
 				if($max_stateID!=0){ // 0 == 'error' state...
 					//AddQuery($queryID,$tableID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
 					if($max_stateID>=2){ // tables are ready!
-						$qm->setQueryRunningStatus($queryID,2);
+						QueryManager::setQueryRunningStatus($queryID,2);
 					}
 					header('Content-type: application/json');
 					echo json_encode(array("result"=>"requested table already exsists..." ,"type"=>"GOOD","queryID"=>$queryID));
@@ -458,7 +387,7 @@
 				ret_res("sql query failed to execute properly...</BR>","ERROR");
 			} else {
 				//AddQuery($queryID,$tableID,$year,$week,$username,$edge,$pop,$popIP,count($asp),$as,$blade);
-				$qm->setQueryStatus($queryID,'running');
+				QueryManager::setQueryStatus($queryID,'running');
 				header('Content-type: application/json');
 				echo json_encode(array("result"=>"query is now running..." ,"type"=>"GOOD","queryID"=>$queryID));
 			}
