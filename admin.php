@@ -330,7 +330,7 @@
     		$queries = simplexml_load_file("xml/query.xml");
 			$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');
 			if(empty($result)){
-				echo "<h3>there are currently no running queries...</h3>";
+				echo '<h3 id="queryTable">there are currently no running queries...</h3>';
 			} else {
 				echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
 				echo "<tr>";
