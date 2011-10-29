@@ -585,7 +585,14 @@
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
-								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed" title="For a large query it is recomended to download the file"/></form>';
+								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"';
+								if ($fileSize = filesize('queries/'.$result[$i]->queryID.'/result.kmz')){
+									$fileSize /= 1048576; // converting to Mb
+									if($fileSize > 1){
+										echo ' title="This file size is '.$fileSize.' Mb. We recomend to download the file."';	
+									}	
+								}								
+								echo '/></form>';
 							}elseif ($result[$i]->lastKnownStatus=="error"){
 								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';
 								//echo 'error';													
