@@ -327,37 +327,41 @@
     	<?php
     	
     	if(isset($_REQUEST['viewRunningQueries'])){
-			echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
-			echo "<tr>";
-			echo "<th>QID</th><th>User</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Cancel</th>";
-			echo "</tr>";
-			$queries = simplexml_load_file("xml/query.xml");
-			$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');					
-			if($result!=FALSE)
-			{						
-				foreach ($result as $i => $value) {												
-					echo "<tr>";							
-					echo "<td>".substr($result[$i]->queryID,-4)."</td>";
-					$Qusers = "";
-					$res = $queries->xpath('/DATA/QUERY[queryID="'.$result[$i]->queryID.'"]/users');
-					if($res!=FALSE){
-						$arr = $res[0];								
-						foreach($arr as $j){
-							$Qusers .= (string)$j." ";					
-						}									
-					}
-					echo"<td>".$Qusers."</td>";
-					echo"<td>".$result[$i]->year."</td>";
-					echo"<td>".$result[$i]->week."</td>";
-					echo"<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
-					echo"<td>".$result[$i]->ASnum."</td>";
-					echo "<td>";
-					echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';							
-					echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
-					echo "</tr>";		
-				} 
-			}else echo 'Error while retrieving data from XML.';
-		echo '</table>';
+    		$queries = simplexml_load_file("xml/query.xml");
+			$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');
+			if(empty($result)){
+				echo "<H3>there are currently no running queries...</H3>";
+			} else {
+				echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
+				echo "<tr>";
+				echo "<th>QID</th><th>User</th><th>Year</th><th>Week</th><th>Tables</th><th>AS Count</th><th>Status</th><th>Cancel</th>";
+				echo "</tr>";					
+				if($result!=FALSE)
+				{						
+					foreach ($result as $i => $value) {												
+						echo "<tr>";							
+						echo "<td>".substr($result[$i]->queryID,-4)."</td>";
+						$Qusers = "";
+						$res = $queries->xpath('/DATA/QUERY[queryID="'.$result[$i]->queryID.'"]/users');
+						if($res!=FALSE){
+							$arr = $res[0];								
+							foreach($arr as $j){
+								$Qusers .= (string)$j." ";					
+							}									
+						}
+						echo"<td>".$Qusers."</td>";
+						echo"<td>".$result[$i]->year."</td>";
+						echo"<td>".$result[$i]->week."</td>";
+						echo"<td>".$result[$i]->EdgeTbl."</BR>".$result[$i]->PopTbl."</BR>".$result[$i]->PopLocTbl."</td>";
+						echo"<td>".$result[$i]->ASnum."</td>";
+						echo "<td>";
+						echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';							
+						echo "</td>" . '<td> <button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
+						echo "</tr>";		
+					} 
+				}else echo 'Error while retrieving data from XML.';
+				echo '</table>';
+			}
 		die();
 	}
 		
