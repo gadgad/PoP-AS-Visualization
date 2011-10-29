@@ -19,7 +19,7 @@ class Backgrounder
 	
 	private $lastLogLine;
 	
-	public function __construct($cmd,$id,$qid)
+	public function __construct($cmd,$id,$qid = null)
 	{
 		$this->id = $id;
 		
@@ -33,8 +33,8 @@ class Backgrounder
 			$this->basedir = getcwd();
 		}
 		$this->shelldir = $this->basedir."/shell";
-		$this->log_filename = $this->shelldir."/log/".$id.(($qid)?('-'.$qid):'').'.log';
-		$this->pid_filename = $this->shelldir."/log/".$id.(($qid)?('-'.$qid):'').'.pid';
+		$this->log_filename = $this->shelldir."/log/".$id.(($qid!=null)?('-'.$qid):'').'.log';
+		$this->pid_filename = $this->shelldir."/log/".$id.(($qid!=null)?('-'.$qid):'').'.pid';
 		$this->cmd = "php ".$this->shelldir."/".$cmd;
 		
 		$this->pid = -10;
@@ -167,6 +167,34 @@ class Backgrounder
 	        }
 	    } catch(Exception $e){}
 	    return false;
+	}
+	
+	public function posix_isRunning(){
+		$pid = (func_num_args()==1)? func_get_arg(0) : $this->pid;
+		$running=posix_kill($pid, 0);
+  		if(posix_get_last_error()==1) /* EPERM */
+    		$running=true;
+    	return $running;		
+	}
+	
+	// optional parameters: [sleepInterval], [pid]
+	public function waitpid(){
+		$sleepTime = 5; // sec
+		$pid = $this->pid;
+		
+		if(func_num_args() == 1){
+			$sleepTime = func_get_arg(0);
+		}
+		
+		if(func_num_args() == 2){
+			$sleepTime = func_get_arg(0);
+			$pid = func_get_arg(1);
+		}
+		
+		while($this->isRunning($pid)){
+			sleep($sleepTime);
+		}
+		
 	}
 }
 

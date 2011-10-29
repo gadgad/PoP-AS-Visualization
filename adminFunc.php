@@ -479,14 +479,18 @@
 		$registered = simplexml_load_file('xml/authorized_users.xml');
 		$res = $registered->xpath('/DATA[email="'.$hashed_email.'"]');
 		if(!empty($res)){
-			ret_res('user already registered in the system.',"ERROR");
+			ret_res('user is already registered in the system.',"ERROR");
 		}
 		
 		// adding the user to the invited users list.			
-		$xml = simplexml_load_file('xml/invited_users.xml');
-		$xml->addChild('email',$hashed_email);
+		$invited = simplexml_load_file('xml/invited_users.xml');
+		$res = $invited->xpath('/DATA[email="'.$hashed_email.'"]');
+		if(!empty($res)){
+			ret_res('user has already been invited into the system.',"ERROR");
+		}
+		$invited->addChild('email',$hashed_email);
 		//$xml->asXML('xml/invited_users.xml');
-		save_xml_file($xml->asXML(),'xml/invited_users.xml');
+		save_xml_file($invited->asXML(),'xml/invited_users.xml');
 		
 		// sending an email to the user
 		$subject = "PoP-AS visualization invitation";
