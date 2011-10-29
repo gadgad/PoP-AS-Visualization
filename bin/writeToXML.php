@@ -4,6 +4,7 @@ function AddQuery($queryID,$tableID,$year,$week,$usertoadd,$EdgeTbl,$PopTbl,$Pop
 {
 	 $nameXML = "xml/query.xml";	 
 	// Load XML file
+	// enter critical section
 	 $xml = simplexml_load_file($nameXML);
 	
 	 $query = $xml->addChild('QUERY');
@@ -24,6 +25,7 @@ function AddQuery($queryID,$tableID,$year,$week,$usertoadd,$EdgeTbl,$PopTbl,$Pop
 	 
 	 //$xml->asXML($nameXML);
 	 save_xml_file($xml->asXML(),$nameXML);
+	 // leave critical section
 } 
 
 ?>

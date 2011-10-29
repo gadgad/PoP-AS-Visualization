@@ -95,7 +95,8 @@
 		
 		// TODO: possibly need to add critical-section protection (flock/semaphore) here
 		public static function setQueryStatus($queryID,$new_status,$allQIDS = false)
-		{	
+		{
+			// enter critical section	
 			$queryXML = simplexml_load_file(self::$queryFilename);	
 			$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 			if($allQIDS){
@@ -108,11 +109,13 @@
 				$result[0]->lastKnownStatus=$new_status;
 			}
 			$queryXML->asXML(self::$queryFilename);
+			// leave critical section
 		}
 		
 		// TODO: possibly need to add critical-section protection (flock/semaphore) here
 		public static function setQueryRunningStatus($queryID,$new_status_id,$allQIDS = false)
 		{
+			// enter critical section
 			$queryXML = simplexml_load_file(self::$queryFilename);	
 			$result = $queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
 			if($allQIDS && $new_status_id<=2){
@@ -125,6 +128,7 @@
 				$result[0]->lastRunningState=self::getStatusMsg($new_status_id);
 			}
 			$queryXML->asXML(self::$queryFilename);
+			// leave critical section
 		}
 	
 		// 0 - error , 1 - running , 2 - db-ready, 3 - fetching-xml,  4 - xml-ready, 5 - kml-ready

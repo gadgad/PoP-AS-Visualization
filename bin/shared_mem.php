@@ -6,7 +6,7 @@ class SharedMemory{
     
     function __construct($key = null){
         if($key === null){
-            $tmp = tempnam('/tmp', 'PHP');
+            $tmp = tempnam('tmp', 'PHP');
             $this->key = ftok($tmp, 'a');
             $this->id = shm_attach($this->key);
             $this->nameToKey[] = '';

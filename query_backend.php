@@ -316,6 +316,7 @@
 		
 		if($stage==1)
 		{
+			// enter critical section
 			$queries = simplexml_load_file('xml/query.xml');							
 			$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users');
 					
@@ -331,8 +332,10 @@
 				if($result[0]->user!=$username){
 					$result[0]->addChild('user', $username);
 					$queries->asXML('xml/query.xml');
+					// leave critical section
 					ret_res("query already assigned to a different user,adding current user to record","GOOD");
 				} else {
+					// leave critical section
 					ret_res("query already exists!","ALL_COMPLETE");
 				}
 			}

@@ -48,7 +48,7 @@
 	
 	// deleting the user from the users list
 	function deleteUser($username,$queryID){
-		
+		// enter critical section
 		$queries = simplexml_load_file("xml/query.xml");
 		$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]/users/user');
 		
@@ -64,13 +64,13 @@
 			}
 		}		
 		$queries->asXML("xml/query.xml");
-		
+		// leave critical section
 		return true;			
 	}
 	
 	// deleting the query from query.xml
 	function deleteQuery($queryID){
-		
+		// enter critical section
 		$queries = simplexml_load_file("xml/query.xml");
 		
 		$res = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');							
@@ -81,7 +81,7 @@
 		}		
 		$oNode->parentNode->removeChild($oNode); 						
 		$queries->asXML("xml/query.xml");
-		
+		// leave critical section
 		return true;
 		
 	}
