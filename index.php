@@ -337,6 +337,7 @@
 							}
 							
 							$('#searchable').multiselect2side({'search': 'Search: '});
+							$("#stage3").append('<br></br><p style="font-size: 10px;">*selecting multiple ASs might cause a large kml file.</p>');
 							
 							disableStage(3,false);
 							$('#getAS').prop('disabled',true);
@@ -407,6 +408,30 @@
                 });              
             });
             
+            
+            // when a blade is chosen - retrievs available years from server
+            $(document).ready(function() {              	 
+                $("#blade").change(function() {                	
+                	if ($("#blade").val()!=""){
+                		$.post("query_backend.php", {func: "getYears", blade: $("#blade").val()},
+                        function(data){
+                        	if (data.type=="GOOD"){
+                        		$("#year").html('');	
+								var years = data.years;		            
+								if (years!=null){
+									$("#year").append('<option selected="selected" value="">Select year</option> ');
+		                         	for(i = 0; i < years.length; i++){		                    			 							
+										$("#year").append('<option>' + years[i] + '</option> '); 									
+									 }
+	                         	}else {$("#year").append("<option>No years available</option> ");}
+                         	}else {$("#year").html("<option>Connection error</option> ");}		                        	                        			
+	                         
+                        }, "json");	
+                	}					                	            
+                });              
+            });
+            
+            
           	// when a year is chosen - retrievs available weeks from server
             $(document).ready(function() {              	 
                 $("#year").change(function() {                	
@@ -461,7 +486,10 @@
     
     <body>        
         
-        <script> $("#QstatusC").tooltip(); </script>
+        <script> 
+        	$("#QstatusC").tooltip();
+        	$(".checkStatus").tooltip();         	
+    	</script>
         
         <div id="container">
 			
@@ -481,11 +509,12 @@
 	                                {
 	                                    $name = $blade["@attributes"]["name"];
 	                                    if($name!="" && $Blade_Map[$name]["db"]=="DIMES_DISTANCES"){
-											if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
-	                                            echo '<option selected="selected">'.$name.'</option>';
+	                                    	echo "<option>$name</option>";
+											/*if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
+	                                            echo '<option selected="selected">'.$name.'</option>';												
 											} else {
 												echo "<option>$name</option>";
-											}
+											}*/
 										}
 	                                }
 		                            ?>
@@ -495,19 +524,7 @@
 	                    <p class="selection-header">Select date</p>       
 	                    <div align="left" class="selection-text">Year  :                       
 	                        <select id="year" >
-	                            <option value="">Select year</option>
-	                            <?php
-	                            
-	                            	$xml = simplexml_load_file("xml/weeks.xml");
-									$result = $xml->xpath('/DATA/YEAR/year');					
-									if($result!=FALSE)
-									{
-										var_dump($result);
-										foreach($result as $i=>$value){
-											echo "<option>".$value."</option>";
-										}					
-									}                                                   
-	                            ?>                            
+	                            <option value="">Select year</option>	                                                  
 	                        </select>
 	                    </div>
 	
@@ -583,9 +600,16 @@
 							echo '<td><div id="ASnum" title="'.$result[$i]->allAS.'">'.$result[$i]->ASnum.'</div></td>';
 							echo "<td>";
 							if ($result[$i]->lastKnownStatus=="running"){
-								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
+								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus" title="building a DB schema. this might take a while.">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
-								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed" title="For a large query it is recomended to download the file"/></form>';
+								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"';
+								if ($fileSize = filesize('queries/'.$result[$i]->queryID.'/result.kmz')){
+									$fileSize /= 1048576; // converting to Mb
+									if($fileSize > 1){
+										echo ' title="This file size is '.$fileSize.' Mb. We recomend to download the file."';	
+									}	
+								}								
+								echo '/></form>';
 							}elseif ($result[$i]->lastKnownStatus=="error"){
 								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';
 								//echo 'error';													

@@ -1,34 +1,31 @@
-
+<?xml version="1.0" encoding="UTF-8" ?>
 <DATA>
-	
-	<YEAR>
-		<year>2008</year>
-		<WEEK>1</WEEK>
-		<WEEK>3</WEEK>
-		<WEEK>5</WEEK>
-		<WEEK>7</WEEK>		
-	</YEAR>
-	
-	<YEAR>
-		<year>2009</year>
-		<WEEK>3</WEEK>
-		<WEEK>5</WEEK>
-		<WEEK>7</WEEK>
-		<WEEK>9</WEEK>		
-		<WEEK>11</WEEK>
-		<WEEK>13</WEEK>
-		<WEEK>23</WEEK>
-		<WEEK>27</WEEK>
-		<WEEK>29</WEEK>
-		<WEEK>31</WEEK>
-	</YEAR>
-	
-	<YEAR>
-		<year>2010</year>
-		<WEEK>1</WEEK>
-		<WEEK>9</WEEK>
-		<WEEK>31</WEEK>
-		<WEEK>42</WEEK>		
-	</YEAR>
-
+	<blade name="B4">
+		<date year="2008">
+			<week>1</week>
+			<week>3</week>
+			<week>5</week>
+			<week>7</week>		
+		</date>
+		
+		<date year="2009">
+			<week>3</week>
+			<week>5</week>
+			<week>7</week>
+			<week>9</week>		
+			<week>11</week>
+			<week>13</week>
+			<week>23</week>
+			<week>27</week>
+			<week>29</week>
+			<week>31</week>
+		</date>
+		
+		<date year="2010">
+			<week>1</week>
+			<week>9</week>
+			<week>31</week>
+			<week>42</week>		
+		</date>
+	</blade>
 </DATA>
