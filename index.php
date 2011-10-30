@@ -462,7 +462,10 @@
     
     <body>        
         
-        <script> $("#QstatusC").tooltip(); </script>
+        <script> 
+        	$("#QstatusC").tooltip();
+        	$(".checkStatus").tooltip();         	
+    	</script>
         
         <div id="container">
 			
@@ -584,7 +587,7 @@
 							echo '<td><div id="ASnum" title="'.$result[$i]->allAS.'">'.$result[$i]->ASnum.'</div></td>';
 							echo "<td>";
 							if ($result[$i]->lastKnownStatus=="running"){
-								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus">running</div>';
+								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus" title="building a DB schema. this might take a while.">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
 								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"';
 								if ($fileSize = filesize('queries/'.$result[$i]->queryID.'/result.kmz')){
