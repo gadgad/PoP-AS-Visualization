@@ -123,48 +123,30 @@
         
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
     
-    // acording to the blade and selected , retrives the available years
+    // acording to the blade selected, retrives the available years
     if($_POST["func"]=="getYears")
 	{
 		$blade = $_POST["blade"];
 		
-		// first - searching the info in weeks.xml
+		// Searching the info in weeks.xml
 		$xml = simplexml_load_file("xml/weeks.xml");
-		$result = $xml->xpath('/DATA/blade[@name="'.$blade.'"]/date');					
-		if($result!=FALSE)
-		{
+		$result = $xml->xpath('/DATA/blade[@name="'.$blade.'"]/date');								
+		if($result!=FALSE){
 			foreach($result as $i=>$value){
 				$years[] = (string)$result[$i]->attributes()->year;					
 			}								
-		}
-		else{ // if the info isnt found at the file we connect to the DB to find available weks.
-			// TODO: change connection paramters.
-			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
-			if ($mysqli->connect_error) {
-	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+			header('Content-type: application/json');
+			echo json_encode(array("years"=>$years,"type"=>"GOOD"));
+		}else{ // date for the blade wasnt found
+			$res = $xml->xpath('/DATA/blade[@name="'.$blade.'"]');
+			if($res!=FALSE){ // the blade apears in the file and was checked
+				header('Content-type: application/json');
+				echo json_encode(array("years"=>"No years available","type"=>"ERROR"));
+			}else { // this blade does not apeare in the file.											
+				header('Content-type: application/json');
+				echo json_encode(array("years"=>"Blade not defined","type"=>"ERROR"));
 			}
-			
-			for($i=1;$i<53;$i++){
-				
-				$table = $DataTables["ip-edges"]["prefix"];        
-				$edges = getTblFromDB($mysqli,$table,$year,$i);
-				if ($edges!=""){
-					$table = $DataTables["pop-locations"]["prefix"];
-					$pops = getTblFromDB($mysqli,$table,$year,$i);
-					if ($pops!=""){
-						$table = $DataTables["popip"]["prefix"];
-						$popsIP = getTblFromDB($mysqli,$table,$year,$i);
-						if ($popsIP!=""){
-							$weeks[] = $i;
-						}
-					}
-				}				
-			}
-			$mysqli->close(); 			
 		} 
-		header('Content-type: application/json');
-    	echo json_encode(array("years"=>$years,"type"=>"GOOD"));     
-		
 	}
     
   
@@ -174,44 +156,21 @@
 		$blade = $_POST["blade"];
 		$year = $_POST["year"];
 		
-		// first - searching the info in weeks.xml
-		$weeks[] = array();
+		// searching the info in weeks.xml
 		$xml = simplexml_load_file("xml/weeks.xml");
 		$result = $xml->xpath('/DATA/blade[@name="'.$blade.'"]/date[@year="'.$year.'"]/week');					
 		if($result!=FALSE)
 		{
 			foreach($result as $index=>$object){
 				$weeks[] = (string)$result[$index];					
-			}								
+			}	
+			header('Content-type: application/json');
+    		echo json_encode(array("weeks"=>$weeks,"type"=>"GOOD"));							
 		}
-		else{ // if the info isnt found at the file we connect to the DB to find available weks.
-			// TODO: change connection paramters.
-			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
-			if ($mysqli->connect_error) {
-	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
-			}
-			
-			for($i=1;$i<53;$i++){
-				
-				$table = $DataTables["ip-edges"]["prefix"];        
-				$edges = getTblFromDB($mysqli,$table,$year,$i);
-				if ($edges!=""){
-					$table = $DataTables["pop-locations"]["prefix"];
-					$pops = getTblFromDB($mysqli,$table,$year,$i);
-					if ($pops!=""){
-						$table = $DataTables["popip"]["prefix"];
-						$popsIP = getTblFromDB($mysqli,$table,$year,$i);
-						if ($popsIP!=""){
-							$weeks[] = $i;
-						}
-					}
-				}				
-			}
-			$mysqli->close(); 			
-		}   
-		header('Content-type: application/json');
-    	echo json_encode(array("weeks"=>$weeks,"type"=>"GOOD"));     
-		
+		else{ 
+			header('Content-type: application/json');
+			echo json_encode(array("weeks"=>"No weeks available","type"=>"ERROR"));			
+		}   	
 	}
 	
 	// according to the blade,year and week finds the available tables (allways from DB).		

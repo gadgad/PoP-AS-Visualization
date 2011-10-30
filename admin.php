@@ -50,11 +50,15 @@
         	
         	function updateWeeks(){
         		option = 1;
-        		$('#My_queries').html('<h3><b>Update weeks.xml</b></h3><p>The weeks.xml file holds the information of the possible years&weeks to display when generating a new query.</p><p>A week will only apear if all the three tables: edge,pop location and pop-IP exists for that week.</p><p>If any changes where made to the DB(e.g. new tables where added) click the UPDATE button to generate a new and updated file.</p></br><input type="submit" onclick="updateWeeksB()" value="Update"/>').fadeIn("slow");        		
+        		$('#My_queries').html('<h3><b>Update weeks.xml</b></h3><p>The weeks.xml file holds the information of the possible years&weeks to display when generating a new query.</p><p>A week will only apear if all the three tables: edge,pop location and pop-IP exists for that week.</p><p>If any changes where made to the DB(e.g. new tables where added) select the blade to update and click the UPDATE button to updated the file.</p></br><select id="bld"><?php
+        		foreach ($Blades as $blade) {							
+					echo "<option>".$blade["@attributes"]["name"]."</option>";
+				}
+        		?></select>      <input type="submit" onclick="updateWeeksB()" value="Update"/>').fadeIn("slow");        		
         	}
         	
         	function updateWeeksB(){
-        		$.post("adminFunc.php", {func: "updateWeeks", user: <?php echo '"'.$username.'"'?>},
+        		$.post("adminFunc.php", {func: "updateWeeks", blade: $("#bld").val(), user: <?php echo '"'.$username.'"'?>},
         		function(data){
         			if (data!=null){
         				if (data.type=="ERROR"){

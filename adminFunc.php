@@ -44,7 +44,7 @@
         	 
         }else {$strres.= " broblem with query results ";}
 		$result->close();
-		ret_res($strres,"GOOD");
+		//ret_res($strres,"GOOD");
 		return $res;
 	}
 	
@@ -96,40 +96,53 @@
 		ret_res('done',"GOOD");
 	}
 	 
-	 // recreating the weeks.xml file
+	 // updating the weeks.xml file
 	 if($_POST["func"]=="updateWeeks")
 	{
+		// setting connection parameters
+		$blade = $Blade_Map[$_POST["blade"]];
+		$host = (string)$blade["host"];
+		$port = (int)$blade["port"];
+		$user = (string)$blade["user"];
+		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+		
 		// connecting to the DB						
-		$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
+		$mysqli = new DBConnection($host,$user,$pass,$schema,$port,5);
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
  		   die();
 		}
 		
-		// deleting the old file and creating a new empty one.
 		$nameXML = "xml/weeks.xml";
-		if (file_exists($nameXML)){
-			unlink($nameXML);	
-		}		
-		$ourFileHandle = fopen($nameXML, "w+") or die("can't create weeks.xml");
-		fwrite($ourFileHandle,"<DATA></DATA>"); 
-		fclose($ourFileHandle);
-			
-		//finding all the weeks that has all three tables	 
 		$xml = simplexml_load_file($nameXML);
-
-		//$data = $xml->addChild('DATA');
 		
+		// deleting old info regarding the blade (if exists)
+		$res = $xml->xpath('/DATA/blade[@name="'.$_POST["blade"].'"]');
+		if($res!=FALSE){
+			foreach ($res as $key => $value){						  
+				$theNodeToBeDeleted = $res[$key];								
+				$oNode = dom_import_simplexml($theNodeToBeDeleted);				
+				if (!$oNode) {
+				    ret_res('Error while converting SimpleXMLelement to DOM',"ERROR");
+				}		
+				$oNode->parentNode->removeChild($oNode); 							
+			}	
+		}
+			
+		// creating a new tag for the blade
+		$newBladeTag = $xml->addChild('blade');
+		$newBladeTag->addAttribute('name',$_POST["blade"]);		
+			
+		//finding all the weeks that has all three tables	 		
 		$weeks[] = array();
 		//unset($weeks);
-		//ret_res($weeks,"GOOD");
 		$maxYear = date('Y');	
 
 		for($year=2008;$year<=$maxYear;$year++){ 	
 			for($week=1;$week<53;$week++){
 					
 				$table = $DataTables["ip-edges"]["prefix"];        
-				$edges = getTblFromDB($mysqli,$table,$year,$week); ret_res("edges: ".$edges,"GOOD"); 
+				$edges = getTblFromDB($mysqli,$table,$year,$week);
 				if ($edges!=""){					
 					$table = $DataTables["pop-locations"]["prefix"];
 					$pops = getTblFromDB($mysqli,$table,$year,$week);
@@ -145,17 +158,16 @@
 			
 			//for a specific year - writing the weeks to file
 			if ($weeks!=null){// not empty , !weeks
-				ret_res($weeks,"GOOD");	
-				$newyear = $xml->addChild('YEAR');
-				$newyear->addChild('year',$year);
+				$newyear = $newBladeTag->addChild('date');
+				$newyear->addAttribute('year',$year);
 				foreach ($weeks as $w){
-					$newyear->addChild('WEEK',$w);	
+					$newyear->addChild('week',$w);	
 				}
 			}
 			unset($weeks);
 		}
 		// saving the file, closing connection to DB.
-		save_xml_file($xml->asXML(),$nameXML);
+		save_xml_file($xml,$nameXML);
 		$mysqli->close();
 		ret_res('done',"GOOD");
 	}
@@ -300,7 +312,7 @@
 		// adding the blade
 		{
 			$newBlade = $blades[0]->addChild('blade');
-			$newBlade->addAttribute(name, $blade);
+			$newBlade->addAttribute("name", $blade);
 			$newBlade->addChild('host', $host);
 			$newBlade->addChild('port', $port);
 			$newBlade->addChild('user', $bladeUser);
