@@ -417,15 +417,14 @@
                         function(data){
                         	if (data.type=="GOOD"){
                         		$("#year").html('');	
-								var years = data.years;		            
-								if (years!=null){
-									$("#year").append('<option selected="selected" value="">Select year</option> ');
-		                         	for(i = 0; i < years.length; i++){		                    			 							
-										$("#year").append('<option>' + years[i] + '</option> '); 									
-									 }
-	                         	}else {$("#year").append("<option>No years available</option> ");}
-                         	}else {$("#year").html("<option>Connection error</option> ");}		                        	                        			
-	                         
+								var years = data.years;		            								
+								$("#year").append('<option selected="selected" value="">Select year</option> ');
+	                         	for(i = 0; i < years.length; i++){		                    			 							
+									$("#year").append('<option>' + years[i] + '</option> '); 									
+								 }	                         	
+                         	}else if (data.type=="ERROR"){
+                         		$("#year").html("<option>"+data.years+"</option> ");
+                         	}else {$("#year").html("<option>Unexpected error</option> "); } 		                        	                        				                         
                         }, "json");	
                 	}					                	            
                 });              
@@ -440,14 +439,14 @@
                         function(data){
                         	if (data.type=="GOOD"){
                         		$("#week").html('');	
-								var weeks = data.weeks;		            
-								if (weeks!=null){
-		                         	for(i = 1; i < weeks.length; i++){
-		                    			var selected_str = (i==weeks.length-1)? 'selected="selected"':''; 							
-										$("#week").append('<option '+selected_str+'>' + weeks[i] + '</option> '); 									
-									 }
-	                         	}else {$("#week").append("<option>No weeks available</option> ");}
-                         	}else {$("#week").html("<option>Connection error</option> ");}		                        	                        			
+								var weeks = data.weeks;		
+								$("#week").html('<option selected="selected">' + weeks[0] + '</option> ');            								
+		                         	for(i = 1; i < weeks.length; i++){		                    		 							
+										$("#week").append('<option>' + weeks[i] + '</option> '); 									
+									 }	                   
+                         	}else if (data.type=="ERROR"){
+                         		$("#week").html("<option>"+data.weeks+"</option> ");
+                         		}else {$("#week").html("<option>Unexpected error</option> "); }		                        	                        			
 	                         
                         }, "json");	
                 	}					                	            
