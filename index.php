@@ -337,6 +337,7 @@
 							}
 							
 							$('#searchable').multiselect2side({'search': 'Search: '});
+							$("#stage3").append('<br></br><p style="font-size: 10px;">*selecting multiple ASs might cause a large kml file.</p>');
 							
 							disableStage(3,false);
 							$('#getAS').prop('disabled',true);
