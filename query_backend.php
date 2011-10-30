@@ -16,7 +16,7 @@
 				
 	// Turn off all error reporting
 	error_reporting(E_ERROR);
-				
+	
 	if(!isset($_POST["func"]))
 	{
 		echo 'missing parameters!';
@@ -123,6 +123,51 @@
         
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
     
+    // acording to the blade and selected , retrives the available years
+    if($_POST["func"]=="getYears")
+	{
+		$blade = $_POST["blade"];
+		
+		// first - searching the info in weeks.xml
+		$xml = simplexml_load_file("xml/weeks.xml");
+		$result = $xml->xpath('/DATA/blade[@name="'.$blade.'"]/date');					
+		if($result!=FALSE)
+		{
+			foreach($result as $i=>$value){
+				$years[] = (string)$result[$i]->attributes()->year;					
+			}								
+		}
+		else{ // if the info isnt found at the file we connect to the DB to find available weks.
+			// TODO: change connection paramters.
+			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
+			if ($mysqli->connect_error) {
+	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
+			}
+			
+			for($i=1;$i<53;$i++){
+				
+				$table = $DataTables["ip-edges"]["prefix"];        
+				$edges = getTblFromDB($mysqli,$table,$year,$i);
+				if ($edges!=""){
+					$table = $DataTables["pop-locations"]["prefix"];
+					$pops = getTblFromDB($mysqli,$table,$year,$i);
+					if ($pops!=""){
+						$table = $DataTables["popip"]["prefix"];
+						$popsIP = getTblFromDB($mysqli,$table,$year,$i);
+						if ($popsIP!=""){
+							$weeks[] = $i;
+						}
+					}
+				}				
+			}
+			$mysqli->close(); 			
+		} 
+		header('Content-type: application/json');
+    	echo json_encode(array("years"=>$years,"type"=>"GOOD"));     
+		
+	}
+    
+  
     // acording to the blade and year selected , retrives the available weeks
     if($_POST["func"]=="getWeeks")
 	{
@@ -132,7 +177,7 @@
 		// first - searching the info in weeks.xml
 		$weeks[] = array();
 		$xml = simplexml_load_file("xml/weeks.xml");
-		$result = $xml->xpath('/DATA/YEAR[year="'.$year.'"]/WEEK');					
+		$result = $xml->xpath('/DATA/blade[@name="'.$blade.'"]/date[@year="'.$year.'"]/week');					
 		if($result!=FALSE)
 		{
 			foreach($result as $index=>$object){
@@ -140,6 +185,7 @@
 			}								
 		}
 		else{ // if the info isnt found at the file we connect to the DB to find available weks.
+			// TODO: change connection paramters.
 			$mysqli = new DBConnection($host,$user,$pass,$database,$port,5);
 			if ($mysqli->connect_error) {
 	 		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");

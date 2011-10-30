@@ -408,6 +408,30 @@
                 });              
             });
             
+            
+            // when a blade is chosen - retrievs available years from server
+            $(document).ready(function() {              	 
+                $("#blade").change(function() {                	
+                	if ($("#blade").val()!=""){
+                		$.post("query_backend.php", {func: "getYears", blade: $("#blade").val()},
+                        function(data){
+                        	if (data.type=="GOOD"){
+                        		$("#year").html('');	
+								var years = data.years;		            
+								if (years!=null){
+									$("#year").append('<option selected="selected" value="">Select year</option> ');
+		                         	for(i = 0; i < years.length; i++){		                    			 							
+										$("#year").append('<option>' + years[i] + '</option> '); 									
+									 }
+	                         	}else {$("#year").append("<option>No years available</option> ");}
+                         	}else {$("#year").html("<option>Connection error</option> ");}		                        	                        			
+	                         
+                        }, "json");	
+                	}					                	            
+                });              
+            });
+            
+            
           	// when a year is chosen - retrievs available weeks from server
             $(document).ready(function() {              	 
                 $("#year").change(function() {                	
@@ -485,11 +509,12 @@
 	                                {
 	                                    $name = $blade["@attributes"]["name"];
 	                                    if($name!="" && $Blade_Map[$name]["db"]=="DIMES_DISTANCES"){
-											if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
-	                                            echo '<option selected="selected">'.$name.'</option>';
+	                                    	echo "<option>$name</option>";
+											/*if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
+	                                            echo '<option selected="selected">'.$name.'</option>';												
 											} else {
 												echo "<option>$name</option>";
-											}
+											}*/
 										}
 	                                }
 		                            ?>
@@ -499,19 +524,7 @@
 	                    <p class="selection-header">Select date</p>       
 	                    <div align="left" class="selection-text">Year  :                       
 	                        <select id="year" >
-	                            <option value="">Select year</option>
-	                            <?php
-	                            
-	                            	$xml = simplexml_load_file("xml/weeks.xml");
-									$result = $xml->xpath('/DATA/YEAR/year');					
-									if($result!=FALSE)
-									{
-										var_dump($result);
-										foreach($result as $i=>$value){
-											echo "<option>".$value."</option>";
-										}					
-									}                                                   
-	                            ?>                            
+	                            <option value="">Select year</option>	                                                  
 	                        </select>
 	                    </div>
 	
