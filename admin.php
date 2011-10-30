@@ -510,7 +510,16 @@
         
         <div id="container">
 
-            <?php include("header.php") ?>
+            <div id="header">
+				<p>
+			        <h5 style="text-align: left; margin-left: 5px">Welcome <?php echo $username; ?>,                	
+			        	<a href="logout.php"> <u>Logout</u></a>	or <a href="index.php"> <u>Go to queries page</u></a> 
+			        </h5>
+			    	<div class="main-title">
+			    		<img src="images/logo.png">
+			    	</div>
+			    </p>                
+			</div>
             
             <div class="user-select">
             	<h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Admin actions</h3>
