@@ -1,5 +1,5 @@
 <?php
-	error_reporting(E_ERROR);
+	//error_reporting(E_ERROR);
 	
 	require_once("bin/backgrounder.php");
     require_once("bin/xml_writer.php");

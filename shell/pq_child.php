@@ -36,13 +36,14 @@
     $queryID = $args['queryID'];
     $qs = $args['queryStatus'];
 	/////////////////////////////////////////////////////////////
-	clean_query_log();
+	clean_query_log($queryID);
 	echo "pq-child for qid: ".$queryID." launched with pid: ".posix_getpid()."\n";
 	
 	$smem = new MySharedMem();
 	if(!$smem->child_init($queryID)){
 		die("shared memory segment not initialized by parent process!\n");
 	}
+	echo "got init status from parent: ".$smem->getStatus()."\n";
 	$smem->setStatus(1); // working
 	
 	echo "$queryID status: ".QueryManager::getStatusMsg($qs)."\n";

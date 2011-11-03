@@ -1,70 +1,35 @@
 <?php
-class SharedMemory{
-    private $nameToKey = array();
-    private $key;
-    private $id;
-    
-    function __construct($key = null){
-        if($key === null){
-            $tmp = tempnam('tmp', 'PHP');
-            $this->key = ftok($tmp, 'a');
-            $this->id = shm_attach($this->key);
-            $this->nameToKey[] = '';
-            $this->nameToKey[] = '';
-            $this->updateMemoryVarList();
-            shm_put_var($this->id, 1, 1);
-        }else{
-            $this->key = $key;
-            $this->id = sem_get($this->key);
-            $this->refreshMemoryVarList();
-            shm_put_var($this->id, 1, shm_get_var($this->id, 1) + 1);
-        }
-        if(!$this->id)
-            die('Unable to create shared memory segment');
-    }
-    function __sleep(){
-        shm_detach($this->id);
-    }
-    function __destruct(){
-        if(shm_get_var($this->id, 1) == 1){
-            // I am the last listener so kill shared memory space
-            $this->remove();
-        }else{
-            shm_detach($this->id);
-            shm_put_var($this->id, 1, shm_get_var($this->id, 1) - 1);
-        }
-    }
-    function __wakeup(){
-        $this->id = sem_get($this->key);
-        shm_attach($this->id);
-        $this->refreshMemoryVarList();
-        shm_put_var($this->id, 1, shm_get_var($this->id, 1) + 1);
-    }
-    function getKey(){
-        return $this->key;
-    }
-    function remove(){
-        shm_remove($this->id);
-    }
-    function refreshMemoryVarList(){
-        $this->nameToKey = shm_get_var($this->id, 0);
-    }
-    function updateMemoryVarList(){
-        shm_put_var($this->id, 0, $this->nameToKey);
-    }
-    function __get($var){
-        if(!in_array($var, $this->nameToKey)){
-            $this->refreshMemoryVarList();
-        }
-        return shm_get_var($this->id, array_search($var, $this->nameToKey));
-    }
-    function __set($var, $val){
-        if(!in_array($var, $this->nameToKey)){
-            $this->refreshMemoryVarList();
-            $this->nameToKey[] = $var;
-            $this->updateMemoryVarList();
-        }
-        shm_put_var($this->id, array_search($var, $this->nameToKey), $val);
-    }
+class SharedMemory { 
+        public $key;            //unique identifier for the shared memory block 
+        public $shm;            //holds shared memory resource 
+        public $mutex;            //holds the mutex 
+        public $size;            //bytes to allocate 
+         
+        public function __construct($key=3354354334, $size=10000) {        //default key, can be overridden, same for size
+            $this->key = $key; 
+            $this->size = $size; 
+            $this->Attach();    //create resources (shared memory + mutex) 
+        } 
+         
+        //create resources 
+        public function Attach() { 
+            $this->shm = shm_attach($this->key, $this->size);    //allocate shared memory 
+            $this->mutex = sem_get($this->key, 1);        //create mutex with same key 
+        } 
+         
+        //write to shared memory 
+        public function Set($var) { 
+            sem_acquire($this->mutex);    //block until released 
+            shm_put_var($this->shm, $this->key, $var);    //store var  
+            sem_release($this->mutex);    //release mutex     
+        } 
+         
+        //read from shared memory 
+        public function Get() { 
+            sem_acquire($this->mutex);    //block until released 
+            $var = @shm_get_var($this->shm, $this->key);    //read var         
+            sem_release($this->mutex);    //release mutex 
+            return $var;         
+        } 
 }
 ?>

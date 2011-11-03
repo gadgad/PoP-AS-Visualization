@@ -1,5 +1,5 @@
 <?php
-require_once("bin/shared_disk.php");
+//require_once("bin/shared_disk.php");
 require_once("bin/shared_mem.php");
 
 // TODO: make it cross platrform!
@@ -11,25 +11,31 @@ class MySharedMem {
 	private $smem;
 	private $queryID;
 
-	public function construct(){
+	public function __construct(){
 		$this->smem = new SharedMemory();
 	}
 	
 	public function init_qid($qid){
-		$smem =$this->smem->$qid;
-		$smem['status'] = 0;
+		$var = $this->smem->Get();
+		$init_value = array('status'=>0,'phase'=>0,'progress'=>0.0);
+		if(!is_array($var)){
+			$var = array($qid=>$init_value);
+		} else {
+			$var[$qid] = $init_value;
+		}
+		$this->smem->Set($var);
 	}
 	
 	public function child_init($queryID){
 		$this->queryID = $queryID;
-		
 		$limit = 5;
 		$retries = 0;
-		@$smem =& $sharedMem->$queryID;
-		while((!isset($smem) || !isset($smem['status'])) && $retries<$limit){
+		$shared_var = $this->smem->Get();
+		while(!isset($shared_var[$this->queryID]) && $retries<$limit){
 			$retries++;
 			echo "sleeping...";
 			sleep(1);
+			$shared_var = $this->smem->Get();
 		}
 		if($retries==$limit){
 			return false;	
@@ -37,11 +43,10 @@ class MySharedMem {
 		return true;
 	}
 	
-	public function generic_init($queryID){
+	public function test_init($queryID){
 		$this->queryID = $queryID;
-		
-		@$smem =& $sharedMem->$queryID;
-		if(isset($smem['status'])){
+		$shared_var = $this->smem->Get();
+		if(isset($shared_var[$htis->queryID])){
 			return true;
 		}
 		return false;
@@ -49,21 +54,36 @@ class MySharedMem {
 	
 	// status: 0 = started , 1 = working , 2 = finish , -1 = error
 	public function setStatus($status_id){
-		$qid = $this->queryID;
-		$smem =& $sharedMem->$qid;
-		$smem['status'] = $status_id;
+		$var = $this->smem->Get();
+		$var[$this->queryID]['status'] = $status_id;
+		$this->smem->Set($var);
+	}
+	
+	public function getStatus(){
+		$var = $this->smem->Get();
+		return $var[$this->queryID]['status'];
 	}
 	
 	public function setPhase($state_id){
-		$qid = $this->queryID;
-		$smem =& $sharedMem->$qid;
-		$smem['pahse'] = QueryManager::getStatusMsg($state_id);
+		$var = $this->smem->Get();
+		$var[$this->queryID]['pahse'] = QueryManager::getStatusMsg($state_id);
+		$this->smem->Set($var);
+	}
+	
+	public function getPhase(){
+		$var = $this->smem->Get();
+		return $vat[$this->queryID]['phase'];
 	}
 	
 	public function setProgress($progress){
-		$qid = $this->queryID;
-		$smem =& $sharedMem->$qid;
-		$smem['progress'] = $progress;
+		$var = $this->smem->Get();
+		$var[$this->queryID]['progress'] = $progress;
+		$this->smem->Set($var);
+	}
+	
+	public function getProgress(){
+		$var = $this->smem->Get();
+		return $vat[$this->queryID]['progress'];
 	} 
 }
 ?>

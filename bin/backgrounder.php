@@ -132,7 +132,6 @@ class Backgrounder
 		}
 		
 		$this->exe = "start \"".$title."\" /MIN ".$this->bat_filename;	
-
 	}
 
 	private function linux_backgrounder()
