@@ -222,7 +222,7 @@
 		$path =  "users/".$_POST["userfile"];
 		$username = substr($_POST["userfile"],-4) ; 
 		$userData = simplexml_load_file($path);
-		$to = $userData->xpath('/user/email');
+		$to = (string)$userData->xpath('/user/email');
 		
 		// changing the user's statuse from pending to authorized
 		$res = $userData->xpath('/user/status');		
@@ -249,7 +249,7 @@
 		// sending an email to the user
 		$subject = "PoP-AS visualization";
 		$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website was accepted.".PHP_EOL."Login to start!";
-		$header = "From: do_not_reply@post.tau.ac.il";
+		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (mail($to, $subject, $body, $header)) {
 		   ret_res('done',"GOOD");
@@ -264,7 +264,7 @@
 	{
 		$path =  "users/".$_POST["userfile"]; 
 		$userData = simplexml_load_file($path);
-		$to = $userData->xpath('/user/email');
+		$to = (string)$userData->xpath('/user/email');
 		
 		// changing the user's statuse from pending to denied
 		$res = $userData->xpath('/user/status');		
@@ -285,7 +285,7 @@
 		// sending an email to the user
 		$subject = "PoP-AS visualization";
 		$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website denied.";
-		$header = "From: do_not_reply@post.tau.ac.il";
+		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (mail($to, $subject, $body, $header)) {
 		   ret_res('done',"GOOD");
@@ -507,7 +507,7 @@
 		// sending an email to the user
 		$subject = "PoP-AS visualization invitation";
 		$body = "You are invited to the PoP-AS visualization website! visit us at ... ";
-		$header = "From: do_not_reply@post.tau.ac.il";
+		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		//$header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (!mail($to, $subject, $body, $header)) {
 		   ret_res('mail delivery failed.',"ERROR");
