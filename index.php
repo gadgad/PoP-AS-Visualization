@@ -313,7 +313,8 @@
             	//$.preLoadImages("images/ajax-loader.gif");
             	$('#AS :input').prop('disabled',true);
             	
-				$('#button-wrap-2').html('<p><img src="images/ajax-loader.gif"/></p>');                                                           
+				$('#button-wrap-2').html('<p><img src="images/ajax-loader.gif"/></p>');
+				$('#stage3').html('<p style="font-size: 10px;">This will take a minute.</p>');                                                           
                 $.post("query_backend.php", {func: "getASlist", blade: $("#blade").val(), edge: $("#Edge").val() , pop: $("#PoP").val()},
                 function(data){
                 	
@@ -326,7 +327,7 @@
 						if (data.result==""){
 					 		$("#stage3").html('<p style="font-size: 12px; color: black">No AS to show for your query.</p>');
 						}else{
-							$("#stage3").html("<br></br><select multiple='multiple' id='searchable' name='searchable[]'></select>");
+							$("#stage3").html("<br></br><select multiple='multiple' id='searchable' name='searchable[]' size=4></select>");
 									                        	                        			
 	                        var allAS = data.result;
 							var AS = allAS.split("*");	
@@ -371,7 +372,7 @@
 				$("#PoP").html('<option selected="selected" value="">Select PoP table</option>');
 				$("#popIP").html('<option selected="selected" value="">Select PoP IP table</option>');
 				
-				$("#stage3").html('<p style="font-size: 10px; color: gray">After clicking the list will apear.</p>');
+				$("#stage3").html('<p style="font-size: 10px; color: gray">After clicking the list will appear.</p>');
             	$(".sendQueryValidator").each(function(index) {
      				$(this).remove();
      			});   
@@ -566,7 +567,7 @@
 					</div>
 						                    
                     <div id="stage3">
-                    	<p style="font-size: 10px; color: gray">After clicking the list will apear.</p>
+                    	<p style="font-size: 10px; color: gray">After clicking the list will appear.</p>
                     </div>
                                                            
                 </form>
