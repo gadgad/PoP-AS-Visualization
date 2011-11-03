@@ -40,7 +40,7 @@ require_once('bin/save_xml.php');
 		}
 		
 		$registered = simplexml_load_file('xml/authorized_users.xml');
-		$res = $registered->xpath('/DATA[email="'.$email.'"]');
+		$res = $registered->xpath('/DATA[email="'.md5($email).'"]');
 		if(!empty($res)){
 			$errors[] = 'Email already exists!';
 		}

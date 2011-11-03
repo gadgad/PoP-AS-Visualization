@@ -10,10 +10,14 @@
 	require_once("bin/query_status.php");
 	require_once("bin/email_validator.php");
 	require_once("bin/save_xml.php");
+	require_once("bin/KLogger.php");
 	include("verify.php");
 				
 	// Turn off all error reporting
-	error_reporting(E_ERROR);
+	//error_reporting(E_ERROR);
+	
+	// Initialize Logger
+	$log = new KLogger('log', KLogger::INFO );
 	
 	//preventing any non-admin users to reach this page
 	if(($_POST["user"])!="admin")
@@ -222,8 +226,8 @@
 		$path =  "users/".$_POST["userfile"];
 		$username = substr($_POST["userfile"],-4) ; 
 		$userData = simplexml_load_file($path);
-		$to = (string)$userData->xpath('/user/email');
-		
+		$res = $userData->xpath('/user/email');
+		$to = (string)$res[0];
 		// changing the user's statuse from pending to authorized
 		$res = $userData->xpath('/user/status');		
 		foreach ($res as $key => $state){
@@ -252,6 +256,7 @@
 		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (mail($to, $subject, $body, $header)) {
+		   $log->logInfo("mail sent to $to, subject: $subject");
 		   ret_res('done',"GOOD");
 		} else {
 		   ret_res('user authorized, mail delivery failed.',"ERROR");
@@ -264,8 +269,8 @@
 	{
 		$path =  "users/".$_POST["userfile"]; 
 		$userData = simplexml_load_file($path);
-		$to = (string)$userData->xpath('/user/email');
-		
+		$res = $userData->xpath('/user/email');
+		$to = (string)$res[0];
 		// changing the user's statuse from pending to denied
 		$res = $userData->xpath('/user/status');		
 		foreach ($res as $key => $state){
@@ -288,6 +293,7 @@
 		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (mail($to, $subject, $body, $header)) {
+		   $log->logInfo("mail sent to $to, subject: $subject");
 		   ret_res('done',"GOOD");
 		} else {
 		   ret_res('user denied, mail delivery failed.',"ERROR");
@@ -511,8 +517,8 @@
 		//$header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (!mail($to, $subject, $body, $header)) {
 		   ret_res('mail delivery failed.',"ERROR");
-		}
-		
+		} 
+		$log->logInfo("mail sent to $to, subject: $subject");
 		ret_res('done',"GOOD");		
 	}
 	

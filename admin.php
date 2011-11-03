@@ -368,11 +368,12 @@
 			}
 		die();
 	}
-		
+	
+	$emptyTbl = true;
     if(isset($_REQUEST['viewPendingUsers'])){
 		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central"><tr><th>Username</th><th>email</th><th>Accept</th><th>Deny</th></tr>';					
 		$files = scandir(getcwd().'/users');
-		if ($files!=FALSE){
+		if (!empty($files)){
 			foreach ($files as $file){							
 				if (substr($file, 0,1)!="."){						
 					$userfile = simplexml_load_file("users/".$file);
@@ -380,6 +381,7 @@
 					if($result!=FALSE)
 					{
 						if("pending" == $result[0]->status){
+							$emptyTbl = false;
 							echo "<tr>";
 							echo "<td>".basename($file,'.xml')."</td>";												
 							echo"<td>".(string)$result[0]->email."</td>";													
@@ -391,6 +393,9 @@
 				}
 									
 			}
+		}
+		if($emptyTbl){
+			echo "<tr><td COLSPAN='4' style='text-align:center;'>no pending users</td></tr>";
 		}
 		echo '</table>';
 		die();
