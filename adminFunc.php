@@ -14,10 +14,10 @@
 	include("verify.php");
 				
 	// Turn off all error reporting
-	//error_reporting(E_ERROR);
+	error_reporting(E_ERROR);
 	
-	// Initialize Logger
-	$log = new KLogger('log', KLogger::INFO );
+	// Initialize Mail Logger
+	$log = new KLogger('mail_log', KLogger::INFO );
 	
 	//preventing any non-admin users to reach this page
 	if(($_POST["user"])!="admin")
@@ -224,7 +224,8 @@
 	if($_POST["func"]=="accept")
 	{
 		$path =  "users/".$_POST["userfile"];
-		$username = substr($_POST["userfile"],-4) ; 
+		//$username = substr($_POST["userfile"],-4) ; 
+		$username = basename($_POST["userfile"],".xml");
 		$userData = simplexml_load_file($path);
 		$res = $userData->xpath('/user/email');
 		$to = (string)$res[0];
@@ -252,7 +253,7 @@
 		
 		// sending an email to the user
 		$subject = "PoP-AS visualization";
-		$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website was accepted.".PHP_EOL."Login to start!";
+		$body = "Hi ".$username.",".PHP_EOL."Your request for the PoP-AS visualization website was accepted.".PHP_EOL."Login to start!";
 		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (mail($to, $subject, $body, $header)) {
@@ -289,7 +290,7 @@
 		
 		// sending an email to the user
 		$subject = "PoP-AS visualization";
-		$body = "Hi ".$username.PHP_EOL."Your request for the PoP-AS visualization website denied.";
+		$body = "Hi ".$username.",".PHP_EOL."Your request for the PoP-AS visualization website was denied.";
 		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
 		if (mail($to, $subject, $body, $header)) {
