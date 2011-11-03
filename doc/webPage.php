@@ -20,6 +20,9 @@
         	h3{
         		color: rgb(54,95,145);
         	}
+        	h1{
+        		color: rgb(112,97,68);
+        	}
         </style>          
     </head>
 
@@ -35,20 +38,23 @@
 						                       
             <div id="information" style="width: 100%; margin: 30px">
                 		
-				<h1 class="login-header">Info</h1>
-				<p>The POP/AS visualization system is a visual, easy-to-use interface to the NetDimes database, providing PoP-level PoP-AS geographic information. </p>
-				<p>It allows querying the DB and viewing the results on an interactive map.</p>
+				<h1>Intro</h1>
+				<h3>The DIMES project</h3>				
+				<p><a href="http://www.netdimes.org/new/">DIMES</a> is a distributed scientific research project, aimed to study the structure and topology of the Internet, with the help of a volunteer community.<br/>Part of the project is taking measurements of PoP and AS geographic locations.</p>				
+				<p style="font-size:15px;">PoP - An Internet Point of Presence is an access point to the Internet. It is a physical location that houses servers, routers, ATM switches and digital/analog call aggregators.<br/>AS - Within the Internet, an Autonomous System (AS) is a collection of connected Internet Protocol (IP) routing prefixes under the control of one or more network operators that presents a common, clearly defined routing policy to the Internet.</p>
+				
+				<h1>Info</h1>
+				<p>The POP/AS visualization system is a visual, easy-to-use interface to the NetDimes database, providing PoP-level PoP-AS geographic information. <br/>It allows querying the DB and viewing the results on an interactive map.</p>
+				
 				<h3>Personalized user page</h3>
-				<div style = "width: 100%;">
-					
-					<div style = "width: 30%; float: left; height: 60%">
-						<p>The user can generate new queries with the menu on the left.</p>
-						<p>On the right the user can view his previous queries and details.</p>
-						<br />
-					</div>
-					<div style = "width: 70%; float: right; height: 60%"> <img src="../images/index.png" /> </div>
-					
-				</div>
+				<p>The user can generate new queries with the menu on the left. The query data is drivn from the DIMES DB. <br/>On the right the user can view his previous queries and details.</p>	
+				<div align="left"><img src="../images/index.png" /></div>
+										
+			
+				<h3>Visualization page</h3>
+				<p>The visualization page displays the geographic information on a Google Earth plugin. PoPs are represented by bookmarks and for each AS a different color is given.<br/>On the side panel the user cn control colors, visibility and more.</p>
+				<div align="center"><img src="../images/example1.jpg" /></div>
+				
 				<h3>Visualization examples</h3>
 				<div align="center"> <img src="../images/week42.png" /> </div>
 				<br />
@@ -63,7 +69,7 @@
             
             <div id="documentation" style="width: 100%; margin: 30px">
                 		
-				<h1 class="login-header">Documentation</h1>					
+				<h1>Documentation</h1>					
 			
 				<?php 
 		 
