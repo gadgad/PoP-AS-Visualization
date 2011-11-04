@@ -573,7 +573,7 @@
                 </form>
                 <div id="formButtons">
 	                <input id="sendQuery" class="sendQuery" type="image" src="images/send-button.png"/>
-	                <input id="resetForm" class="resetForm" value="Reset Form" type="button"/></br>
+	                <input id="resetForm" class="resetForm"  type="image" src="images/reset.png" value="Reset Form"/></br>
               	</div>
             </div>
             
