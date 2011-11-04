@@ -18,6 +18,15 @@
 	
 	$isCLI = ( php_sapi_name() == 'cli' );
 	
+	// Mail
+	define("SITE_URL",$config_arr["mail"]["site-url"]);
+	define("MAIL_FROM",$config_arr["mail"]["from"]);
+	$MAIL_MESSAGES = $config_arr["mail"]["message"];
+	$MAIL_MESSAGES_MAP = array();
+	foreach($MAIL_MESSAGES as $message){
+		$MAIL_MESSAGES_MAP[$message["type"]] = array("subject"=>$message["subject"],"body"=>$message["body"]);
+	}
+	
 	foreach($Blades as $blade)
 	{
 		$name = $blade["@attributes"]["name"];

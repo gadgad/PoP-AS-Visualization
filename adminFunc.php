@@ -12,6 +12,27 @@
 	require_once("bin/save_xml.php");
 	require_once("bin/KLogger.php");
 	include("verify.php");
+	
+	function send_mail($to,$type,$user=''){
+		
+		if(!isset($MAIL_MESSAGES_MAP[$type]))
+			return false;
+		
+		$url = SITE_URL;
+		$subject = $MAIL_MESSAGES_MAP[$type]["subject"];
+		$body = $MAIL_MESSAGES_MAP[$type]["body"];
+		$body = str_replace('$url', SITE_URL, $body);
+		$body = str_replace('$user', $user, $body);
+		$header = "From: ".MAIL_FROM;
+		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
+		
+		if (mail($to, $subject, $body, $header)) {
+		   $log->logInfo("$type mail was sent to $to");
+		   return true;
+		}
+		
+		return false;	
+	}
 				
 	// Turn off all error reporting
 	error_reporting(E_ERROR);
@@ -252,23 +273,21 @@
 		save_xml_file($registered->asXML(),'xml/authorized_users.xml');			
 		
 		// sending an email to the user
-		$subject = "PoP-AS visualization";
-		$body = "Hi ".$username.",".PHP_EOL."Your request for the PoP-AS visualization website was accepted.".PHP_EOL."Login to start!";
-		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
+		//$subject = "PoP-AS visualization";
+		//$body = "Hi ".$username.",".PHP_EOL."Your request for the PoP-AS visualization website was accepted.".PHP_EOL."Login to start!";
+		//$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
-		if (mail($to, $subject, $body, $header)) {
-		   $log->logInfo("mail sent to $to, subject: $subject");
-		   ret_res('done',"GOOD");
-		} else {
+		if (!send_mail($to,"accept",$username)) {
 		   ret_res('user authorized, mail delivery failed.',"ERROR");
-		}
-		ret_res('done',"GOOD");		
+		} 
+		ret_res('done',"GOOD");
 	}
 	
 	// denying a user's request to login the site
 	if($_POST["func"]=="deny")
 	{
-		$path =  "users/".$_POST["userfile"]; 
+		$path =  "users/".$_POST["userfile"];
+		$username = basename($_POST["userfile"],".xml");
 		$userData = simplexml_load_file($path);
 		$res = $userData->xpath('/user/email');
 		$to = (string)$res[0];
@@ -289,16 +308,13 @@
 		$userData->asXML($path);
 		
 		// sending an email to the user
-		$subject = "PoP-AS visualization";
-		$body = "Hi ".$username.",".PHP_EOL."Your request for the PoP-AS visualization website was denied.";
-		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
+		//$subject = "PoP-AS visualization";
+		//$body = "Hi ".$username.",".PHP_EOL."Your request for the PoP-AS visualization website was denied.";
+		//$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		// $header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
-		if (mail($to, $subject, $body, $header)) {
-		   $log->logInfo("mail sent to $to, subject: $subject");
-		   ret_res('done',"GOOD");
-		} else {
-		   ret_res('user denied, mail delivery failed.',"ERROR");
-		}			
+		if (!send_mail($to,"deny",$username)) {
+			ret_res('user denied, mail delivery failed.',"ERROR");
+		} 
 		ret_res('done',"GOOD");
 	}
 	
@@ -512,14 +528,14 @@
 		save_xml_file($invited->asXML(),'xml/invited_users.xml');
 		
 		// sending an email to the user
-		$subject = "PoP-AS visualization invitation";
-		$body = "You are invited to the PoP-AS visualization website! visit us at ... ";
-		$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
+		//$subject = "PoP-AS visualization invitation";
+		//$body = "You are invited to the PoP-AS visualization website! visit us at ... ";
+		//$header = "From: PoPVisualizer_DoNotReply@post.tau.ac.il";
 		//$header.=PHP_EOL."Return-Path:<popas@post.tau.ac.il>";
-		if (!mail($to, $subject, $body, $header)) {
+		if (!send_mail($to,"invitation")) {
 		   ret_res('mail delivery failed.',"ERROR");
 		} 
-		$log->logInfo("mail sent to $to, subject: $subject");
+		//$log->logInfo("mail sent to $to, subject: $subject");
 		ret_res('done',"GOOD");		
 	}
 	

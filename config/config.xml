@@ -46,7 +46,31 @@
 		</parameter>
 	</config-parameters>
 	
+	<mail>
+		<site-url>http://b6.evergrow.iucc.ac.il</site-url>
+		<from>PoPVisualizer_DoNotReply@post.tau.ac.il</from>
+		<message>
+			<type>invitation</type>
+			<subject>PoP/AS Visualizer Invitation</subject>
+			<body>You are invited to the PoP-AS visualization website! visit us at $url</body>
+		</message>
+		<message>
+			<type>accept</type>
+			<subject>PoP/AS Visualizer Registration</subject>
+			<body>Hi $user,\n Your request for the PoP-AS visualization website was accepted.\n Login to $url to start!</body>
+		</message>
+		<message>
+			<type>deny</type>
+			<subject>PoP/AS Visualizer Registration</subject>
+			<body>Hi $user,\n We are sorry to inform you that your request for the PoP-AS visualization website was denied.</body>
+		</message>
+	</mail>
+	
 	<ge-api-keys>
+		<key>
+			<domain>b6.evergrow.iucc.ac.il</domain>
+			<string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxQFkLvFfjNFWLbkdo82BA8NZMHIXhSYipSn7aRLl3xJzqJ1dGxPCcXPCg</string>
+		</key>
 		<key>
 			<domain>localhost</domain>
 			<string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A</string>
@@ -63,6 +87,22 @@
 	
 	<blades>
 		<blade name="B4" default="true">
+			<host>b4.evergrow.iucc.ac.il</host>
+			<port>3306</port>
+			<user>codeLimited</user>
+			<pass></pass>
+			<db>DIMES_DISTANCES</db>
+			<write-db>DIMES_POPS_VISUAL</write-db>
+		</blade>
+		<blade name="B1">
+			<host>b1.evergrow.iucc.ac.il</host>
+			<port>3306</port>
+			<user>codeLimited</user>
+			<pass></pass>
+			<db>DIMES</db>
+			<write-db>DIMES_PLAYGROUND</write-db>			
+		</blade>
+		<blade name="B4_local">
 			<host>127.0.0.1</host>
 			<port>5554</port>
 			<user>codeLimited</user>
@@ -70,7 +110,7 @@
 			<db>DIMES_DISTANCES</db>
 			<write-db>DIMES_POPS_VISUAL</write-db>
 		</blade>
-		<blade name="B1">
+		<blade name="B1_local">
 			<host>127.0.0.1</host>
 			<port>5551</port>
 			<user>codeLimited</user>
