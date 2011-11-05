@@ -269,11 +269,14 @@
              }
              
              function invite(){
-             	$('#My_queries').html('</br><p style="color: navy;text-align:center"><u> Invite others to join </u></p><p style="text-align:center">Enter an email address of someone you want to invite to use the site. After his registration this user will be automatically authorized.<p style="text-align:center">Email <input type="text" id="email" size="18"/> <input type="button" onclick="inviteUser()" value="Invite"/> </p>');
+             	//$('#My_queries').html('</br><p style="color: navy;text-align:center"><u> Invite others to join </u></p><p style="text-align:center">Enter an email address of someone you want to invite to use the site. After his registration this user will be automatically authorized.<p style="text-align:center">Invaitee Email: <input type="text" id="email" size="18"/></br>Invaitee Name: <input type="text" id="name" size="18"/></br> <input type="button" onclick="inviteUser()" value="Invite"/> </p>');
+             	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
+             	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
+             	$('#queryTable').load('admin.php?inviteUserForm #queryTable').fadeIn("slow");
              }
              
              function inviteUser(){
-             	$.post("adminFunc.php", {func: "inviteUser", user: <?php echo '"'.$username.'"'?>,email : $("#email").val()},
+             	$.post("adminFunc.php", {func: "inviteUser", user: <?php echo '"'.$username.'"'?>,email: $("#inviteEmail").val(), invaitee: $("#inviteName").val(), subject: $("#inviteSubject").val(), body: $("#inviteBody").val()},
         		function(data){
         			if (data!=null){
         				if (data.type=="ERROR"){
@@ -370,8 +373,8 @@
 	}
 	
 	$emptyTbl = true;
-    if(isset($_REQUEST['viewPendingUsers'])){
-		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central"><tr><th>Username</th><th>email</th><th>Accept</th><th>Deny</th></tr>';					
+	$firstTime = true;
+    if(isset($_REQUEST['viewPendingUsers'])){					
 		$files = scandir(getcwd().'/users');
 		if (!empty($files)){
 			foreach ($files as $file){							
@@ -382,6 +385,10 @@
 					{
 						if("pending" == $result[0]->status){
 							$emptyTbl = false;
+							if($firstTime){
+								$firstTime = false;
+								echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central"><tr><th>Username</th><th>email</th><th>Accept</th><th>Deny</th></tr>';
+							}
 							echo "<tr>";
 							echo "<td>".basename($file,'.xml')."</td>";												
 							echo"<td>".(string)$result[0]->email."</td>";													
@@ -395,9 +402,10 @@
 			}
 		}
 		if($emptyTbl){
-			echo "<tr><td COLSPAN='4' style='text-align:center;'>no pending users</td></tr>";
+			echo '<h3 id="queryTable">there are currently no pending users...</h3>';
+		} else {
+			echo '</table>';
 		}
-		echo '</table>';
 		die();
 	}
 	
@@ -512,6 +520,22 @@
 			} 
  			echo '</table>';	
 		}else echo 'Error while retrieving data from XML.';		
+		die();
+	}
+	
+	if(isset($_REQUEST["inviteUserForm"])){
+		$subject = $MAIL_MESSAGES_MAP["invitation"]["subject"];
+		$body = str_replace('\n',PHP_EOL,$MAIL_MESSAGES_MAP["invitation"]["body"]);
+		echo '</br><div id="queryTable"><p style="color: navy;text-align:center"><u> Invite others to join </u></p>
+				<p style="text-align:center">Enter an email address of someone you want to invite to use the site.</br>
+				After his registration this user will be automatically authorized.</p>
+				<p style="text-align:center">
+					Invaitee Email: <input type="text" id="inviteEmail" size="30"/></br></br>
+					Invaitee Name: <input type="text" id="inviteName" size="30"/></br></br></br>
+					Subject: <input type="text" id="inviteSubject" size="50" value="'.$subject.'"/></br></br>
+					<textarea id="inviteBody" rows="5" cols="50" style="width: 435px; height: 94px;">'.$body.'</textarea></br>
+				<p style="font-size: 10px; color: gray">message body varaibles ($url & $user) will be automatically replaced with the appropriate values...</p>
+				<p style="text-align:center"><input type="button" onclick="inviteUser()" value="Invite" style="text-align:center"/></p></p></div>';
 		die();
 	}
 	

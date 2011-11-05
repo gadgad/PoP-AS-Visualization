@@ -47,22 +47,22 @@
 	</config-parameters>
 	
 	<mail>
-		<site-url>http://b6.evergrow.iucc.ac.il</site-url>
+		<site-url>http://b6.evergrow.iucc.ac.il/PoPVisualizer</site-url>
 		<from>PoPVisualizer_DoNotReply@post.tau.ac.il</from>
 		<message>
 			<type>invitation</type>
 			<subject>PoP/AS Visualizer Invitation</subject>
-			<body>You are invited to the PoP-AS visualization website! visit us at $url</body>
+			<body>You are invited to the PoP-AS visualization website!\nvisit us at $url</body>
 		</message>
 		<message>
 			<type>accept</type>
 			<subject>PoP/AS Visualizer Registration</subject>
-			<body>Hi $user,\n Your request for the PoP-AS visualization website was accepted.\n Login to $url to start!</body>
+			<body>Hi $user,\nYour request for the PoP-AS visualization website was accepted.\nLogin to $url to start!</body>
 		</message>
 		<message>
 			<type>deny</type>
 			<subject>PoP/AS Visualizer Registration</subject>
-			<body>Hi $user,\n We are sorry to inform you that your request for the PoP-AS visualization website was denied.</body>
+			<body>Hi $user,\nWe are sorry to inform you that your request for the PoP-AS visualization website was denied.</body>
 		</message>
 	</mail>
 	

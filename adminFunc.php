@@ -13,7 +13,7 @@
 	require_once("bin/KLogger.php");
 	include("verify.php");
 	
-	function send_mail($to,$type,$user=""){
+	function send_mail($to,$type,$user="",$subject="",$body=""){
 		global $log;
 		global $MAIL_MESSAGES_MAP;
 			
@@ -22,8 +22,10 @@
 		if(!isset($MAIL_MESSAGES_MAP[$type]))
 			return false;
 		
-		$subject = $MAIL_MESSAGES_MAP[$type]["subject"];
-		$body = $MAIL_MESSAGES_MAP[$type]["body"];
+		if($subject=="") $subject = $MAIL_MESSAGES_MAP[$type]["subject"];
+		if($body=="") $body = $MAIL_MESSAGES_MAP[$type]["body"];
+		
+		$body = str_replace('\n',PHP_EOL,$body);
 		$body = str_replace('$url', SITE_URL, $body);
 		$body = str_replace('$user', $user, $body);
 		$header = "From: ".MAIL_FROM;
@@ -503,11 +505,17 @@
 	if($_POST["func"]=="inviteUser")
 	{
 		$to = $_POST["email"];
-		$hashed_email = md5($to);
+		$invaitee = $_POST["invaitee"];
+		$subject = $_POST["subject"];
+		$body = $_POST["body"];
+		
+		// validating email address
 		if(!check_email_address($to)){
 			ret_res('inavalid email address',"ERROR");
 		}
 		
+		// checking if email is not already registered
+		$hashed_email = md5($to);
 		$registered = simplexml_load_file('xml/authorized_users.xml');
 		$res = $registered->xpath('/DATA[email="'.$hashed_email.'"]');
 		if(!empty($res)){
@@ -525,7 +533,7 @@
 		save_xml_file($invited->asXML(),'xml/invited_users.xml');
 		
 		// sending an email to the user
-		if (!send_mail($to,"invitation")) {
+		if (!send_mail($to,"invitation",$invaitee,$subject,$body)) {
 		   ret_res('mail delivery failed.',"ERROR");
 		} 
 		ret_res('done',"GOOD");		
