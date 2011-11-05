@@ -85,6 +85,10 @@
 		</key>
 	</ge-api-keys>
 	
+	<!-- 
+		when adding new blades to this section,
+		please don't forget to update weeks.xml from the admin page aswell!
+	-->
 	<blades>
 		<blade name="B4" default="true">
 			<host>b4.evergrow.iucc.ac.il</host>
