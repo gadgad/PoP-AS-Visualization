@@ -447,7 +447,7 @@
 								var weeks = data.weeks;
 								if(weeks!=null && weeks.length>0){
 									//$("#week").html('<option selected="selected">' + weeks[0] + '</option> ');            								
-		                         	for(i = 1; i < weeks.length; i++){
+		                         	for(i = 0; i < weeks.length; i++){
 		                         		var selected_str = (i==weeks.length-1)? 'selected="selected"':''; 							
 										$("#week").append('<option '+selected_str+'>' + weeks[i] + '</option> ');	                    		 							
 										//$("#week").append('<option>' + weeks[i] + '</option> '); 									

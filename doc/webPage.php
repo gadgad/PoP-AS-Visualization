@@ -42,6 +42,7 @@
 				<h3>The DIMES project</h3>				
 				<p><a href="http://www.netdimes.org/new/">DIMES</a> is a distributed scientific research project, aimed to study the structure and topology of the Internet, with the help of a volunteer community.<br/>Part of the project is taking measurements of PoP and AS geographic locations.</p>				
 				<p style="font-size:15px;">PoP - An Internet Point of Presence is an access point to the Internet. It is a physical location that houses servers, routers, ATM switches and digital/analog call aggregators.<br/>AS - Within the Internet, an Autonomous System (AS) is a collection of connected Internet Protocol (IP) routing prefixes under the control of one or more network operators that presents a common, clearly defined routing policy to the Internet.</p>
+				<p>The PoP/AS Visualizer is a final project by Gadi Sirota & Keren Ben-Arosh executed at TAU's Networks labratory.</p>
 				
 				<h1>Info</h1>
 				<p>The POP/AS visualization system is a visual, easy-to-use interface to the NetDimes database, providing PoP-level PoP-AS geographic information. <br/>It allows querying the DB and viewing the results on an interactive map.</p>

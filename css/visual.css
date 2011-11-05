@@ -15,6 +15,9 @@
 }
 #container {
 	font-family: verdana, arial, sans-serif;
+	width: 1465px;
+	margin-left: auto ;
+  	margin-right: auto ;
 }
 .main-title {
 	margin-bottom: 10px;
@@ -45,15 +48,15 @@
 }
 .user-select {
 	font-family: verdana, arial, sans-serif;
-	padding-right: 2%;
-	padding-left: 2%;
-	margin-left: 3%;
+	padding-left: 30px;
+	padding-right: 10px;
+	/*margin-left: 3%;*/
 	/*border:1px solid navy; */
 	/*background-color: #EEEEFF;*/
 	background-color: rgb(215,231,232);
 	color: #333333;
-	width: 30%;
-	height: 92%;
+	width: 560px;
+	height: 640px;
 	float: left;
 	clear: none;
 }
@@ -63,14 +66,14 @@
 .selection-text {
 }
 #My_queries {
-	margin-right: 3%;
+	margin-left: 10px;
 	border: 1px solid #999999;
-	width: 58%;
-	height: 92%;
-	float: right;
+	width: 850px;
+	height: 640px;
+	float: left;
 	clear: right;
 	text-align: center;
-	padding: 8px;
+	vertical-align:top;
 }
 #My_queries p {
 	text-align: left;
@@ -152,7 +155,7 @@ table.imagetable td {
 .sendQuery {
 	margin-left: 0px;
 	margin-top: 10px;
-	vertical-align:-15px;
+	vertical-align:-2px;
 }
 .sendQueryValidator {
 	display: block;

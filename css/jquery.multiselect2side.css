@@ -71,8 +71,8 @@
 }
 
 .ms2side__header input.wait {
-	width: 80px;
-	height: 12px;
+	width: 130px;
+	height: 20px;
 	background: #FFFFFF url(../images/loading.gif) no-repeat center right;
 }
 
