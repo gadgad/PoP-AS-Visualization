@@ -15,7 +15,7 @@
 }
 #container {
 	font-family: verdana, arial, sans-serif;
-	width: 1465px;
+	width: 1315px;
 	margin-left: auto ;
   	margin-right: auto ;
 }
@@ -68,7 +68,7 @@
 #My_queries {
 	margin-left: 10px;
 	border: 1px solid #999999;
-	width: 850px;
+	width: 700px;
 	height: 640px;
 	float: left;
 	clear: right;

@@ -47,9 +47,18 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
     // Create Google Earth instance when panel is rendered
     afterRender: function(){
         Ext.ux.GEarthPanel.superclass.afterRender.call(this);
-        google.earth.createInstance(this.body.dom, this.onEarthReady.createDelegate(this), {});
+        google.earth.createInstance(this.body.dom, this.onEarthReady.createDelegate(this), this.onEarthFail.createDelegate(this));
     },
 
+    // Called by above function
+    onEarthFail: function(errorCode){
+    	 if (errorCode == "ERR_CREATE_PLUGIN") {
+    	        alert("Plugin not installed")
+    	    } else {
+    	        alert("Other failure loading the Google Earth Plugin: " + errorCode);
+    	    }
+    }
+    
     // Called by above function
     onEarthReady: function(object){
         this.earth = object;
