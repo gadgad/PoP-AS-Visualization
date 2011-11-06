@@ -5,6 +5,13 @@
  */
 	include_once("bin/load_config.php");
 	include_once("verify.php");	
+	
+	$threshold = 0;
+	$xml = simplexml_load_file("config/config.xml");
+	$result = $xml->xpath('/config/config-parameters/parameter[name="LargeKMLFileAlert"]/value');					
+	if($result!=FALSE){	
+		$threshold = $result[0];
+	}
 ?>
 
 
@@ -614,12 +621,14 @@
 								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus" title="building a DB schema. this might take a while.">running</div>';
 							}elseif ($result[$i]->lastKnownStatus=="completed"){
 								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"';
-								if ($fileSize = filesize('queries/'.$result[$i]->queryID.'/result.kmz')){
-									$fileSize /= 1048576; // converting to Mb
-									if($fileSize > 1){
-										echo ' title="This file size is '.$fileSize.' Mb. We recomend to download the file."';	
-									}	
-								}								
+								if (file_exists('queries/'.$result[$i]->queryID.'/result.kmz')){
+									if ($fileSize = filesize('queries/'.$result[$i]->queryID.'/result.kmz')){
+										$fileSize /= 1048576; // converting to Mb
+										if($fileSize > $threshold){
+											echo ' title="This file size is '.$fileSize.' Mb. We recomend to download the file."';	
+										}	
+									}								
+								}
 								echo '/></form>';
 							}elseif ($result[$i]->lastKnownStatus=="error"){
 								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';
@@ -629,8 +638,7 @@
 							}
 							echo "</td>";
 							echo "<td>".(($result[$i]->lastKnownStatus=="completed")?'<FORM><INPUT TYPE="BUTTON" VALUE="download" ONCLICK="window.location.href=\'queries/'.$result[$i]->queryID.'/result.kmz\'"></FORM>':'')."</td>";
-							echo '<td><button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';							
-							// reload the page? if changing to "submit",  add: onsubmit="return false;" ?
+							echo '<td><button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';											
 							echo "</tr>";
 						} 
 					}
