@@ -15,7 +15,13 @@
 }
 #container {
 	font-family: verdana, arial, sans-serif;
-	width: 1315px;
+	width: 1165px;
+	margin-left: auto ;
+  	margin-right: auto ;
+}
+.welcome_container{
+	font-family: verdana, arial, sans-serif;
+	width: 1200px;
 	margin-left: auto ;
   	margin-right: auto ;
 }
@@ -28,10 +34,9 @@
 	margin-bottom: 10px;
 	font-size: 16px;
 }
-.enter {
-	margin-left: 3%;
-	width: 27%;
-	height: 85%;
+.enter {	
+	width: 320px;
+	/*height: 85%;*/
 	float: left;
 	clear: none;
 }
@@ -40,6 +45,7 @@
 	background-repeat: repeat-x;
 	padding-top: 2px;
 	padding-left: 5px;
+	width:320px;
 	float: right;
 }
 .login-header {
@@ -55,8 +61,8 @@
 	/*background-color: #EEEEFF;*/
 	background-color: rgb(215,231,232);
 	color: #333333;
-	width: 560px;
-	height: 640px;
+	width: 360px;
+	height: 740px;
 	float: left;
 	clear: none;
 }
@@ -68,8 +74,8 @@
 #My_queries {
 	margin-left: 10px;
 	border: 1px solid #999999;
-	width: 700px;
-	height: 640px;
+	width: 750px;
+	height: 740px;
 	float: left;
 	clear: right;
 	text-align: center;
@@ -109,11 +115,10 @@ table.imagetable td {
 	border-color: #999999;
 }
 .about {
-	margin-right: 3%;
 	border: 1px solid #999999;
 	background-color: #EEEEFF;
-	width: 65%;
-	height: 85%;
+	width: 850px;
+	height: 570px;
 	float: right;
 	clear: right;
 	text-align: left;

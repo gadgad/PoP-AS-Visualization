@@ -129,10 +129,15 @@
 	}
 	 
 	 // updating the weeks.xml file
-	 if($_POST["func"]=="updateWeeks")
+	if($_POST["func"]=="updateWeeks")
+	{
+		updateWeeks($_POST["blade"]);
+	}
+
+	function updateWeeks($bladeParam) 
 	{
 		// setting connection parameters
-		$blade = $Blade_Map[$_POST["blade"]];
+		$blade = $Blade_Map[$bladeParam];
 		$host = (string)$blade["host"];
 		$port = (int)$blade["port"];
 		$user = (string)$blade["user"];
@@ -149,7 +154,7 @@
 		$xml = simplexml_load_file($nameXML);
 		
 		// deleting old info regarding the blade (if exists)
-		$res = $xml->xpath('/DATA/blade[@name="'.$_POST["blade"].'"]');
+		$res = $xml->xpath('/DATA/blade[@name="'.$bladeParam.'"]');
 		if($res!=FALSE){
 			foreach ($res as $key => $value){						  
 				$theNodeToBeDeleted = $res[$key];								
@@ -163,7 +168,7 @@
 			
 		// creating a new tag for the blade
 		$newBladeTag = $xml->addChild('blade');
-		$newBladeTag->addAttribute('name',$_POST["blade"]);		
+		$newBladeTag->addAttribute('name',$bladeParam);		
 			
 		//finding all the weeks that has all three tables	 		
 		$weeks[] = array();
@@ -343,7 +348,7 @@
 			$newBlade->addChild('write-db', $writedb);
 			$xml->asXML('config/config.xml');			
 		}else ret_res('cant add blade to file',"ERROR");
-		ret_res('done',"GOOD");		
+		// updateWeeks($blade);
 	}
 	
 	// removing a blade from config/config.xml
