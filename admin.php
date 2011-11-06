@@ -173,18 +173,22 @@
              }
              
              function addBlade(){
-             	$.post("adminFunc.php", {func: "addBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeA").val(), host: $("#host").val(), port: $("#port").val(), bladeUser: $("#user").val(), pass: $("#pass").val(), db: $("#db").val(), writedb: $("#write-db").val()},
-        		function(data){
-        			if (data!=null){
-        				if (data.type=="ERROR"){
-                 			alert("Error while adding blade: " + data.result);
-                 		}else {
-                 			blades();
-                 			$('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>');                 			
-                 		}
-        			}else alert("data is null");
-                }
-        		,"json");        		
+             	if($("#bladeA").val()=="" || $("#host").val()=="" || $("#port").val()=="" || $("#user").val()=="" || $("#db").val()=="" || $("#write-db").val()){
+             		alert("ERROR - Some parameters are empty");
+             	}else{	
+	             	$.post("adminFunc.php", {func: "addBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeA").val(), host: $("#host").val(), port: $("#port").val(), bladeUser: $("#user").val(), pass: $("#pass").val(), db: $("#db").val(), writedb: $("#write-db").val()},
+	        		function(data){
+	        			if (data!=null){
+	        				if (data.type=="ERROR"){
+	                 			alert("Error while adding blade: " + data.result);
+	                 		}else {
+	                 			blades();
+	                 			$('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>');                 			
+	                 		}
+	        			}else alert("data is null");
+	                }
+	        		,"json");        		
+        		} 
              }
              
              function removeBlade(){
