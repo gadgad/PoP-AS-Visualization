@@ -10,7 +10,7 @@
 	</head>
 		<body>
 		
-	        <div id="container">
+	        <div class="welcome_container">
 
 	            <div id="header">
 	                <div class="main-title">
@@ -20,15 +20,15 @@
 							                       
 	            <div id="login" class="enter">
 	            
-		            <div class="login-box" style="width:350px; background-image: url('images/table-images/cell-blue-register.jpg');">		            		
+		            <div class="login-box" style="background-image: url('images/table-images/cell-blue-register.jpg');">		            		
 						<h1 class="login-header">Pending request</h1>
 						<p style="margin-left: 10px">Dear user,</p>
 						<p style="margin-left: 10px">your registration request is still pending for the site admin's approval.</p>
 						<p style="margin-left: 10px; margin-bottom: 25px">Thank you for your patience.</p>																		                          
 		            </div>
 		            
-		            <div style="text-align:center; padding-top:20px;">
-		            	<img src="images/DIMES.gif" style="margin-top: 20px">	
+		            <div style="text-align:center;">
+		            	<img src="images/DIMES.gif" style="margin-top: 50px">	
 		            </div>
 		            
 	            </div>

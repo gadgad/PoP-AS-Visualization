@@ -20,6 +20,19 @@
         <title>Admin page</title>        
         <script src="js/jquery-1.6.2.min.js" type="text/javascript"></script>
         <link rel="stylesheet" href="css/visual.css" type="text/css" media="screen" />
+        <style type="text/css">
+        	#My_queries p{
+        		margin-left: 10 px;    
+        		line-height: 150%;        		
+        	}
+        	h3{
+        		color: rgb(54,95,145);
+        	}
+        	h1{
+        		color: rgb(112,97,68);
+        	}
+        </style>
+ 
         <script type="text/javascript">
         
 ///////////-JQuery Plugins-////////////////////////////////////////////////
@@ -73,7 +86,7 @@
         	
         	function updateAS(){
         		option = 2;
-        		$('#My_queries').html('<h3><b>Update AS_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</BR>If new ASs were added, select a table to update from and click the update button to update the file. pay attention - the new file will include all table attributes as is.</BR></BR><select id="tbl"><option>ASInfoTbl</option><option>ASInfoTbl_16bit_2009</option><option>ASInfoTbl_16bit_March_2009</option></select>  <input type="button" onclick="updateASB()" value="Update"/></br></br>Or enter your own table:</BR></BR>Blade: <input type="text" name="blade" id="blade" size="18"/> Schema: <input type="text" name="schema" id="schema" size="18"/> table: <input type="text" name="freetable" id="freetable" size="18"/> <input type="button" onclick="updateASBfree()" value="Update"/></p>');
+        		$('#My_queries').html('<h3><b>Update ASN_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</BR>If new ASs were added, select a table to update from and click the update button to update the file. pay attention - the table MUST include ASN,Country and ISPname fields.</BR></BR><select id="tbl"><option>ASInfoTbl</option></select>  <input type="button" onclick="updateASB()" value="Update"/></br></br>Or enter your own table:</BR></BR>Blade: <input type="text" name="blade" id="blade" size="18"/> Schema: <input type="text" name="schema" id="schema" size="18"/> table: <input type="text" name="freetable" id="freetable" size="18"/> <input type="button" onclick="updateASBfree()" value="Update"/></p>');
         	}
         	
         	function updateASB(){
@@ -160,18 +173,22 @@
              }
              
              function addBlade(){
-             	$.post("adminFunc.php", {func: "addBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeA").val(), host: $("#host").val(), port: $("#port").val(), bladeUser: $("#user").val(), pass: $("#pass").val(), db: $("#db").val(), writedb: $("#write-db").val()},
-        		function(data){
-        			if (data!=null){
-        				if (data.type=="ERROR"){
-                 			alert("Error while adding blade: " + data.result);
-                 		}else {
-                 			blades();
-                 			$('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>');                 			
-                 		}
-        			}else alert("data is null");
-                }
-        		,"json");        		
+             	if($("#bladeA").val()=="" || $("#host").val()=="" || $("#port").val()=="" || $("#user").val()=="" || $("#db").val()=="" || $("#write-db").val()){
+             		alert("ERROR - Some parameters are empty");
+             	}else{	
+	             	$.post("adminFunc.php", {func: "addBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeA").val(), host: $("#host").val(), port: $("#port").val(), bladeUser: $("#user").val(), pass: $("#pass").val(), db: $("#db").val(), writedb: $("#write-db").val()},
+	        		function(data){
+	        			if (data!=null){
+	        				if (data.type=="ERROR"){
+	                 			alert("Error while adding blade: " + data.result);
+	                 		}else {
+	                 			blades();
+	                 			$('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>');                 			
+	                 		}
+	        			}else alert("data is null");
+	                }
+	        		,"json");        		
+        		} 
              }
              
              function removeBlade(){
@@ -253,7 +270,7 @@
              
              // change admin password
              function password(){
-             	$('#My_queries').html('</br><p style="color: navy;text-align:center"><form><u> Change password </u></p><p style="text-align:center">old password <input type="text" id="oldPass" size="18"/><p style="text-align:center">new password <input type="text" id="newPass" size="18"/><p style="text-align:center">confirm password <input type="text" id="confirmPass" size="18"/></p> <p style="color: navy;text-align:center"><input type="button" onclick="changePassword()" value="Change"/> <input type="reset"/></p></form>');            	
+             	$('#My_queries').html('<form><h3> Change password </h3><p style="text-align:center">old password <input type="text" id="oldPass" size="18"/><p style="text-align:center">new password <input type="text" id="newPass" size="18"/><p style="text-align:center">confirm password <input type="text" id="confirmPass" size="18"/></p> <p style="color: navy;text-align:center"><input type="button" onclick="changePassword()" value="Change"/> <input type="reset"/></p></form>');            	
              }
              
              function changePassword(){
@@ -526,10 +543,10 @@
 	if(isset($_REQUEST["inviteUserForm"])){
 		$subject = $MAIL_MESSAGES_MAP["invitation"]["subject"];
 		$body = str_replace('\n',PHP_EOL,$MAIL_MESSAGES_MAP["invitation"]["body"]);
-		echo '</br><div id="queryTable"><p style="color: navy;text-align:center"><u> Invite others to join </u></p>
-				<p style="text-align:center">Enter an email address of someone you want to invite to use the site.</br>
+		echo '<div id="queryTable"><h3 style="text-align:center;font-size: 20px;"> Invite others to join </h3>
+				<p style="text-align:center;font-size: 16px;">Enter an email address of someone you want to invite to use the site.</br>
 				After his registration this user will be automatically authorized.</p>
-				<p style="text-align:center">
+				<p style="text-align:center;font-size: 16px">
 					Invaitee Email: <input type="text" id="inviteEmail" size="30"/></br></br>
 					Invaitee Name: <input type="text" id="inviteName" size="30"/></br></br></br>
 					Subject: <input type="text" id="inviteSubject" size="50" value="'.$subject.'"/></br></br>
@@ -541,7 +558,7 @@
 	
 	?>   
         
-        <div id="container">
+        <div id="container" style="width: 1205px;">
 
             <div id="header">
 				<p>
@@ -554,7 +571,7 @@
 			    </p>                
 			</div>
             
-            <div class="user-select">
+            <div class="user-select" style="width: 360px;">
             	<h3 style="text-align:center; size:4; color:rgb(112,97,68); font-family: verdana,arial,sans-serif">Admin actions</h3>
 	            <div id="adminActions">
 	            	<p onclick="password()"><u>Change password</u></p>
@@ -568,9 +585,12 @@
 	            	<p onclick="parameters()"><u>Configure parameters (config.xml)</u></p>
 	            	<p onclick="invite()"><u>Invite others to join</u></p>
 	            </div>
+	            <div style="text-align:center; padding-top:50px;padding-right: 20px">
+	            	<img src="images/DIMES_blue.gif">	
+	            </div>
             </div>
             
-            <div id="My_queries">
+            <div id="My_queries" style="padding-left: 20px;padding-right: 20px; width: 750px">
             	<h3><b>Welcome admin!</b></h3>
             	<p  style="text-align:center"> In this page you can change and update some configuration files of the system.</BR>
             	click on the options on the left, and get further explanation.</BR>

@@ -44,6 +44,12 @@
 			<units>records</units>
 			<value>100</value>
 		</parameter>
+		<parameter>
+			<name>LargeKMLFileAlert</name>
+			<description>from this file size the user will be allerted when openning the visual frontend.</description>
+			<units>MB's</units>
+			<value>1</value>
+		</parameter>
 	</config-parameters>
 	
 	<mail>
