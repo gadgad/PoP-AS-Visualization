@@ -327,7 +327,7 @@
 						if (data.result==""){
 					 		$("#stage3").html('<p style="font-size: 12px; color: black">No AS to show for your query.</p>');
 						}else{
-							$("#stage3").html("<br></br><select multiple='multiple' id='searchable' name='searchable[]' size=4></select>");
+							$("#stage3").html("<select multiple='multiple' id='searchable' name='searchable[]' size=4></select>");
 									                        	                        			
 	                        var allAS = data.result;
 							var AS = allAS.split("*");	

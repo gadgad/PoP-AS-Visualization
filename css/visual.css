@@ -15,7 +15,7 @@
 }
 #container {
 	font-family: verdana, arial, sans-serif;
-	width: 1315px;
+	width: 1165px;
 	margin-left: auto ;
   	margin-right: auto ;
 }
@@ -61,8 +61,8 @@
 	/*background-color: #EEEEFF;*/
 	background-color: rgb(215,231,232);
 	color: #333333;
-	width: 560px;
-	height: 640px;
+	width: 360px;
+	height: 740px;
 	float: left;
 	clear: none;
 }
@@ -74,8 +74,8 @@
 #My_queries {
 	margin-left: 10px;
 	border: 1px solid #999999;
-	width: 700px;
-	height: 640px;
+	width: 750px;
+	height: 740px;
 	float: left;
 	clear: right;
 	text-align: center;
