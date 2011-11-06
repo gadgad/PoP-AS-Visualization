@@ -45,7 +45,7 @@
 
     <body>        
         
-        <div id="container">
+        <div class="welcome_container">
 
             <div id="header">
                 <div class="main-title">
@@ -55,7 +55,7 @@
 						                       
             <div id="login" class="enter">
             
-	            <div class="login-box" style="width:320px; background-image: url('images/table-images/cell-blue-login.jpg');">
+	            <div class="login-box" style="background-image: url('images/table-images/cell-blue-login.jpg');">
 	            		
 					<h1 class="login-header">Login</h1>
 					<form method="post" action="" id="myform" name="myform">
@@ -80,8 +80,8 @@
 					                          
 	            </div>
 	            
-	            <div style="text-align:center; padding-top:20px;">
-	            	<img src="images/DIMES.gif" style="margin-top: 20px">	
+	            <div style="text-align:center;">
+	            	<img src="images/DIMES.gif" style="margin-top: 50px">	
 	            </div>
 	            
             </div>
