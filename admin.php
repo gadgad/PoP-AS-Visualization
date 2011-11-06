@@ -585,6 +585,9 @@
 	            	<p onclick="parameters()"><u>Configure parameters (config.xml)</u></p>
 	            	<p onclick="invite()"><u>Invite others to join</u></p>
 	            </div>
+	            <div style="text-align:center; padding-top:50px;padding-right: 20px">
+	            	<img src="images/DIMES_blue.gif">	
+	            </div>
             </div>
             
             <div id="My_queries" style="padding-left: 20px;padding-right: 20px; width: 750px">
