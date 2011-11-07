@@ -6,12 +6,6 @@
 	include_once("bin/load_config.php");
 	include_once("verify.php");	
 	
-	$threshold = 0;
-	$xml = simplexml_load_file("config/config.xml");
-	$result = $xml->xpath('/config/config-parameters/parameter[name="LargeKMLFileAlert"]/value');					
-	if($result!=FALSE){	
-		$threshold = $result[0];
-	}
 ?>
 
 
@@ -498,7 +492,25 @@
                         resetForm();                                               
                     });
             });
-                                 
+            
+            // opens the visual frontend with the data of QID              	
+         	function visualFrontend(QID){
+         		
+         		//creats a form to submit to visual_frontend.php
+         		var form = document.createElement("form");
+			    form.setAttribute("method", "get");
+			    form.setAttribute("action", "visual_frontend.php");
+			    form.setAttribute("target","_blank");
+			    
+		        var hiddenField = document.createElement("input");
+		        hiddenField.setAttribute("type", "hidden");
+		        hiddenField.setAttribute("name", "QID");
+		        hiddenField.setAttribute("value", QID);
+		        form.appendChild(hiddenField);
+		    
+			    document.body.appendChild(form);
+			    form.submit();
+         	}                
             </script>                  
     </head>
     
@@ -619,20 +631,20 @@
 							echo "<td>";
 							if ($result[$i]->lastKnownStatus=="running"){
 								echo '<div id="'.$result[$i]->queryID.'" class="checkStatus" title="building a DB schema. this might take a while.">running</div>';
-							}elseif ($result[$i]->lastKnownStatus=="completed"){
-								echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"';
+							}elseif ($result[$i]->lastKnownStatus=="completed"){								
 								if (file_exists('queries/'.$result[$i]->queryID.'/result.kmz')){
 									if ($fileSize = filesize('queries/'.$result[$i]->queryID.'/result.kmz')){
 										$fileSize /= 1048576; // converting to Mb
-										if($fileSize > $threshold){
-											echo ' title="This file size is '.$fileSize.' Mb. We recomend to download the file."';	
-										}	
+										if($fileSize > LargeKMLFileAlert ){
+											$alertMsg = "'This file size is ".round($fileSize,2)." MB. Openning it can take a long time. are you sure?'";
+											$QID = "'".$result[$i]->queryID."'";
+											echo '<form><input type="submit" id=QstatusC value="Completed" onClick="if(confirm('.$alertMsg.')){visualFrontend('.$QID.');}"';	
+										}else echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"'; 	
 									}								
 								}
 								echo '/></form>';
 							}elseif ($result[$i]->lastKnownStatus=="error"){
-								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';
-								//echo 'error';													
+								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';																			
 							}else {
 								echo 'unknown status';
 							}
