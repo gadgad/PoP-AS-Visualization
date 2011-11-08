@@ -638,11 +638,11 @@
 										if($fileSize > LargeKMLFileAlert ){
 											$alertMsg = "'This file size is ".round($fileSize,2)." MB. Openning it can take a long time. are you sure?'";
 											$QID = "'".$result[$i]->queryID."'";
-											echo '<form><input type="submit" id=QstatusC value="Completed" onClick="if(confirm('.$alertMsg.')){visualFrontend('.$QID.');}"';	
-										}else echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"'; 	
-									}								
-								}
-								echo '/></form>';
+											echo '<button type="submit" id=QstatusC value="Completed" onClick="if(confirm('.$alertMsg.')){visualFrontend('.$QID.');}">Completed</button>';	
+										}else echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"/></form>';; 	
+									}																	
+								}else echo 'error';
+								
 							}elseif ($result[$i]->lastKnownStatus=="error"){
 								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';																			
 							}else {
