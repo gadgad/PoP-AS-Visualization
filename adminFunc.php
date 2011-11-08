@@ -341,7 +341,7 @@
 			$newBlade->addChild('write-db', $writedb);
 			$xml->asXML('config/config.xml');			
 		}else ret_res('cant add blade to file',"ERROR");
-		// updateWeeks($blade);
+		updateWeeks($blade);
 	}
 	
 	// removing a blade from config/config.xml
@@ -399,7 +399,7 @@
 	 }
 	
 	// chanchig a data-table parameter at config/config.xml
-	if($_POST["func"]=="changeParam")
+	if($_POST["func"]=="changeDT")
 	{
 		$dataTable = $_POST["dataTable"];
 		$SP = $_POST["SP"];

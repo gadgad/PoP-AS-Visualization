@@ -2,9 +2,12 @@
 
 /*
  * the admin page. 
+ * includes the atml structure and all page functionalities.
  */
 	include_once("bin/load_config.php");
-
+	
+	// starting session for the admin user.
+	// other users are redirected to welcome.php
 	session_start();
 	$username = isset($_COOKIE['username'])? $_COOKIE['username'] : $_SESSION['username'];
 	if($username!="admin"){
@@ -52,91 +55,118 @@
         	$.preLoadImages("images/ajax-loader.gif");
         	
         	var queryID;
-        	var option = 0;    
-             function updateTable(){
-             	//$("#My_queries").append("<p text-align:center>Query " + queryID + " is now running with pid: "+myNameSpace.processID+"</p>");
-             	//$('#queryTable').load('admin.php #queryTable').fadeIn("slow");
-             	if(option ==3){
-             		showQueries();
-             	}
-              }
+        	var option = 0;
         	
+        	
+        	// loads the 'change password' form
+             function password(){
+             	$('#My_queries').html('<form><h3> Change password </h3><p style="text-align:center">old password <input type="text" id="oldPass" size="18"/><p style="text-align:center">new password <input type="text" id="newPass" size="18"/><p style="text-align:center">confirm password <input type="text" id="confirmPass" size="18"/></p> <p style="color: navy;text-align:center"><input type="button" onclick="changePassword()" value="Change"/> <input type="reset"/></p></form>');            	
+             }
+             
+             // sends the server a request to change admin password.
+             function changePassword(){
+             	$.post("adminFunc.php", {func: "changePassword", user: <?php echo '"'.$username.'"'?>,oldPass : $("#oldPass").val(), newPass : $("#newPass").val(), confirmPass : $("#confirmPass").val()},
+        		function(data){
+        			if (data!=null){
+        				if (data.type=="ERROR"){
+                 			alert(data.result);
+                 		}else if (data.type=="GOOD"){
+                 			$('#My_queries').append('<p style="color:navy">Password updated.</p>');
+                 			}else alert("Error-something went wrong");  
+        			}else alert("data is null");
+                }
+        		,"json");
+             }
+                         
+        	// shows info regarding update weeks.xml
         	function updateWeeks(){
         		option = 1;
-        		$('#My_queries').html('<h3><b>Update weeks.xml</b></h3><p>The weeks.xml file holds the information of the possible years&weeks to display when generating a new query.</p><p>A week will only apear if all the three tables: edge,pop location and pop-IP exists for that week.</p><p>If any changes where made to the DB(e.g. new tables where added) select the blade to update and click the UPDATE button to updated the file.</p></br><select id="bld"><?php
+        		$('#My_queries').html('<h3><b>Update weeks.xml</b></h3><p>The weeks.xml file holds the information of the possible years&weeks to display when generating a new query.</p><p>A week will only appear if all the three tables: edge,pop-location and pop-IP exists for that week.</p><p>If any changes where made to the DB(e.g. new tables where added) select the blade to update and click the UPDATE button to updated the file.</br>(update is from 2008 until the current year).</p><p style="color:navy">For newly added blades this function runs automatically.</p></br><select id="bld"><?php
         		foreach ($Blades as $blade) {							
 					echo "<option>".$blade["@attributes"]["name"]."</option>";
 				}
         		?></select>      <input type="submit" onclick="updateWeeksB()" value="Update"/>').fadeIn("slow");        		
         	}
         	
+        	// sends the server a request to update weeks.xml
         	function updateWeeksB(){
         		$.post("adminFunc.php", {func: "updateWeeks", blade: $("#bld").val(), user: <?php echo '"'.$username.'"'?>},
         		function(data){
         			if (data!=null){
         				if (data.type=="ERROR"){
-                 			alert("Error while generating weeks.XML: " + data.result);
+                 			alert("Error while updating weeks.XML: " + data.result);
+                 		}else if(data.type != "GOOD"){
+                 			alert("Unexpected response:" + data.result);
                  		}
         			}else alert("data is null");
                 }
         		,"json");
-        		$('#My_queries').append('<p style="color:navy">The file is now being updated.</p>')
+        		$('#My_queries').append('<p style="color:navy">weeks.xml is now being updated.</p>')
         	}
         	
-        	
+        	// shows info regarding update ASN_info.xml
         	function updateAS(){
         		option = 2;
         		$('#My_queries').html('<h3><b>Update ASN_info.xml</b></h3><p>The AS_info.xml file holds the information about the AS - ASN,country and ISP.</BR>If new ASs were added, select a table to update from and click the update button to update the file. pay attention - the table MUST include ASN,Country and ISPname fields.</BR></BR><select id="tbl"><option>ASInfoTbl</option></select>  <input type="button" onclick="updateASB()" value="Update"/></br></br>Or enter your own table:</BR></BR>Blade: <input type="text" name="blade" id="blade" size="18"/> Schema: <input type="text" name="schema" id="schema" size="18"/> table: <input type="text" name="freetable" id="freetable" size="18"/> <input type="button" onclick="updateASBfree()" value="Update"/></p>');
         	}
         	
+        	// sends the server a request to update ASN_info.xml from a pre-defined table
         	function updateASB(){
         		$.post("adminFunc.php", {func: "updateAS", user: <?php echo '"'.$username.'"'?>,table:$("#tbl").val()},"json");
-        		$('#My_queries').append('<p style="color:navy">The file is now being updated.</p>')
+        		$('#My_queries').append('<p style="color:navy">ASN_info.xml is now being regenerated.</p>')
         	}
         	
+        	// sends the server a request to update ASN_info.xml from a user-input table
         	function updateASBfree(){
         		$.post("adminFunc.php", {func: "updateASfree", user: <?php echo '"'.$username.'"'?>,table:$("#freetable").val(),schema:$("#schema").val(),blade:$("#blade").val()},"json");
-        		$('#My_queries').append('<p style="color:navy">The file is now being updated.</p>')
+        		$('#My_queries').append('<p style="color:navy">ASN_info.xml is now being regenerated.</p>')
         	}
         	
-        	
+        	// shows running queries and info aboute them.
         	function showQueries(){
         		option = 3;
         		$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
              	$('#queryTable').load('admin.php?viewRunningQueries #queryTable').fadeIn("slow");     
-        	}        	
+        	} 
         	
-        	 function abort(queryID){             	
-             	//$('#queryTable').fadeOut('fast');
-             	//$.preLoadImages("images/ajax-loader.gif");
+        	// reloads the query table after a chenge to a query was made     
+            function updateQueryTable(){
+             	if(option == 3){
+             		showQueries();
+             	}
+            }
+        	       	        	
+        	// sends the server a request to cancel a running query
+        	function abort(queryID){             	        
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("user_query_managment.php", {func: "abort", query: queryID, username: <?php echo '"'.$username.'"'?> },
              	function(data){
              		if(data.type=="GOOD"){
-             			updateTable();
+             			updateQueryTable();
              		}
              		if (data.type =="ERROR")
                      	{alert(data.result);}
              	}
              	,"json");
-                                                  	
-             }
+            }
              
+             // shows all system users, thier authorization status and info.
              function viewUsers(){             	
              	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
              	$('#queryTable').load('admin.php?viewUsers #queryTable').fadeIn("slow");         		
         	 }        	             	        
              
+             // shows pending users and option to accept/deny thier request.
              function handleRequests(){
              	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
              	$('#queryTable').load('admin.php?viewPendingUsers #queryTable').fadeIn("slow"); 	
              }
              
-             function accept(userFile){             	             	
-             	//$.preLoadImages("images/ajax-loader.gif");
+             // sends the server a request to accept a user's authorization request
+             function accept(userFile){             	             	            
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("adminFunc.php", {func: "accept",user: <?php echo '"'.$username.'"'?>, userfile: userFile},
              	function(data){
@@ -149,8 +179,8 @@
              	,"json");                                                  	
              }
              
-             function deny(userFile){             	             	
-             	//$.preLoadImages("images/ajax-loader.gif");
+             // sends the server a request to deny a user's authorization request
+             function deny(userFile){             	             	             	
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');  				
              	$.post("adminFunc.php", {func: "deny",user: <?php echo '"'.$username.'"'?>, userfile: userFile},
              	function(data){
@@ -163,6 +193,7 @@
              	,"json");                                                  	
              }
              
+             // shows system blades and their info, and option to add/remove blade and changr default blade.
              function blades(){
              	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
@@ -172,9 +203,11 @@
              	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Change default blade </u></p><p style="text-align:center">new default blade <input type="text" id="defaultBlade" size="18"/>   <input type="button" onclick="changeDefaultBlade()" value="Change"/></p>');             	                 
              }
              
+             // sends the server a request to add a new blade to config.xml
              function addBlade(){
+             	// input validation check
              	if($("#bladeA").val()=="" || $("#host").val()=="" || $("#port").val()=="" || $("#user").val()=="" || $("#db").val()=="" || $("#write-db").val()){
-             		alert("ERROR - Some parameters are empty");
+             		alert("Please complete parameters - Only password can be left empty");
              	}else{	
 	             	$.post("adminFunc.php", {func: "addBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeA").val(), host: $("#host").val(), port: $("#port").val(), bladeUser: $("#user").val(), pass: $("#pass").val(), db: $("#db").val(), writedb: $("#write-db").val()},
 	        		function(data){
@@ -191,6 +224,7 @@
         		} 
              }
              
+             // sends the server a request to remove an existing blade from config.xml
              function removeBlade(){
              	$.post("adminFunc.php", {func: "removeBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeR").val()},
         		function(data){
@@ -206,6 +240,7 @@
         		,"json");        		
              }
              
+             // sends the server a request to change the default blade on config.xml
              function changeDefaultBlade(){				
 				$.post("adminFunc.php", {func: "changeDefaultBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#defaultBlade").val()},
         		function(data){
@@ -221,15 +256,17 @@
         		,"json");             	
              }
              
+             // shows system data-tables and their info, and option to change them.
              function dataTables(){
              	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
              	$('#queryTable').load('admin.php?viewDataTables=true #queryTable').fadeIn("slow");
-             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Change data table </u></p><select id="dataTable"><option>ip-edges</option><option>pop-locations</option><option>popip</option><option>as-info</option></select> <select id="SP"><option>schema</option><option>prefix</option></select> <p style="text-align:center">new value <input type="text" id="paramValue" size="18"/>   <input type="button" onclick="changeParam()" value="Change"/></p>');
+             	$('#My_queries').append('</br><p style="color: navy;text-align:center"><u> Change data table </u></p><select id="dataTable"><option>ip-edges</option><option>pop-locations</option><option>popip</option><option>as-info</option></select> <select id="SP"><option>schema</option><option>prefix</option></select> <p style="text-align:center">new value <input type="text" id="paramValue" size="18"/>   <input type="button" onclick="changeDT()" value="Change"/></p>');
              }
              
-             function changeParam(){
-             	$.post("adminFunc.php", {func: "changeParam", user: <?php echo '"'.$username.'"'?>,dataTable : $("#dataTable").val(), SP : $("#SP").val(), paramValue : $("#paramValue").val()},
+             // sends the server a request to change data-table parameter.
+             function changeDT(){
+             	$.post("adminFunc.php", {func: "changeDT", user: <?php echo '"'.$username.'"'?>,dataTable : $("#dataTable").val(), SP : $("#SP").val(), paramValue : $("#paramValue").val()},
         		function(data){
         			if (data!=null){
         				if (data.type=="ERROR"){
@@ -240,7 +277,7 @@
         		,"json");        		
              }
              
-             // loads the parameters info and change options.
+             // loads the configurable parameters info and change options.
              function parameters(){
              	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
@@ -252,10 +289,10 @@
 							 foreach ($result as $i => $value) {
 								echo"<option>".$value->name."</option>";
 							 }
-					} ?></select> <select id="paramAttribute"><option>description</option><option>value</option><option>units</option></select> <p style="text-align:center">new value <input type="text" id="paramVal" size="18"/>   <input type="button" onclick="changeParamVal()" value="Change"/></p>');
+					} ?></select> <select id="paramAttribute"><option>description</option><option>value</option></select> <p style="text-align:center">new value <input type="text" id="paramVal" size="18"/>   <input type="button" onclick="changeParamVal()" value="Change"/></p>');
              }
-             
-             // sends the new value of the parameter to the server to change
+                          
+             // sends the server a request to change parameter value/description
              function changeParamVal(){
              	$.post("adminFunc.php", {func: "changeParamVal", user: <?php echo '"'.$username.'"'?>,param : $("#configParameter").val(), attribute : $("#paramAttribute").val(), value : $("#paramVal").val()},
         		function(data){
@@ -268,30 +305,14 @@
         		,"json");             	
              }
              
-             // change admin password
-             function password(){
-             	$('#My_queries').html('<form><h3> Change password </h3><p style="text-align:center">old password <input type="text" id="oldPass" size="18"/><p style="text-align:center">new password <input type="text" id="newPass" size="18"/><p style="text-align:center">confirm password <input type="text" id="confirmPass" size="18"/></p> <p style="color: navy;text-align:center"><input type="button" onclick="changePassword()" value="Change"/> <input type="reset"/></p></form>');            	
-             }
-             
-             function changePassword(){
-             	$.post("adminFunc.php", {func: "changePassword", user: <?php echo '"'.$username.'"'?>,oldPass : $("#oldPass").val(), newPass : $("#newPass").val(), confirmPass : $("#confirmPass").val()},
-        		function(data){
-        			if (data!=null){
-        				if (data.type=="ERROR"){
-                 			alert(data.result);
-                 		}else $('#My_queries').append('<p style="color:navy">Password updated.</p>'); 
-        			}else alert("data is null");
-                }
-        		,"json");
-             }
-             
-             function invite(){
-             	//$('#My_queries').html('</br><p style="color: navy;text-align:center"><u> Invite others to join </u></p><p style="text-align:center">Enter an email address of someone you want to invite to use the site. After his registration this user will be automatically authorized.<p style="text-align:center">Invaitee Email: <input type="text" id="email" size="18"/></br>Invaitee Name: <input type="text" id="name" size="18"/></br> <input type="button" onclick="inviteUser()" value="Invite"/> </p>');
+             // loads the form of inviting a new user to the system
+             function invite(){             	
              	$('#My_queries').html('</BR><table id="queryTable" class="imagetable" style="alignment-baseline: central"></table>');
              	$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');
              	$('#queryTable').load('admin.php?inviteUserForm #queryTable').fadeIn("slow");
              }
              
+             // sends the server a request to invite a new user
              function inviteUser(){
              	$.post("adminFunc.php", {func: "inviteUser", user: <?php echo '"'.$username.'"'?>,email: $("#inviteEmail").val(), invaitee: $("#inviteName").val(), subject: $("#inviteSubject").val(), body: $("#inviteBody").val()},
         		function(data){
@@ -304,8 +325,7 @@
         		,"json");
              }
              
-            
-              
+                          
             function pool_pq_status(pid){
             	if(globalData.pq_running==true){
             		$.post("query_backend.php", { func: "pq-status", blade: globalData.blade },
@@ -325,7 +345,7 @@
 							if(data.type == "FINISHED"){
 								globalData.pq_running==false;
 								clearInterval(globalData.interval);
-								updateTable();
+								updateQueryTable();
 								return;
 							}
 						}
@@ -350,6 +370,7 @@
     	   
     	<?php
     	
+    	// loads the table of running queries
     	if(isset($_REQUEST['viewRunningQueries'])){
     		$queries = simplexml_load_file("xml/query.xml");
 			$result = $queries->xpath('/DATA/QUERY[lastKnownStatus="running"]');
@@ -426,6 +447,7 @@
 		die();
 	}
 	
+	// loads the table of all system users
 	if(isset($_REQUEST["viewUsers"])){
 		echo '<table id="queryTable" class="imagetable" style="alignment-baseline: central">';
 		echo "<tr>";
@@ -452,6 +474,7 @@
 		die();
 	}
 	
+	// loads the table of blaes and their info
 	if(isset($_REQUEST["viewBlades"])){
 			
 		$xml = simplexml_load_file('config/config.xml');
@@ -489,7 +512,7 @@
 		die();
 	}
 	
-	
+	// loads the table of data-tables info
 	if(isset($_REQUEST["viewDataTables"])){
 													
 		$xml = simplexml_load_file("config/config.xml");
@@ -514,7 +537,8 @@
 		} else echo 'Error while retrieving data from XML.';		
 		die();
 	}
-
+	
+	// loads the table of configurable parameters
 	if(isset($_REQUEST["viewParameters"])){
 													
 		$xml = simplexml_load_file("config/config.xml");
@@ -540,6 +564,7 @@
 		die();
 	}
 	
+	// loads the form of inviting new users
 	if(isset($_REQUEST["inviteUserForm"])){
 		$subject = $MAIL_MESSAGES_MAP["invitation"]["subject"];
 		$body = str_replace('\n',PHP_EOL,$MAIL_MESSAGES_MAP["invitation"]["body"]);
