@@ -62,21 +62,15 @@
 		die();	
 	}
 	
-	// TODO: fix this!!!!! the result returns with all properties null.
 	// executing the query and checking for non-empty results 
 	function parse($mysqli,$query){
-		$res = "";
-		$strres = "";			
+		$res = "";			
 		if ($result = $mysqli->query($query)){
 			if ($result->num_rows >0){
 				return "1";
-			}		
-			$strres .= " in the if-result: ".var_dump($result);
-			// $result->num_rows.
-        	 
-        }else {$strres.= " broblem with query results ";}
+			}		        	 
+        }
 		$result->close();
-		//ret_res($strres,"GOOD");
 		return $res;
 	}
 	
@@ -120,8 +114,7 @@
 				}	
 		    }
 
-			save_xml_file($xml->asXML(),$nameXML);
-			     		     		     		    
+			$xml->asXML($nameXML);			     		     		     		    
 			$result->close();
 			$mysqli->close();   
         }else {ret_res("bad query result","ERROR");}
@@ -168,13 +161,13 @@
 			
 		// creating a new tag for the blade
 		$newBladeTag = $xml->addChild('blade');
-		$newBladeTag->addAttribute('name',$bladeParam);		
-			
-		//finding all the weeks that has all three tables	 		
+		$newBladeTag->addAttribute('name',$bladeParam.' test');		
+					 		
 		$weeks[] = array();
 		//unset($weeks);
 		$maxYear = date('Y');	
 
+		//finding all the weeks that has all three tables
 		for($year=2008;$year<=$maxYear;$year++){ 	
 			for($week=1;$week<53;$week++){
 					
@@ -204,7 +197,7 @@
 			unset($weeks);
 		}
 		// saving the file, closing connection to DB.
-		save_xml_file($xml,$nameXML);
+		$xml->asXML($nameXML);
 		$mysqli->close();
 		ret_res('done',"GOOD");
 	}
@@ -348,7 +341,7 @@
 			$newBlade->addChild('write-db', $writedb);
 			$xml->asXML('config/config.xml');			
 		}else ret_res('cant add blade to file',"ERROR");
-		// updateWeeks($blade);
+		updateWeeks($blade);
 	}
 	
 	// removing a blade from config/config.xml
@@ -406,7 +399,7 @@
 	 }
 	
 	// chanchig a data-table parameter at config/config.xml
-	if($_POST["func"]=="changeParam")
+	if($_POST["func"]=="changeDT")
 	{
 		$dataTable = $_POST["dataTable"];
 		$SP = $_POST["SP"];
