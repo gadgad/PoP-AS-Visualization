@@ -638,18 +638,18 @@
 										if($fileSize > LargeKMLFileAlert ){
 											$alertMsg = "'This file size is ".round($fileSize,2)." MB. Openning it can take a long time. are you sure?'";
 											$QID = "'".$result[$i]->queryID."'";
-											echo '<form><input type="submit" id=QstatusC value="Completed" onClick="if(confirm('.$alertMsg.')){visualFrontend('.$QID.');}"';	
-										}else echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"'; 	
-									}								
-								}
-								echo '/></form>';
+											echo '<button type="submit" id=QstatusC value="Completed" onClick="if(confirm('.$alertMsg.')){visualFrontend('.$QID.');}">Completed</button>';	
+										}else echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"/></form>';; 	
+									}else $fileSize = 0;																	
+								}else echo 'error';
+								
 							}elseif ($result[$i]->lastKnownStatus=="error"){
 								echo '<button type="submit" onclick="resendQuery(this.value)" value="'.$result[$i]->queryID.'">RUN</button>';																			
 							}else {
 								echo 'unknown status';
 							}
 							echo "</td>";
-							echo "<td>".(($result[$i]->lastKnownStatus=="completed")?'<FORM><INPUT TYPE="BUTTON" VALUE="download" ONCLICK="window.location.href=\'queries/'.$result[$i]->queryID.'/result.kmz\'"></FORM>':'')."</td>";
+							echo "<td>".(($result[$i]->lastKnownStatus=="completed")?'<FORM><INPUT TYPE="BUTTON" VALUE="download" title="'.round($fileSize,2).' Mb" ONCLICK="window.location.href=\'queries/'.$result[$i]->queryID.'/result.kmz\'"></FORM>':'')."</td>";
 							echo '<td><button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';											
 							echo "</tr>";
 						} 
