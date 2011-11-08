@@ -649,7 +649,7 @@
 								echo 'unknown status';
 							}
 							echo "</td>";
-							echo "<td>".(($result[$i]->lastKnownStatus=="completed")?'<FORM><INPUT TYPE="BUTTON" VALUE="download" ONCLICK="window.location.href=\'queries/'.$result[$i]->queryID.'/result.kmz\'"></FORM>':'')."</td>";
+							echo "<td>".(($result[$i]->lastKnownStatus=="completed")?'<FORM><INPUT TYPE="BUTTON" VALUE="download" title="'.round($fileSize,2).' Mb" ONCLICK="window.location.href=\'queries/'.$result[$i]->queryID.'/result.kmz\'"></FORM>':'')."</td>";
 							echo '<td><button type="submit" onclick="abort(this.value)" value="'.$result[$i]->queryID.'">X</button></td>';											
 							echo "</tr>";
 						} 
