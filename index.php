@@ -640,7 +640,7 @@
 											$QID = "'".$result[$i]->queryID."'";
 											echo '<button type="submit" id=QstatusC value="Completed" onClick="if(confirm('.$alertMsg.')){visualFrontend('.$QID.');}">Completed</button>';	
 										}else echo '<form method="get" action="visual_frontend.php" target="_blank"><input name="QID" type="hidden" value="'.$result[$i]->queryID.'"/><input type="submit" id=QstatusC value="Completed"/></form>';; 	
-									}																	
+									}else $fileSize = 0;																	
 								}else echo 'error';
 								
 							}elseif ($result[$i]->lastKnownStatus=="error"){
