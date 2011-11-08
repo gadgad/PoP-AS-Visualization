@@ -469,8 +469,6 @@ class kmlWriter
 			$this->flushToDisk(false);	
 		}
 		$this->kmlString.="</Folder>\n\n";
-		
-		//$this->kmlString.=(!BLACK_BACKGROUND)? '':"<Folder><name>Black Background</name>\n<GroundOverlay>\n<name>Blank Earth</name>\n<Icon>\n<href>files\untitled.bmp</href>\n<viewBoundScale>0.75</viewBoundScale>\n</Icon>\n<LatLonBox>\n<north>90</north>\n<south>-90</south>\n<east>180</east>\n<west>-180</west>\n</LatLonBox>\n</GroundOverlay>\n</Folder>\n";
 	
 		$this->kmlString .= $kml_footer;
 		$this->flushToDisk(true);
@@ -479,21 +477,19 @@ class kmlWriter
 	
 	public function writeKMZ($userSpecific)
 	{
-		
+		// generate KML doc file
 		$this->generateKML();
 		
-		// generate the .kmz file
+		// compress result & generate the result.kmz file
 		$zip = new ZipArchive();
 		$zip_filename = ($this->kml_dst_dir.'/'.(($userSpecific)? ($GLOBALS["username"].'-'):'').'result.kmz');
 		$this->filename = $zip_filename;
-		
 		if ($zip->open($zip_filename, ZIPARCHIVE::CREATE)!==TRUE) {
 		   exit("cannot open <$zip_filename>\n");
 		}
 		$zip->addFile($this->tempFileName,"doc.kml");
-		//if(BLACK_BACKGROUND) $zip->addFile('images/black.bmp','files/untitled.bmp');
-		//echo "numfiles: " . $zip->numFiles . "\n";
 		$zip->close();
+		
 		// finally, delete the original .kml file
 		unlink($this->tempFileName);
 		return true;

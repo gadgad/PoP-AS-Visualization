@@ -1,7 +1,7 @@
 <?php
 
 	/*
-	 * loging off and planting a cookie at the user. 
+	 * loging off and expiring the cookie at the client's browser. 
 	 */
 	session_start();
 	session_destroy();

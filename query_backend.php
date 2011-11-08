@@ -79,34 +79,10 @@
 		$query3 = "'".$table."\_".$year."\_".$week."'";		
 		$query4 = "'".$table."\_".$year."\_".$week."\_%'";					
 		
-		$query = "select TABLE_NAME from INFORMATION_SCHEMA.TABLES WHERE table_schema='DIMES_DISTANCES' and (table_name like ".$query1." or table_name like ".$query2." or table_name like ".$query3." or table_name like ".$query4.")";
+		$query = "select TABLE_NAME from INFORMATION_SCHEMA.TABLES WHERE table_schema='".$DEFAULT_SCEHMA."' and (table_name like ".$query1." or table_name like ".$query2." or table_name like ".$query3." or table_name like ".$query4.")";
 		$res = parse($mysqli,$query);
 		return $res;        
 	}
-	
-	/*
-	function xml_change_status($qid,$new_status)
-	{
-		$queryID = $qid;
-		$filename = "xml/query.xml";
-		$queries = simplexml_load_file($filename);
-		$result = $queries->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
-		$tableID = (string)$result[0]->tableID;
-		$result2 = $queries->xpath('/DATA/QUERY[tableID="'.$tableID.'"]');
-		foreach($result2 as $rs){
-			$rs->lastKnownStatus=$new_status;
-		}
-		$queries->asXML($filename);
-	}
-	
-	function xml_change_RunningStatus($qid,$new_status_id)
-	{
-		$queryID = $qid;
-		$result = $this->queryXML->xpath('/DATA/QUERY[queryID="'.$queryID.'"]');
-		$result[0]->lastRunningState=$this->getStatusMsg($new_status_id);
-		$this->queryXML->asXML($this->queryFilename);
-	}
-	*/
 	
 	// tests the connection to the DB
 	if($_POST["func"]=="testConnection")

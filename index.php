@@ -538,7 +538,7 @@
 		                            foreach($Blades as $blade)
 	                                {
 	                                    $name = $blade["@attributes"]["name"];
-	                                    if($name!="" && $Blade_Map[$name]["db"]=="DIMES_DISTANCES"){
+	                                    if($name!="" && $Blade_Map[$name]["db"]==$DEFAULT_SCEHMA){
 	                                    	echo "<option>$name</option>";
 											/*if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
 	                                            echo '<option selected="selected">'.$name.'</option>';												

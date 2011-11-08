@@ -512,6 +512,7 @@ $COLOR_LIST = $cm->getColorList();
                 defaults: {
 				    collapsible: true,
 				    split: true,
+				    autoScroll: true
 				    //bodyStyle: 'padding:15px'
 				},
                 items: [ northPanel, controlPanel, earthPanel ]

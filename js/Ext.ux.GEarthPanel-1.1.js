@@ -63,8 +63,6 @@ Ext.ux.GEarthPanel = Ext.extend(Ext.Panel, {
         this.kmlTreePanel = new Ext.tree.TreePanel({
         	xtype: 'treepanel',
         	autoScroll: true,
-        	//containerScroll: true,
-        	//ddScroll: true,
         	height: 400,
             border: false,
             bodyStyle: 'padding-bottom: 15px',
