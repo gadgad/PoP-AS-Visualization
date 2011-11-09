@@ -1,4 +1,8 @@
 <?php
+/*
+ *  a wrraper class for the mysqli driver with some basic error handling abilities
+ *  serves as a unified interface for accessing the DB 
+ */
 	require_once('bin/load_config.php');
 	
 	class DBConnection extends mysqli {

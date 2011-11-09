@@ -1,4 +1,10 @@
 <?php
+/*
+ *  this file serves as the main visual-frontend
+ *  of the system. final results are displayed using google earth plugin
+ *  and basic tweaking functionality of various parameters
+ *  is also included (accessible from the lefthand panel). 
+ */
 require_once('verify.php');
 require_once('bin/load_config.php');	
 require_once("bin/idgen.php");
@@ -6,6 +12,7 @@ require_once('bin/userData.php');
 require_once('bin/color.php');
 require_once('bin/colorManager.php');
 
+ // initialize server-side globals
 $queryID = isset($_REQUEST["QID"])? $_REQUEST["QID"] : '0b6f948d14f516e52dbe6f469a8dbbaf';
 
 include_once("bin/kml_render_globals.php");
@@ -16,7 +23,6 @@ $userFilename = 'queries/'.$idg->getDirName().'/'.$GLOBALS["username"].'-result.
 if(file_exists($userFilename))
 	$filename = $userFilename;
 
-//$isWin = stristr(PHP_OS, 'WIN');
 $base_url = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']).'/';
 $full_url = $base_url.$filename."?".rand(0,10000000000);
 $full_user_url = $base_url.$userFilename."?".rand(0,10000000000);
@@ -67,21 +73,16 @@ $COLOR_LIST = $cm->getColorList();
     
     <script type="text/javascript">
     	
+    	// client-side globals
     	var ge;
     	var QID = '<?php echo $queryID; ?>';
-    	//var as_list = eval('<?php //echo json_encode($cm->getASList()); ?>');
 
+		// load google earth plugin libraries 
         google.load("earth", "1");
         google.load("maps", "2.xx");
         
+        
         Ext.onReady(function(){
-        	
-        	/*
-        	Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
-        		expires: new Date(new Date().getTime()+(1000*60*60*24*365)), //1 year from now
-        	}));
-        	*/
-
 
             // Create Google Earth panel
             var earthPanel = new Ext.ux.GEarthPanel({
@@ -109,13 +110,15 @@ $COLOR_LIST = $cm->getColorList();
                     bodyStyle: 'padding: 10px',
                 }
             });
-
+			
+			// create 'download kml file' panel
             var downloadPanel = new Ext.Panel({
 				contentEl: 'downloadPanel',
 				border: false,
 				defaultType: 'panel'	
 			});
 			
+			// create Dimes header panel
 			var northPanel = new Ext.Panel({
 				region: 'north',
 				contentEl: 'northPanel',
@@ -127,19 +130,15 @@ $COLOR_LIST = $cm->getColorList();
 				collapsible: false,
 				split: false
 			});
-			
-			/*
-			var globalsPanel = new Ext.Panel({
-				title: 'Kml Renderer Options',
-				autoLoad: {url: 'extjs_form.php',scripts:true, params: 'queryID=<?php echo $queryID; ?>'}
-			});
-			*/
 		    
-			
+			// create asn-color preferences panel
 			function getColorPanel(){
 				
+				// num of ASN's per grid-page
 				var page_size = 10;
 
+				// load user color-preferences from colorManager
+				// extract ISP / Country from as_info.xml
 				var myData = [
 					<?php
 						$as_list = $cm->getASList();
@@ -157,16 +156,8 @@ $COLOR_LIST = $cm->getColorList();
 						}
 					?>
 			    ];
-			    
-			    /*
-			    var myShortData = [];
-			    for(var i=0; i<myData.length; i++){
-			    	if($.inArray(myData[i][0],as_list)!=-1){
-			    		myShortData.push(myData[i]);
-			    	}
-			    }
-			    */
 				
+				// aider functions for rendering the grid with colorPicker widgets
 				var createWidget = function(val, id, r) {
 			        var cpf = new Ext.ux.ColorPickerField({
 				        //fieldLabel: '',
@@ -252,15 +243,16 @@ $COLOR_LIST = $cm->getColorList();
 			        //bbar: submitToolBar
 			    });
 			    
-			    //show only relevant ASNs
+			    
     			store.on('load', function(obj,records){
     				/*
+					//show only relevant ASNs
 					store.filterBy(function(record,id){
 	    				return ($.inArray(parseInt(id), as_list) != -1);
-	    				//return true;
 	    			});
 	    			*/
 					
+					// show paging bar if numOfRecords bigger than pageSize
 					var pagingTbar = asnPanel.getTopToolbar(); 
 	    			if(store.getCount() >= page_size){
 	    				//pagingTbar.enable();
@@ -279,6 +271,7 @@ $COLOR_LIST = $cm->getColorList();
     			
     			//////////////////////////////////////////////////
     			
+    			// creating lower section of the panel
     			var intraColor = '<?php echo EDGES_INTRA_COLOR; ?>';
     			var interColor = '<?php echo EDGES_INTER_COLOR; ?>';
     			var bySrcAS = <?php echo ((EDGES_COLORING_SCHEME=='bySrcAS')? 'true':'false'); ?>;
@@ -334,7 +327,8 @@ $COLOR_LIST = $cm->getColorList();
 		        });
     			/////////////////////////////////////////////////
     			var form = edgesPanel.getForm();
-    			    			
+    			
+    			// create lower tool bar with 'save changes' / 'save as default' buttons			
 				var submitToolBar = new Ext.Toolbar ({
 					items:	[{
 								pressed: false,
@@ -389,6 +383,7 @@ $COLOR_LIST = $cm->getColorList();
 			        		}]
 		        });
 				
+				// create a unified panel from both parts
     			var colorsPanel = new Ext.Panel({
 		            title: 'Color Management',
 			        border: false,
@@ -402,6 +397,7 @@ $COLOR_LIST = $cm->getColorList();
 			    return colorsPanel;
 			}
 			
+			// create kml-render-options panel
 			function  getGlobalsPanel(){
 		
 				var globalParams = {
@@ -495,6 +491,7 @@ $COLOR_LIST = $cm->getColorList();
 		        return globalsPanel;
 		    }
 		    
+		    // discard previous loaded KML data, and fetch the new one
 		    function reloadKML(){
 		    	earthPanel.resetKml();
 		    	first_time = true;
@@ -536,7 +533,7 @@ $COLOR_LIST = $cm->getColorList();
                 controlPanel.items.items[0].add(downloadPanel);
                 controlPanel.doLayout();
                 
-               
+               // remove the networkLink used for 'flyToView' effect 
                 ge = earthPanel.earth;
                 first_time = true;
 				google.earth.addEventListener(ge.getView(), 'viewchangeend', function() {
@@ -545,7 +542,8 @@ $COLOR_LIST = $cm->getColorList();
 						first_time = false;
 					}
 				});
-                
+           		
+           		// disable black background & expand the 'PoP Map' tree-view      
                 first_time2 = true;
 				google.earth.addEventListener(ge.getView(), 'viewchangebegin', function() {
 					if(first_time2){

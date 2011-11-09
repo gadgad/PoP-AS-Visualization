@@ -1,5 +1,9 @@
 <?php
-
+/* 
+ * represents a single color (by red,green,blue & alpha values)
+ * values can eitgher be set manually by the user or chosen randomly
+ * supports two types of output formats (web-format/google-maps-format).
+ */
 class Color
 {
 	public $trans;
@@ -100,6 +104,10 @@ class Color
 	}
 }
 
+/*
+ * a random-color-picker for 'web-safe' colors only
+ * this interface is no longer being used..
+ */
 class ColorPicker
 {
 	public $safe_colors;

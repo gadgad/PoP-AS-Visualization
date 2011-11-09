@@ -1,5 +1,9 @@
 <?php
-	
+	/*
+	 * this interface is used for reading xml files
+	 * that were written using the xmlWriter interface
+	 * interface supprot reading of split xml files
+	 */
     class XMLChunkReader {
     	private $dir;
 		private $basePath;

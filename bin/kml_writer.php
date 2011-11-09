@@ -1,4 +1,9 @@
 <?php
+/*
+ * this class is responsible for generating the kml file
+ * according to the user-defined preferences
+ * and save the result to disk (in a compressed kmz file)
+ */
 require_once("bin/load_config.php");
 require_once("bin/color.php");
 require_once("bin/idgen.php");

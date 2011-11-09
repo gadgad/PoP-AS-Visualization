@@ -1,4 +1,8 @@
 <?php
+/*
+ *  this main script is invoked as a backround task
+ *  and process newly generated queries up until completion
+ */
 	error_reporting(E_ERROR);
 
     require_once("bin/xml_writer.php");

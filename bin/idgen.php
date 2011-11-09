@@ -1,4 +1,9 @@
 <?php
+/*
+ * a unified class for generating all 
+ * the necessary identifiers in the system
+ * TableID, QueryID etc...
+ */
     class idGen
     {
     	private $edgeTbl;

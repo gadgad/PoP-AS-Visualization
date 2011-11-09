@@ -1,5 +1,7 @@
 <?php
-
+/*
+ * library util for common procedures & functions
+ */
 	function curPageURL() {
 		$pageURL = 'http';
 		if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}

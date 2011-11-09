@@ -1,4 +1,7 @@
 <?php
+/* 
+ * initializes default values for all KML render parameters.
+ */
 	$username = isset($_COOKIE['username'])? $_COOKIE['username'] : $_SESSION['username'];
 	$session = new userData($username,$queryID);
 	

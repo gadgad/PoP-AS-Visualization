@@ -1,8 +1,14 @@
 <?php
+/*
+ * this file serves as the server-side (backend) for visual_frontend.php
+ *  main functionality is to invoke re-rendering of kml files when the user 
+ *  choose the "save changes" option.
+ */
 	require_once("verify.php");
 	require_once('bin/colorManager.php');
 	require_once("bin/kml_writer.php");
 	
+	// used to send data back to the client as json formatted string
 	function ret_res($message, $bol)
 	{
 		header('Content-type: application/json');
@@ -17,10 +23,16 @@
 		ret_res('missing parameters!','ERROR');
 	
 	$queryID = $_REQUEST['queryID'];
+	
+	// initialize colorManager - interface is used for saving & restoring 
+	// user color preferences between sessions  
 	$cm = new colorManager($username,$queryID);	
 	
+	// invoke re-rendering of kml file according to
+	// user preferences when 'save changes' button is clicked
 	if($_REQUEST["func"]=="renderKML"){
 		
+		// check validity of request
 		if(!isset($_POST["panel"])) ret_res('missing parameters!',false);
 		
 		if($_POST["panel"] == 'edges'){
@@ -41,15 +53,18 @@
 			}
 		}
 		
+		// re-write kml file (user updated prefrences are directly referenced
+		// from inner-implementation).
 	    $kmlWriter = new kmlWriter($queryID);
 		if($kmlWriter->writeKMZ(true))
 		{
-			//$filename=$kmlWriter->getFileName();
 			ret_res('kml file rendered successfully',true);
 		}
 		ret_res('problem rendering kml file...',false);
 	}
 	
+	// returns a list of ASN's and their current assocciated colors
+	// (as was saved on the server from the last 'save changes' event)
 	if($_REQUEST["func"]=="getASNColorList")
 	{
 		$COLOR_LIST = $cm->getColorList();
@@ -64,6 +79,8 @@
 		die();
 	}
 	
+	// store the user asn-coloring preferences
+	// on the server for later retrieval (by the above function)
 	if($_REQUEST["func"]=="submitColorPrefs")
 	{
 		$color_string = $_REQUEST["color_string"];

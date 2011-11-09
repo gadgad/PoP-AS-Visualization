@@ -1,4 +1,10 @@
 <?php
+/*
+ * colorManager Class
+ * provided methods for loading & storing 
+ * (user-specific & global) ASN color associations
+ * as persistent objects on the server-side . 
+ */
 	require_once("bin/color.php");
 	require_once("bin/userData.php");
 	

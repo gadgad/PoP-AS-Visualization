@@ -1,4 +1,8 @@
 <?php
+/*
+ * loading configuration parameters from config.xml
+ * into global variables / defines 
+ */
 	require_once("xml2array.php");
 	
 	$xml_filename = "config/config.xml";

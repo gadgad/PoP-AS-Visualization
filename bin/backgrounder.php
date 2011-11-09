@@ -1,5 +1,9 @@
 <?php
-
+/*
+ * The following library Util is used for invoking PHP Scripts
+ * direclty from the shell, independent from the Web-Server
+ * This is used for creating backround tasks
+ * */
 class Backgrounder
 {
 	private $isWin;
@@ -46,6 +50,7 @@ class Backgrounder
 		}
 	}
 	
+	// run cmd command as a seperate task in the background
 	public function run(){
 	
 		if($this->isRunning()){
@@ -66,6 +71,7 @@ class Backgrounder
 		return $status;
 	}
 	
+	// extract last lines from the task's log
 	private function extract_lastLogLines($lines){
 		if($this->isWin){
 			$line = '';
@@ -102,6 +108,7 @@ class Backgrounder
 		}
 	}
 	
+	// get PID for the running task
 	private function extract_pid(){
 		static $counter = 0;
 		while(!file_exists($this->pid_filename) && $counter < 3){
@@ -146,15 +153,18 @@ class Backgrounder
 		return -1;
 	}
 	
+	// get time of last invokation
 	public function getLastRunTime(){
 		return  (time()-$this->lastRunTime);
 	}
 	
+	// extract last lines from the task's log
 	public function getLastLogLines($lines){
 		$this->extract_lastLogLines($lines);
 		return $this->lastLogLine;
 	}
 	
+	// check if the task is still running
 	public function isRunning(){
 		$pid = (func_num_args()==1)? func_get_arg(0) : $this->pid;
 	    try{
@@ -169,6 +179,7 @@ class Backgrounder
 	    return false;
 	}
 	
+	// a posix implementation of the above function (linux only)
 	public function posix_isRunning(){
 		$pid = (func_num_args()==1)? func_get_arg(0) : $this->pid;
 		$running=posix_kill($pid, 0);
@@ -177,6 +188,7 @@ class Backgrounder
     	return $running;		
 	}
 	
+	// a caller of this function will block untill task is finished
 	// optional parameters: [sleepInterval], [pid]
 	public function waitpid(){
 		$sleepTime = 5; // sec
@@ -197,39 +209,5 @@ class Backgrounder
 		
 	}
 }
-
-/*
-function win_backgrounder($cmd,$id,$qid)
-{
-    chdir( dirname ( __FILE__ ) );
-    chdir ('../');
-	$thisdir = str_replace('\\','/',getcwd());
-	$shelldir = $thisdir."/shell";
-	
-    $bat_filename = $shelldir."/".$id."_run.bat";
-	$bat_log_filename = $shelldir."/".$id.'-'.$qid.'.log';
-	$bat_file = fopen($bat_filename, "w");
-	if($bat_file) {
-	    fwrite($bat_file, "@echo off"."\n");
-	    fwrite($bat_file, "echo Starting proces >> ".$bat_log_filename."\n");
-	    fwrite($bat_file, "php ".$shelldir."/".$cmd." >> ".$bat_log_filename."\n");
-	    fwrite($bat_file, "echo End proces >> ".$bat_log_filename."\n");
-	    fwrite($bat_file, "EXIT"."\n");
-	    fclose($bat_file);
-	}
-	           
-	//
-	// Start the process in the background
-	//
-	$exe = "start /b ".$bat_filename;
-	if( pclose(popen($exe, 'r')) ) {
-		unlink($bat_filename);
-	    return true;
-	}
-	return false;
-}
- * 
- */
-
 
 ?>

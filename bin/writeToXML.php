@@ -1,4 +1,7 @@
 <?php 
+/*
+ * function is used for adding new entries to query.xml
+ */
 require_once('bin/save_xml.php');
 function AddQuery($queryID,$tableID,$year,$week,$usertoadd,$EdgeTbl,$PopTbl,$PopLocTbl,$ASnum,$allAS,$blade) 
 {

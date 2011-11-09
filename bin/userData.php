@@ -1,4 +1,9 @@
 <?php
+/*
+ * Session-Management on server-side
+ * using this interface user selections & preferences 
+ * can be serialized and saved to disk for later retrieval
+ */
     class userData {
     	public $user_data;
 		private $username;

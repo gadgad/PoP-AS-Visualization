@@ -1,4 +1,11 @@
 <?php
+	/*
+	 * interface is used for fetching information from the MySQL DB
+	 * and write it into disk as xml files.
+	 * class is designed to effectivly split the
+	 * file into equal size chunks, iff the file is bigger than
+	 * some pre-defined threshold.
+	 */
     require_once("bin/load_config.php");
     require_once("bin/idgen.php");
 	require_once("bin/DBConnection.php");

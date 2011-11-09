@@ -1,4 +1,10 @@
 <?php
+/*
+ * aider function used for parsing arguments
+ * that are passed through command line 
+ * used in php scripts which are 
+ * directly invoked from the shell
+ */
 function parseArgs($argv){
     array_shift($argv);
     $out = array();

@@ -1,4 +1,10 @@
 <?php
+/*
+ * this script is invoked as a background job
+ * when new tables needs to be built for
+ * a query on the MySQL DB.
+ * 
+ */
 	require_once("bin/DBConnection.php");
 	
 	function myFlush (){

@@ -1,4 +1,10 @@
 <?php
+/*
+ * queryManager class
+ * this interface is used for acquiring the latest running status
+ * of each query, and update the status to a different value
+ * if needed.
+ */
 	require_once("bin/load_config.php");
     require_once("bin/idgen.php");
 	require_once("bin/DBConnection.php");
