@@ -18,5 +18,10 @@ sudo rename .local .xml users/*.local
 cd queries
 sudo rename .local .kmz `find . -name *.local`
 cd ..
+if [ ! -f update_src.cmd ]
+then
+    sudo mv -f update_src.bak update_src.cmd
+fi
 sudo chmod -R 777 config data queries shell users xml mail_log update_src.cmd
+
 
