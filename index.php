@@ -538,7 +538,7 @@
 		                            foreach($Blades as $blade)
 	                                {
 	                                    $name = $blade["@attributes"]["name"];
-	                                    if($name!="" && $Blade_Map[$name]["db"]==$DEFAULT_SCEHMA){
+	                                    if($name!="" && $Blade_Map[$name]["db"]==$GLOBALS["DEFAULT_SCHEMA"]){
 	                                    	echo "<option>$name</option>";
 											/*if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
 	                                            echo '<option selected="selected">'.$name.'</option>';												

@@ -79,7 +79,7 @@
 		$query3 = "'".$table."\_".$year."\_".$week."'";		
 		$query4 = "'".$table."\_".$year."\_".$week."\_%'";					
 		
-		$query = "select TABLE_NAME from INFORMATION_SCHEMA.TABLES WHERE table_schema='".$DEFAULT_SCEHMA."' and (table_name like ".$query1." or table_name like ".$query2." or table_name like ".$query3." or table_name like ".$query4.")";
+		$query = "select TABLE_NAME from INFORMATION_SCHEMA.TABLES WHERE table_schema='".$GLOBALS["DEFAULT_SCHEMA"]."' and (table_name like ".$query1." or table_name like ".$query2." or table_name like ".$query3." or table_name like ".$query4.")";
 		$res = parse($mysqli,$query);
 		return $res;        
 	}

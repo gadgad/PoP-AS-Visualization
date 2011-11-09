@@ -33,7 +33,7 @@
 		$Blade_Map[$name] = $blade;
 		if(isset($blade["@attributes"]["default"]) && ($blade["@attributes"]["default"] == "true")){
 			$DEFAULT_BLADE = $name;
-			$DEFAULT_SCEHMA = $blade["db"];
+			$DEFAULT_SCHEMA = $blade["db"];
 		}
 		if($blade["db"]==$DataTables["as-info"]["schema"])
 			$AS_INFO_DEFAULT_BLADE = $name;
