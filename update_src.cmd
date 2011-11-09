@@ -15,10 +15,8 @@ sudo mv	-f config/config.backup	config/config.xml
 sudo rename .local .xml xml/*.local
 sudo rename .local .data data/*.local
 sudo rename .local .xml users/*.local
+sudo rename .local .kmz kml/*.local
 cd queries
-sudo rename .local .kmz `find . -name *.local`
-cd ..
-cd kml
 sudo rename .local .kmz `find . -name *.local`
 cd ..
 if [ ! -f update_src.cmd ]
@@ -26,5 +24,3 @@ then
     sudo mv -f update_src.bak update_src.cmd
 fi
 sudo chmod -R 777 config data queries shell users xml mail_log update_src.cmd
-
-
