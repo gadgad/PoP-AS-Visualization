@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <config>
 	
 	<config-parameters>
@@ -100,11 +100,11 @@
 		please don't forget to update weeks.xml from the admin page aswell!
 	-->
 	<blades>
-		<blade name="B4_local" default="true">
+		<blade name="B4_local">
 			<host>b4.evergrow.iucc.ac.il</host>
 			<port>3306</port>
 			<user>codeLimited</user>
-			<pass></pass>
+			<pass/>
 			<db>DIMES_DISTANCES</db>
 			<write-db>DIMES_POPS_VISUAL</write-db>
 		</blade>
@@ -112,15 +112,15 @@
 			<host>b1.evergrow.iucc.ac.il</host>
 			<port>3306</port>
 			<user>codeLimited</user>
-			<pass></pass>
+			<pass/>
 			<db>DIMES</db>
 			<write-db>DIMES_PLAYGROUND</write-db>			
 		</blade>
-		<blade name="B4">
+		<blade name="B4" default="true">
 			<host>127.0.0.1</host>
 			<port>5554</port>
 			<user>codeLimited</user>
-			<pass></pass>
+			<pass/>
 			<db>DIMES_DISTANCES</db>
 			<write-db>DIMES_POPS_VISUAL</write-db>
 		</blade>
@@ -128,7 +128,7 @@
 			<host>127.0.0.1</host>
 			<port>5551</port>
 			<user>codeLimited</user>
-			<pass></pass>
+			<pass/>
 			<db>DIMES</db>
 			<write-db>DIMES_PLAYGROUND</write-db>			
 		</blade>

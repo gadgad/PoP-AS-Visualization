@@ -130,7 +130,7 @@
 	function updateWeeks($bladeParam) 
 	{
 		// setting connection parameters
-		$blade = $Blade_Map[$bladeParam];
+		$blade = $GLOBALS["Blade_Map"][$bladeParam];
 		$host = (string)$blade["host"];
 		$port = (int)$blade["port"];
 		$user = (string)$blade["user"];
@@ -320,12 +320,26 @@
 	{
 		$blade =  $_POST["blade"];
 		$host =  $_POST["host"];
-		$port =  $_POST["port"];
+		$port =  intval($_POST["port"]);
+		$hostNport = $host.":".((string)$port);
 		$bladeUser =  $_POST["bladeUser"];
 		$pass =  $_POST["pass"];
 		$db =  $_POST["db"];
 		$writedb =  $_POST["writedb"];
-				
+		
+		// test connection for new blade
+		if(isset($pass) && $pass!=""){
+			$linkID = mysql_connect($hostNport, $bladeUser, $pass);
+		} else {
+			$linkID = mysql_connect($hostNport, $user);
+		} 
+		if(!isset($linkID) || $linkID==false){
+			ret_res("Could not connect to blade. verify config parameters (host:$host port:$port user:$bladeUser pass:$pass)", "ERROR");
+		}
+		mysql_select_db($db, $linkID) or ret_res("Could not find database. verify config parameters (database:$db)", "ERROR");
+		mysql_close($linkID);
+		
+		
 		$xml = simplexml_load_file('config/config.xml');							
 		$blades = $xml->xpath('/config/blades');		
 		if($blades!=FALSE)
@@ -339,8 +353,11 @@
 			$newBlade->addChild('pass', $pass);
 			$newBlade->addChild('db', $db);
 			$newBlade->addChild('write-db', $writedb);
-			$xml->asXML('config/config.xml');			
+			//$xml->asXML('config/config.xml');	
+			save_xml_file($xml->asXML(),'config/config.xml');		
 		}else ret_res('cant add blade to file',"ERROR");
+		
+		$GLOBALS["Blade_Map"][$blade] = array("host"=>$host,"port"=>$port,"user"=>$bladeUser,"pass"=>$pass,"db"=>$db,"write-db"=>$writedb);
 		updateWeeks($blade);
 	}
 	

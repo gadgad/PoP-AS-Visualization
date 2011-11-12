@@ -206,16 +206,18 @@
              // sends the server a request to add a new blade to config.xml
              function addBlade(){
              	// input validation check
-             	if($("#bladeA").val()=="" || $("#host").val()=="" || $("#port").val()=="" || $("#user").val()=="" || $("#db").val()=="" || $("#write-db").val()){
+             	if($("#bladeA").val()=="" || $("#host").val()=="" || $("#port").val()=="" || $("#user").val()=="" || $("#db").val()=="" || $("#write-db").val()==""){
              		alert("Please complete parameters - Only password can be left empty");
-             	}else{	
+             	}else{
+					$('#queryTable').html('<p><img src="images/ajax-loader.gif"/></p>');	
 	             	$.post("adminFunc.php", {func: "addBlade", user: <?php echo '"'.$username.'"'?>, blade: $("#bladeA").val(), host: $("#host").val(), port: $("#port").val(), bladeUser: $("#user").val(), pass: $("#pass").val(), db: $("#db").val(), writedb: $("#write-db").val()},
 	        		function(data){
 	        			if (data!=null){
 	        				if (data.type=="ERROR"){
 	                 			alert("Error while adding blade: " + data.result);
+	                 			$('#queryTable').load('admin.php?viewBlades=true #queryTable').fadeIn("slow");
 	                 		}else {
-	                 			blades();
+	                 			$('#queryTable').load('admin.php?viewBlades=true #queryTable').fadeIn("slow");
 	                 			$('#My_queries').append('<p style="color:navy">The Blade was added to config.xml.</p>');                 			
 	                 		}
 	        			}else alert("data is null");
