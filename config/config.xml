@@ -1,156 +1,156 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
 	
-	<config-parameters>
-		<parameter>
-			<name>processQueriesTimeInterval</name>
-			<description>this will determine the 'cool off' period between invokations of the 'process queries' script.\n this script scans and refreshes the status of queries in the 'running' state untill they are completed\n</description>
-			<units>minutes</units>
-			<value>1</value>
-		</parameter>
-		<parameter>
-			<name>DBMaxConnctionAttempts</name>
-			<description>max number of connection attempts to be made when server replies with error code 2006/2013 (SQL server has gone away..)</description>
-			<units>db-connections</units>
-			<value>10</value>
-		</parameter>
-		<parameter>
-			<name>fetchXMLRecordsPagingBufferSize</name>
-			<description>max number of records that will be fetched from db on each cycle during the 'fetching xml' stage</description>
-			<units>db-records</units>
-			<value>1000</value>
-		</parameter>
-		<parameter>
-			<name>renderKMLMemoryBufferSize</name>
-			<description>max number of Bytes of the generated KML string, that will be held in memory on any given moment, during the 'render kml' stage.\n when this limit is reached, kml string is dumped to disk.</description>
-			<units>Bytes</units>
-			<value>4096</value>
-		</parameter>
-		<parameter>
-			<name>fetchXMLMemoryBufferSize</name>
-			<description>max number of Bytes of the generated XML string, that will be held in memory on any given moment, during the 'fetch xml' stage.\n when this limit is reached, xml string is dumped to disk.</description>
-			<units>Bytes</units>
-			<value>4096</value>
-		</parameter>
-		<parameter>
-			<name>fetchXMLChunkSize</name>
-			<description>xml files bigger than this value will be splitted into smaller pieces.</description>
-			<units>MB's</units>
-			<value>50</value>
-		</parameter>
-		<parameter>
-			<name>EdgeDetailsNumOfRecords</name>
-			<description>The number of records presented at the link table.</description>
-			<units>records</units>
-			<value>100</value>
-		</parameter>
-		<parameter>
-			<name>LargeKMLFileAlert</name>
-			<description>from this file size the user will be allerted when openning the visual frontend.</description>
-			<units>MB's</units>
-			<value>1</value>
-		</parameter>
-	</config-parameters>
-	
-	<mail>
-		<site-url>http://b6.evergrow.iucc.ac.il/PoPVisualizer</site-url>
-		<from>PoPVisualizer_DoNotReply@post.tau.ac.il</from>
-		<message>
-			<type>invitation</type>
-			<subject>PoP/AS Visualizer Invitation</subject>
-			<body>You are invited to the PoP-AS visualization website!\nvisit us at $url</body>
-		</message>
-		<message>
-			<type>accept</type>
-			<subject>PoP/AS Visualizer Registration</subject>
-			<body>Hi $user,\nYour request for the PoP-AS visualization website was accepted.\nLogin to $url to start!</body>
-		</message>
-		<message>
-			<type>deny</type>
-			<subject>PoP/AS Visualizer Registration</subject>
-			<body>Hi $user,\nWe are sorry to inform you that your request for the PoP-AS visualization website was denied.</body>
-		</message>
-	</mail>
-	
-	<ge-api-keys>
-		<key>
-			<domain>b6.evergrow.iucc.ac.il</domain>
-			<string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxQFkLvFfjNFWLbkdo82BA8NZMHIXhSYipSn7aRLl3xJzqJ1dGxPCcXPCg</string>
-		</key>
-		<key>
-			<domain>localhost</domain>
-			<string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A</string>
-		</key>
-		<key>
-			<domain>10.0.0.8</domain>
-			<string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxT8m87T_heG5MPAsfTIBlWdaTx20xTeGeqv3LruUshUL4J6wufrjMVp7Q</string>
-		</key>
-		<key>
-			<domain>10.0.0.10</domain>
-			<string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxTK177e1Gh7BX1loiUPYBjodQ7UWxSIUu5oSnvILbkBqQVNC8wU7PkpqQ</string>
-		</key>
-		<key>
-			<domain>10.0.0.14</domain>
-			<string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxQMlAk7izWs7Gz4j6VEOV14rIZA2hS4RwoenUa42jySLh66pNFku5DaLQ</string>
-		</key>
-	</ge-api-keys>
-	
-	<!-- 
-		when adding new blades to this section,
+  <config-parameters>
+    <parameter>
+      <name>processQueriesTimeInterval</name>
+      <description>this will determine the 'cool off' period between invokations of the 'process queries' script.\n this script scans and refreshes the status of queries in the 'running' state untill they are completed\n</description>
+      <units>minutes</units>
+      <value>1</value>
+    </parameter>
+    <parameter>
+      <name>DBMaxConnctionAttempts</name>
+      <description>max number of connection attempts to be made when server replies with error code 2006/2013 (SQL server has gone away..)</description>
+      <units>db-connections</units>
+      <value>10</value>
+    </parameter>
+    <parameter>
+      <name>fetchXMLRecordsPagingBufferSize</name>
+      <description>max number of records that will be fetched from db on each cycle during the 'fetching xml' stage</description>
+      <units>db-records</units>
+      <value>1000</value>
+    </parameter>
+    <parameter>
+      <name>renderKMLMemoryBufferSize</name>
+      <description>max number of Bytes of the generated KML string, that will be held in memory on any given moment, during the 'render kml' stage.\n when this limit is reached, kml string is dumped to disk.</description>
+      <units>Bytes</units>
+      <value>4096</value>
+    </parameter>
+    <parameter>
+      <name>fetchXMLMemoryBufferSize</name>
+      <description>max number of Bytes of the generated XML string, that will be held in memory on any given moment, during the 'fetch xml' stage.\n when this limit is reached, xml string is dumped to disk.</description>
+      <units>Bytes</units>
+      <value>4096</value>
+    </parameter>
+    <parameter>
+      <name>fetchXMLChunkSize</name>
+      <description>xml files bigger than this value will be splitted into smaller pieces.</description>
+      <units>MB's</units>
+      <value>50</value>
+    </parameter>
+    <parameter>
+      <name>EdgeDetailsNumOfRecords</name>
+      <description>The number of records presented at the link table.</description>
+      <units>records</units>
+      <value>100</value>
+    </parameter>
+    <parameter>
+      <name>LargeKMLFileAlert</name>
+      <description>from this file size the user will be allerted when openning the visual frontend.</description>
+      <units>MB's</units>
+      <value>1</value>
+    </parameter>
+  </config-parameters>
+  
+  <mail>
+    <site-url>http://b6.evergrow.iucc.ac.il/PoPVisualizer</site-url>
+    <from>PoPVisualizer_DoNotReply@post.tau.ac.il</from>
+    <message>
+      <type>invitation</type>
+      <subject>PoP/AS Visualizer Invitation</subject>
+      <body>Hi $user,\nYou are invited to the PoP-AS visualization website!\nvisit us at $url</body>
+    </message>
+    <message>
+      <type>accept</type>
+      <subject>PoP/AS Visualizer Registration</subject>
+      <body>Hi $user,\nYour request for the PoP-AS visualization website was accepted.\nLogin to $url to start!</body>
+    </message>
+    <message>
+      <type>deny</type>
+      <subject>PoP/AS Visualizer Registration</subject>
+      <body>Hi $user,\nWe are sorry to inform you that your request for the PoP-AS visualization website was denied.</body>
+    </message>
+  </mail>
+  
+  <ge-api-keys>
+    <key>
+      <domain>b6.evergrow.iucc.ac.il</domain>
+      <string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxQFkLvFfjNFWLbkdo82BA8NZMHIXhSYipSn7aRLl3xJzqJ1dGxPCcXPCg</string>
+    </key>
+    <key>
+      <domain>localhost</domain>
+      <string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRpJH3_NoHEcRApDRZWpWCuTc7H3A</string>
+    </key>
+    <key>
+      <domain>10.0.0.8</domain>
+      <string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxT8m87T_heG5MPAsfTIBlWdaTx20xTeGeqv3LruUshUL4J6wufrjMVp7Q</string>
+    </key>
+    <key>
+      <domain>10.0.0.10</domain>
+      <string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxTK177e1Gh7BX1loiUPYBjodQ7UWxSIUu5oSnvILbkBqQVNC8wU7PkpqQ</string>
+    </key>
+    <key>
+      <domain>10.0.0.14</domain>
+      <string>ABQIAAAAMYziiEA_p76rk0jQj-KuSxQMlAk7izWs7Gz4j6VEOV14rIZA2hS4RwoenUa42jySLh66pNFku5DaLQ</string>
+    </key>
+  </ge-api-keys>
+  
+  <!-- 
+		when adding new blades to this section 'manually',
 		please don't forget to update weeks.xml from the admin page aswell!
 	-->
-	<blades>
-		<blade name="B4_local">
-			<host>b4.evergrow.iucc.ac.il</host>
-			<port>3306</port>
-			<user>codeLimited</user>
-			<pass/>
-			<db>DIMES_DISTANCES</db>
-			<write-db>DIMES_POPS_VISUAL</write-db>
-		</blade>
-		<blade name="B1_local">
-			<host>b1.evergrow.iucc.ac.il</host>
-			<port>3306</port>
-			<user>codeLimited</user>
-			<pass/>
-			<db>DIMES</db>
-			<write-db>DIMES_PLAYGROUND</write-db>			
-		</blade>
-		<blade name="B4" default="true">
-			<host>127.0.0.1</host>
-			<port>5554</port>
-			<user>codeLimited</user>
-			<pass/>
-			<db>DIMES_DISTANCES</db>
-			<write-db>DIMES_POPS_VISUAL</write-db>
-		</blade>
-		<blade name="B1">
-			<host>127.0.0.1</host>
-			<port>5551</port>
-			<user>codeLimited</user>
-			<pass/>
-			<db>DIMES</db>
-			<write-db>DIMES_PLAYGROUND</write-db>			
-		</blade>
-	</blades>
-	
-	<data-tables>
-		<ip-edges>
-			<schema>DIMES_DISTANCES</schema>
-			<prefix>IPEdgesMedianTbl</prefix>
-		</ip-edges>
-		<pop-locations>
-			<schema>DIMES_DISTANCES</schema>
-			<prefix>PoPLocationTbl</prefix>
-		</pop-locations>
-		<popip>
-			<schema>DIMES_DISTANCES</schema>
-			<prefix>PoPIPTbl</prefix>			
-		</popip>
-		<as-info>
-			<schema>DIMES</schema>
-			<prefix>ASInfoTbl</prefix>				
-		</as-info>
-	</data-tables>
-	
+  <blades>
+    <blade name="B4_local">
+      <host>b4.evergrow.iucc.ac.il</host>
+      <port>3306</port>
+      <user>codeLimited</user>
+      <pass/>
+      <db>DIMES_DISTANCES</db>
+      <write-db>DIMES_POPS_VISUAL</write-db>
+    </blade>
+    <blade name="B1_local">
+      <host>b1.evergrow.iucc.ac.il</host>
+      <port>3306</port>
+      <user>codeLimited</user>
+      <pass/>
+      <db>DIMES</db>
+      <write-db>DIMES_PLAYGROUND</write-db>
+    </blade>
+    <blade name="B4" default="true">
+      <host>127.0.0.1</host>
+      <port>5554</port>
+      <user>codeLimited</user>
+      <pass/>
+      <db>DIMES_DISTANCES</db>
+      <write-db>DIMES_POPS_VISUAL</write-db>
+    </blade>
+    <blade name="B1">
+      <host>127.0.0.1</host>
+      <port>5551</port>
+      <user>codeLimited</user>
+      <pass/>
+      <db>DIMES</db>
+      <write-db>DIMES_PLAYGROUND</write-db>
+    </blade>
+  </blades>
+  
+  <data-tables>
+    <ip-edges>
+      <schema>DIMES_DISTANCES</schema>
+      <prefix>IPEdgesMedianTbl</prefix>
+    </ip-edges>
+    <pop-locations>
+      <schema>DIMES_DISTANCES</schema>
+      <prefix>PoPLocationTbl</prefix>
+    </pop-locations>
+    <popip>
+      <schema>DIMES_DISTANCES</schema>
+      <prefix>PoPIPTbl</prefix>
+    </popip>
+    <as-info>
+      <schema>DIMES</schema>
+      <prefix>ASInfoTbl</prefix>
+    </as-info>
+  </data-tables>
+  
 </config>

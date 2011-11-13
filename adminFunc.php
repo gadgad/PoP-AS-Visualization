@@ -131,13 +131,18 @@
 	{
 		// setting connection parameters
 		$blade = $GLOBALS["Blade_Map"][$bladeParam];
-		$host = (string)$blade["host"];
-		$port = (int)$blade["port"];
-		$user = (string)$blade["user"];
-		$pass = is_array($blade["pass"])?"":(string)$blade["pass"];
+		$host = $blade["host"];
+		$port = intval($blade["port"]);
+		$user = $blade["user"];
+		$pass = (is_array($blade["pass"]))?"":(string)$blade["pass"];
+		$db = $blade["db"];
+		$default_db = $GLOBALS["DEFAULT_SCHEMA"];
+		
+		if($db != $default_db)
+			ret_res("currently, only blades which contains schema $default_db are supported.","ERROR");
 		
 		// connecting to the DB						
-		$mysqli = new DBConnection($host,$user,$pass,$schema,$port,5);
+		$mysqli = new DBConnection($host,$user,$pass,$db,$port,5);
 		if ($mysqli->connect_error) {
  		   ret_res('Connect Error (' . $mysqli->connect_errno . ') '. $mysqli->connect_error,"ERROR");
  		   die();
@@ -161,23 +166,22 @@
 			
 		// creating a new tag for the blade
 		$newBladeTag = $xml->addChild('blade');
-		$newBladeTag->addAttribute('name',$bladeParam.' test');		
+		$newBladeTag->addAttribute('name',$bladeParam);		
 					 		
-		$weeks[] = array();
+		$weeks = array();
 		//unset($weeks);
 		$maxYear = date('Y');	
 
 		//finding all the weeks that has all three tables
 		for($year=2008;$year<=$maxYear;$year++){ 	
 			for($week=1;$week<53;$week++){
-					
-				$table = $DataTables["ip-edges"]["prefix"];        
+				$table = $GLOBALS["DataTables"]["ip-edges"]["prefix"];        
 				$edges = getTblFromDB($mysqli,$table,$year,$week);
 				if ($edges!=""){					
-					$table = $DataTables["pop-locations"]["prefix"];
+					$table = $GLOBALS["DataTables"]["pop-locations"]["prefix"];
 					$pops = getTblFromDB($mysqli,$table,$year,$week);
 					if ($pops!=""){
-						$table = $DataTables["popip"]["prefix"];
+						$table = $GLOBALS["DataTables"]["popip"]["prefix"];
 						$popsIP = getTblFromDB($mysqli,$table,$year,$week);
 						if ($popsIP!=""){							
 							$weeks[] = $week;
@@ -187,7 +191,7 @@
 			}
 			
 			//for a specific year - writing the weeks to file
-			if ($weeks!=null){// not empty , !weeks
+			if (!empty($weeks)){// not empty , !weeks
 				$newyear = $newBladeTag->addChild('date');
 				$newyear->addAttribute('year',$year);
 				foreach ($weeks as $w){
@@ -197,7 +201,8 @@
 			unset($weeks);
 		}
 		// saving the file, closing connection to DB.
-		$xml->asXML($nameXML);
+		//$xml->asXML($nameXML);
+		save_xml_file($xml->asXML(),$nameXML);
 		$mysqli->close();
 		ret_res('done',"GOOD");
 	}
@@ -331,7 +336,7 @@
 		if(isset($pass) && $pass!=""){
 			$linkID = mysql_connect($hostNport, $bladeUser, $pass);
 		} else {
-			$linkID = mysql_connect($hostNport, $user);
+			$linkID = mysql_connect($hostNport, $bladeUser);
 		} 
 		if(!isset($linkID) || $linkID==false){
 			ret_res("Could not connect to blade. verify config parameters (host:$host port:$port user:$bladeUser pass:$pass)", "ERROR");
@@ -358,7 +363,8 @@
 		}else ret_res('cant add blade to file',"ERROR");
 		
 		$GLOBALS["Blade_Map"][$blade] = array("host"=>$host,"port"=>$port,"user"=>$bladeUser,"pass"=>$pass,"db"=>$db,"write-db"=>$writedb);
-		updateWeeks($blade);
+		if($db == $GLOBALS["DEFAULT_SCHEMA"])
+			updateWeeks($blade);
 	}
 	
 	// removing a blade from config/config.xml
